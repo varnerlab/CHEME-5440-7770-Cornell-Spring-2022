@@ -83,11 +83,12 @@ The first set of terms on the right-hand side denotes the rate of physical or _l
 * A stoichiometric coefficient $\sigma_{ij}$  = 0 implies that metabolite $i$ is __not connected__ to reaction $j$
 * A stoichiometric coefficient $\sigma_{ij}$ < 0 implies that metabolite $i$ is __consumed__ by reaction $j$
 
-##### Single reaction constant volume case
+##### Example: Three reaction pathway (constant volume)
 
-We can start from the general model shown above, and throw out terms to describe the action of a single reaction catalyzed by [phosphofructokinase (PFK)](https://www.genome.jp/entry/2.7.1.11). Suppose we consider a batch _in-vitro_ reaction operating in a reaction mixture with V = 15$\mu$L (constant). In this case, we have $\mathcal{R}$ = 1, $\mathcal{M}$ = 4 and no physical transport terms. The balance equations become:
+We can start from the general model shown above, and throw out terms to describe the action of a three reaction pathway reaction catalyzed by [phosphofructokinase (PFK)](https://www.genome.jp/entry/2.7.1.11), [fructose-bisphosphate aldolase (FBA)](https://www.kegg.jp/entry/4.1.2.13) and [triose-phosphate isomerase (TPI)](https://www.kegg.jp/entry/5.3.1.1). Suppose we consider a batch _in-vitro_ system operating in a reaction mixture with V = 15$\mu$L (constant). In this case, we have no physical transport terms, $\mathcal{R}$ = 3 and $\mathcal{M}$ = 6 (f6p, f16bp, dhap, ga3p, atp, adp). 
+The balance equations become:
 
-$$\frac{dC_{i}}{dt} = \sigma_{i1}\hat{r}_{1}\qquad{i=1,\dots,4}$$
+$$\frac{dC_{i}}{dt} = \left(\sum_{j=1}^{\mathcal{R} = 3}\sigma_{ij}\hat{r}_{j}\right)\qquad{i=1,\dots,\mathcal{M} = 6}$$
 
 """
 

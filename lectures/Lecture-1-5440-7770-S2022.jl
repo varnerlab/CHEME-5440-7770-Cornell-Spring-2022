@@ -49,7 +49,13 @@ PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"KEGG-map01100.png"))
 
 # ╔═╡ 2e67cdc9-9cd4-4a20-9ac7-1ecfd4b46967
 md"""
-### Example products and processes 
+### Examples of biological products and processes
+
+##### Monoclonal Antibodies (mAbs) and therapeutic proteins 
+Monoclonal antibodies (mAbs) are important molecules for human health e.g., cancer treatments such as [Herceptin](https://www.herceptin.com) or everyday laboratory uses such as affinity reagents used [Western blotting](https://www.nature.com/scitable/definition/western-blot-288/). In addition to mAbs, there are a huge variety of therapeutic proteins e.g., clotting factors or recombinant human insulin [Humulin R](https://www.accessdata.fda.gov/drugsatfda_docs/label/2015/018780s150lbl.pdf)
+
+* [Walsh G. Biopharmaceutical benchmarks 2018. Nat Biotechnol. 2018 Dec 6;36(12):1136-1145. doi: 10.1038/nbt.4305. PMID: 30520869](https://pubmed.ncbi.nlm.nih.gov/30520869/)
+
 """
 
 # ╔═╡ 04095813-6cfc-4983-9109-3a83df4b9b85
@@ -70,7 +76,7 @@ PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS, "KEGG-Ecoli-MG1655-Glycolysis.gif"
 # ╔═╡ f1fb1e93-c186-4fc2-8bdb-2994ebefde8f
 md"""
 
-##### General case
+##### Dynamic model general case
 
 Let's consider the general case in which we have $\mathcal{R}$ chemical reactions and $\mathcal{M}$ metabolites (chemical species) operating in some well-mixed physical (or logical) control volume $\Omega$. In the general continuum well-mixed limit, we could write species mol balances around each chemical species $i$ that take the form:
 
@@ -83,7 +89,7 @@ The first set of terms on the right-hand side denotes the rate of physical or _l
 * A stoichiometric coefficient $\sigma_{ij}$  = 0 implies that metabolite $i$ is __not connected__ to reaction $j$
 * A stoichiometric coefficient $\sigma_{ij}$ < 0 implies that metabolite $i$ is __consumed__ by reaction $j$
 
-##### Example: Three reaction pathway (constant volume)
+##### Example: Dynamic model three reaction pathway (constant volume)
 
 We can start from the general model shown above, and throw out terms to describe the action of a three reaction pathway reaction catalyzed by [phosphofructokinase (PFK)](https://www.genome.jp/entry/2.7.1.11), [fructose-bisphosphate aldolase (FBA)](https://www.kegg.jp/entry/4.1.2.13) and [triose-phosphate isomerase (TPI)](https://www.kegg.jp/entry/5.3.1.1). Suppose we consider a batch _in-vitro_ system operating in a reaction mixture with V = 15$\mu$L (constant). In this case, we have no physical transport terms, $\mathcal{R}$ = 3 and $\mathcal{M}$ = 6 (f6p, f16bp, dhap, ga3p, atp, adp). 
 The balance equations become:
@@ -328,14 +334,14 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 """
 
 # ╔═╡ Cell order:
-# ╟─45e60528-7b8d-11ec-3aa3-65625ebbbfb2
+# ╠═45e60528-7b8d-11ec-3aa3-65625ebbbfb2
 # ╟─96d697e1-d190-4d9b-aeb8-53466cc1cce2
 # ╟─87c121a0-91ed-436f-a981-a8a5198c3226
 # ╟─2e67cdc9-9cd4-4a20-9ac7-1ecfd4b46967
 # ╟─04095813-6cfc-4983-9109-3a83df4b9b85
 # ╟─c8915f0f-b770-4bdb-9a58-d410e0036660
 # ╟─67c3d6e8-8238-48de-a088-80ab1ccb9bb7
-# ╟─f1fb1e93-c186-4fc2-8bdb-2994ebefde8f
+# ╠═f1fb1e93-c186-4fc2-8bdb-2994ebefde8f
 # ╠═a3101ae7-2699-43e7-aa28-332b0447bbc5
 # ╟─64329198-85ce-47ea-a8d9-e664481a9658
 # ╟─00000000-0000-0000-0000-000000000001

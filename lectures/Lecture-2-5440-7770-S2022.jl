@@ -6,7 +6,7 @@ using InteractiveUtils
 
 # ╔═╡ 6627255a-b788-4aaa-bf8e-c98a39553dea
 md"""
-### Our First Metabolic Model and the Constraint-Based Perspective
+### Introduction to the Constraint-Based Perspective
 """
 
 # ╔═╡ a5da8cc5-7ec8-4072-bf36-9e54e77c2a3f

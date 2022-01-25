@@ -22,7 +22,7 @@ end
 
 # ╔═╡ 45e60528-7b8d-11ec-3aa3-65625ebbbfb2
 md"""
-### Introduction to Metabolism and Metabolic Engineering
+### Introduction to Metabolic Engineering
 
 Metabolic engineering is the practice of optimizing genetic and regulatory processes within cells to increase the cell's production of a desired small molecule or protein product of interest. 
 
@@ -56,9 +56,9 @@ PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"KEGG-map01100.png"))
 
 # ╔═╡ 2e67cdc9-9cd4-4a20-9ac7-1ecfd4b46967
 md"""
-## Examples of biological products and processes
+### Example biological products
 
-Biotechnology can be divided into (roughly) two categories, industrial biotechnology, and medical biotechnology. Metabolic engineering plays a key role in both sectors. Industrial biotechnology is typically consumer-focused e.g., components of consumer products such as detergents, food products, and small-molecule chemical feedstocks. On the other hand, medical biotechnology is focused on developing molecules for human (and animal) health applications e.g., antibodies, therapeutic proteins, vaccines, etc. 
+Biotechnology can be divided into (roughly) two categories, industrial biotechnology, and medical biotechnology. Metabolic engineering plays a key role in both sectors. Industrial biotechnology is typically consumer-focused e.g., components of consumer products such as detergents, food products, and small-molecule chemical feedstocks. On the other hand, medical biotechnology develops molecules for human (and animal) health applications, e.g., antibodies, therapeutic proteins, vaccines, etc. 
 
 """
 
@@ -102,7 +102,8 @@ md"""
 ### What makes biology so cool? Choices. Many possible choices.
 I became interested in biology, metabolism, models, etc because, unlike traditional chemical systems, biological systems are controlled. A cell can sense the world around them, take stock of their internal state and make choices, in essence, they can reprogram themselves to meet a changing world. There are fast choices that operate on a milli- or μ-second time scale (regulation of enzyme activity, called [allosteric regulation](https://en.wikipedia.org/wiki/Allosteric_regulation)) and slow choices (gene expression) which operate on a time scale of tens of minutes. 
 
-The origin story of omics:
+##### The origin story of omics. Yeast reprogramming
+The promise of `omics` technologies was that we could measure everything, all at the same time, inside a population of cells. Promise and reality turned out to be a little different. The next wave of omics technology (occurring now) is that we can measure everything inside a single cell. But we have the same basic problem as before: what can we do with data that is noisy, and often has no direct physical interpretation e.g., has no units or is scaled, etc. From a traditional modeling perspective: not much. But still: it's cool.
 
 * [DeRisi JL, Iyer VR, Brown PO. Exploring the metabolic and genetic control of gene expression on a genomic scale. Science. 1997 Oct 24;278(5338):680-6. doi: 10.1126/science.278.5338.680. PMID: 9381177.](https://pubmed.ncbi.nlm.nih.gov/9381177/)
 """
@@ -115,11 +116,74 @@ Yeast cells make a choice, by how and why? Fig. 3 Reproduced from DeRisi et al, 
 # ╔═╡ 9994bb96-e76d-416a-913b-8f53cbb4fbcc
 PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS, "Fig-3-DeRisi-Brown-Science-278-1997.png"))
 
+# ╔═╡ 731ff161-434b-4ae1-89a5-37d6d6f165dc
+md"""
+### Conclusions
+
+In this lecture we:
+
+* Introduced Metabolic Engineering: using models and engineering principles to design the production of metabolic products
+* Disucssed two classes of biotechology: industrial and medical biotechnology. Industrial biotechnology is primarly focused on consumer products, while medical biotechnology focusses on products humart to human health.
+* Discussed modes of biological regulation (one of the reasons this problem is hard). regulation can occur on a fast time scale (regulation of enzyme activity) and on a slow scale (regulation of gene expression).
+"""
+
+# ╔═╡ 76eb92dc-600f-49c2-8ca3-54422cff4f00
+md"""
+### Next time
+
+* We'll build our first mathematical model of coupled enzyme-caytalyzed reactions and take stocxk of what we know, and what we don't know. 
+* We'll introduce a life changing way of thinking: Constraints based analysis
+"""
+
+# ╔═╡ 42299ff5-93ac-4447-9b93-bf9222ef821b
+TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true)
+
+# ╔═╡ 3f5396b0-4b17-4a20-9f88-4e7dadbcbe82
+html"""
+<script>
+	// initialize -
+	var section = 0;
+	var subsection = 0;
+	var headers = document.querySelectorAll('h3, h5');
+	
+	// main loop -
+	for (var i=0; i < headers.length; i++) {
+	    
+		var header = headers[i];
+	    var text = header.innerText;
+	    var original = header.getAttribute("text-original");
+	    if (original === null) {
+	        
+			// Save original header text
+	        header.setAttribute("text-original", text);
+	    } else {
+	        
+			// Replace with original text before adding section number
+	        text = header.getAttribute("text-original");
+	    }
+	
+	    var numbering = "";
+	    switch (header.tagName) {
+	        case 'H3':
+	            section += 1;
+	            numbering = section + ".";
+	            subsection = 0;
+	            break;
+	        case 'H5':
+	            subsection += 1;
+	            numbering = section + "." + subsection;
+	            break;
+	    }
+		// update the header text 
+		header.innerText = numbering + " " + text;
+	};
+</script>"""
+
 # ╔═╡ 64329198-85ce-47ea-a8d9-e664481a9658
 html"""
 <style>
 main {
-    max-width: 1200px;
+    max-width: 900px;
     width: 75%;
     margin: auto;
     font-family: "Roboto, monospace";
@@ -363,7 +427,11 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─cf05dc5a-b772-45e6-9f16-64448ab0f42b
 # ╟─092b0b15-8693-4280-a1b3-e23604db94f7
 # ╟─9994bb96-e76d-416a-913b-8f53cbb4fbcc
+# ╟─731ff161-434b-4ae1-89a5-37d6d6f165dc
+# ╠═76eb92dc-600f-49c2-8ca3-54422cff4f00
+# ╠═42299ff5-93ac-4447-9b93-bf9222ef821b
 # ╠═a3101ae7-2699-43e7-aa28-332b0447bbc5
-# ╟─64329198-85ce-47ea-a8d9-e664481a9658
+# ╠═3f5396b0-4b17-4a20-9f88-4e7dadbcbe82
+# ╠═64329198-85ce-47ea-a8d9-e664481a9658
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

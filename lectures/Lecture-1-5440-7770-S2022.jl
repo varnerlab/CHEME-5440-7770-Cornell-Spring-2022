@@ -49,54 +49,64 @@ PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"KEGG-map01100.png"))
 
 # ╔═╡ 2e67cdc9-9cd4-4a20-9ac7-1ecfd4b46967
 md"""
-### Examples of biological products and processes
+## Examples of biological products and processes
+
+Biotechnology can be divided into (roughly) two categories, industrial biotechnology, and medical biotechnology. Metabolic engineering plays a key role in both sectors. Industrial biotechnology is typically consumer-focused e.g., components of consumer products such as detergents, food products, and small-molecule chemical feedstocks. On the other hand, medical biotechnology is focused on developing molecules for human (and animal) health applications e.g., antibodies, therapeutic proteins, vaccines, etc. 
+
+"""
+
+# ╔═╡ 21f2c20b-0386-4532-a81d-18b05df6c3cf
+PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"Figs-BiotechMarket-2020.png"))
+
+# ╔═╡ 226b8bdd-13aa-4ab6-b4cb-73dd9cba5cb2
+md"""
 
 ##### Monoclonal Antibodies (mAbs) and therapeutic proteins 
-Monoclonal antibodies (mAbs) are important molecules for human health e.g., cancer treatments such as [Herceptin](https://www.herceptin.com) or everyday laboratory uses such as affinity reagents used [Western blotting](https://www.nature.com/scitable/definition/western-blot-288/). In addition to mAbs, there are a huge variety of therapeutic proteins e.g., clotting factors or recombinant human insulin [Humulin R](https://www.accessdata.fda.gov/drugsatfda_docs/label/2015/018780s150lbl.pdf)
+[Monoclonal antibodies (mAbs)](https://en.wikipedia.org/wiki/Monoclonal_antibody) are important molecules for human health e.g., cancer treatments such as [Herceptin](https://www.herceptin.com) or everyday laboratory uses such as affinity reagents used [Western blotting](https://www.nature.com/scitable/definition/western-blot-288/). In addition to mAbs, there are a huge variety of therapeutic proteins e.g., clotting factors or recombinant human insulin [Humulin R](https://www.accessdata.fda.gov/drugsatfda_docs/label/2015/018780s150lbl.pdf) products in the `biologics` space.
 
 * [Walsh G. Biopharmaceutical benchmarks 2018. Nat Biotechnol. 2018 Dec 6;36(12):1136-1145. doi: 10.1038/nbt.4305. PMID: 30520869](https://pubmed.ncbi.nlm.nih.gov/30520869/)
-
 """
 
-# ╔═╡ 04095813-6cfc-4983-9109-3a83df4b9b85
+# ╔═╡ 46a13c8a-1acf-4e22-9f29-44ac8519ce26
 md"""
-### Material balances in the continumn well-mixed limit
+##### Origin story: The first biologic Humulin-R
 
-Let's consider the action of the enzyme [phosphofructokinase (PFK)](https://www.genome.jp/entry/2.7.1.11) shown in Fig XX. This "simple" reaction, ATP + D-fructose 6-phosphate = ADP + D-fructose 1,6-bisphosphate, contains all the features of the much larger problem of optimizing the metabolism of an entire cell. Thus, let's use this example to motivate what we'll study in the first half of the course. We'll begin by writing down some material balances.
+Herbert Boyer et al. developed a portable expression system (circular DNA construct called a plasmid) to express the human insulin protein in _Escherichia coli_ (Humulin R). He formed a company called [Genentech](https://www.gene.com) and licensed the technology to [Eli Lilly & Company](https://www.lilly.com) in 1982. The rest is biotech history. 
 """
 
-# ╔═╡ c8915f0f-b770-4bdb-9a58-d410e0036660
-md"""
-__Fig 2.__ The overall metabolic map from the KEGG database. Each dot (_node_) is a metabolite, each line (_edge_) is a metabolic reaction. 
-"""
+# ╔═╡ 0a830a04-cfdd-4086-9f4d-8af6deed7e8f
+PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"Figs-HumulinR.png"))
 
-# ╔═╡ 67c3d6e8-8238-48de-a088-80ab1ccb9bb7
-PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS, "KEGG-Ecoli-MG1655-Glycolysis.gif"))
-
-# ╔═╡ f1fb1e93-c186-4fc2-8bdb-2994ebefde8f
+# ╔═╡ 419db086-ce0c-4e47-9f0e-63dd1a5150d3
 md"""
 
-##### Dynamic model general case
+__Insulin references__:
+* [Cohen SN, Chang AC, Boyer HW, Helling RB. Construction of biologically functional bacterial plasmids in vitro. Proc Natl Acad Sci U S A. 1973 Nov;70(11):3240-4. doi: 10.1073/pnas.70.11.3240. PMID: 4594039; PMCID: PMC427208.](https://pubmed.ncbi.nlm.nih.gov/4594039/)
+* [Riggs AD. Making, Cloning, and the Expression of Human Insulin Genes in Bacteria: The Path to Humulin. Endocr Rev. 2021;42(3):374-380. doi:10.1210/endrev/bnaa029](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8152450/)
+* [Hirsch IB, Juneja R, Beals JM, Antalis CJ, Wright EE. The Evolution of Insulin and How it Informs Therapy and Treatment Choices. Endocr Rev. 2020;41(5):733-755. doi:10.1210/endrev/bnaa015](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7366348/)
 
-Let's consider the general case in which we have $\mathcal{R}$ chemical reactions and $\mathcal{M}$ metabolites (chemical species) operating in some well-mixed physical (or logical) control volume $\Omega$. In the general continuum well-mixed limit, we could write species mol balances around each chemical species $i$ that take the form:
-
-$$\frac{d}{dt}\left(C_{i}\beta\right) = \sum_{s=1}^{\mathcal{S}}d_{is}\dot{n}_{is} + \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)\beta + \qquad{i=1,2,\dots,\mathcal{M}}$$
-
-where $C_{i}$ denotes the concentration (or number density) of species $i$ calculated with respect to a _system basis_ $\beta$. 
-The first set of terms on the right-hand side denotes the rate of physical or _logical_ transport (units: mol or number per unit time) of chemical species $i$ into or from control volume $\Omega$, where $d_{is}$ denotes a direction parameter. The second set of terms denote the chemical reaction terms which describe the rate of production (consumption) of species $i$ by enzyme-catalyzed chemical reaction(s) $j$. The  net rate per unit $\beta$ is denoted by $\hat{r}_{j}$, while $\sigma_{ij}$ denotes the stoichiometric coefficient relating species $i$ with reaction $j$:
-
-* A stoichiometric coefficient $\sigma_{ij}$ > 0 implies that metabolite $i$ is __produced__ by reaction $j$
-* A stoichiometric coefficient $\sigma_{ij}$  = 0 implies that metabolite $i$ is __not connected__ to reaction $j$
-* A stoichiometric coefficient $\sigma_{ij}$ < 0 implies that metabolite $i$ is __consumed__ by reaction $j$
-
-##### Example: Dynamic model three reaction pathway (constant volume)
-
-We can start from the general model shown above, and throw out terms to describe the action of a three reaction pathway reaction catalyzed by [phosphofructokinase (PFK)](https://www.genome.jp/entry/2.7.1.11), [fructose-bisphosphate aldolase (FBA)](https://www.kegg.jp/entry/4.1.2.13) and [triose-phosphate isomerase (TPI)](https://www.kegg.jp/entry/5.3.1.1). Suppose we consider a batch _in-vitro_ system operating in a reaction mixture with V = 15$\mu$L (constant). In this case, we have no physical transport terms, $\mathcal{R}$ = 3 and $\mathcal{M}$ = 6 (f6p, f16bp, dhap, ga3p, atp, adp). 
-The balance equations become:
-
-$$\frac{dC_{i}}{dt} = \left(\sum_{j=1}^{\mathcal{R} = 3}\sigma_{ij}\hat{r}_{j}\right)\qquad{i=1,\dots,\mathcal{M} = 6}$$
+__Insulin Litigation__ (since is always _just_ science):
+* [Fox JL. Insulin patent dispute revisits old biotechnology battleground. Nat Biotechnol. 1997 Apr;15(4):307. doi: 10.1038/nbt0497-307. PMID: 9094114.](https://pubmed.ncbi.nlm.nih.gov/9094114/)
 
 """
+
+# ╔═╡ cf05dc5a-b772-45e6-9f16-64448ab0f42b
+md"""
+### What makes biology so cool? Choices. Many possible choices.
+I became interested in biology, metabolism, models, etc because, unlike traditional chemical systems, biological systems are controlled. A cell can sense the world around them, take stock of their internal state and make choices, in essence, they can reprogram themselves to meet a changing world. There are fast choices that operate on a milli- or μ-second time scale (regulation of enzyme activity, called [allosteric regulation](https://en.wikipedia.org/wiki/Allosteric_regulation)) and slow choices (gene expression) which operate on a time scale of tens of minutes. 
+
+The origin story of omics:
+
+* [DeRisi JL, Iyer VR, Brown PO. Exploring the metabolic and genetic control of gene expression on a genomic scale. Science. 1997 Oct 24;278(5338):680-6. doi: 10.1126/science.278.5338.680. PMID: 9381177.](https://pubmed.ncbi.nlm.nih.gov/9381177/)
+"""
+
+# ╔═╡ 092b0b15-8693-4280-a1b3-e23604db94f7
+md"""
+Yeast cells make a choice, by how and why? Fig. 3 Reproduced from DeRisi et al, Science 278, 1997.
+"""
+
+# ╔═╡ 9994bb96-e76d-416a-913b-8f53cbb4fbcc
+PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS, "Fig-3-DeRisi-Brown-Science-278-1997.png"))
 
 # ╔═╡ 64329198-85ce-47ea-a8d9-e664481a9658
 html"""
@@ -334,14 +344,18 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 """
 
 # ╔═╡ Cell order:
-# ╠═45e60528-7b8d-11ec-3aa3-65625ebbbfb2
+# ╟─45e60528-7b8d-11ec-3aa3-65625ebbbfb2
 # ╟─96d697e1-d190-4d9b-aeb8-53466cc1cce2
-# ╟─87c121a0-91ed-436f-a981-a8a5198c3226
+# ╠═87c121a0-91ed-436f-a981-a8a5198c3226
 # ╟─2e67cdc9-9cd4-4a20-9ac7-1ecfd4b46967
-# ╟─04095813-6cfc-4983-9109-3a83df4b9b85
-# ╟─c8915f0f-b770-4bdb-9a58-d410e0036660
-# ╟─67c3d6e8-8238-48de-a088-80ab1ccb9bb7
-# ╠═f1fb1e93-c186-4fc2-8bdb-2994ebefde8f
+# ╟─21f2c20b-0386-4532-a81d-18b05df6c3cf
+# ╟─226b8bdd-13aa-4ab6-b4cb-73dd9cba5cb2
+# ╟─46a13c8a-1acf-4e22-9f29-44ac8519ce26
+# ╟─0a830a04-cfdd-4086-9f4d-8af6deed7e8f
+# ╟─419db086-ce0c-4e47-9f0e-63dd1a5150d3
+# ╟─cf05dc5a-b772-45e6-9f16-64448ab0f42b
+# ╟─092b0b15-8693-4280-a1b3-e23604db94f7
+# ╟─9994bb96-e76d-416a-913b-8f53cbb4fbcc
 # ╠═a3101ae7-2699-43e7-aa28-332b0447bbc5
 # ╟─64329198-85ce-47ea-a8d9-e664481a9658
 # ╟─00000000-0000-0000-0000-000000000001

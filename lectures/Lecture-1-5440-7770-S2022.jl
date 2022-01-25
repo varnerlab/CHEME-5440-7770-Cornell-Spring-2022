@@ -26,10 +26,10 @@ md"""
 
 Metabolic engineering is the practice of optimizing genetic and regulatory processes within cells to increase the cell's production of a desired small molecule or protein product of interest. 
 
-Metabolic engineers manipulate the biochemical networks used by cells to convert raw materials into molecules necessary for the cell's survival. Metabolic engineering specifically seeks to:
+Metabolic engineers manipulate the biochemical networks cells use to convert raw materials into molecules necessary for the cell's survival. Metabolic engineering specifically seeks to:
 
-1. Mathematically model biochemical networks, calculate the yield (product divided substrate) of useful products and identify parts of the network that constrain the production of the products of interest. 
-1. Use genetic engineering techniques to modify the biochemical network in order to relieve constraints limiting production. The modified network can then be modeled to calculate the new product yield, and to identify new constraints (back to 1).
+1. Mathematically model biochemical networks, calculate the yield (product divided by substrate) of valuable products, and identify parts of the network that constrain the production of these products of interest. 
+1. Use genetic engineering techniques to modify the biochemical network to relieve constraints limiting production. Metabolic engineers can then model the modified network to calculate the new product yield and identify new constraints (back to 1).
 
 Resources for metabolic engineering:
 
@@ -41,9 +41,9 @@ Resources for biochemical network information
 
 * [Kanehisa M, Goto S. KEGG: kyoto encyclopedia of genes and genomes. Nucleic Acids Res. 2000 Jan 1;28(1):27-30. doi: 10.1093/nar/28.1.27. PMID: 10592173; PMCID: PMC102409.](https://www.genome.jp/kegg/)
 
-* [Karp, Peter D et al. “The BioCyc collection of microbial genomes and metabolic pathways.” Briefings in bioinformatics vol. 20,4 (2019): 1085-1093. doi:10.1093/bib/bbx085](https://pubmed.ncbi.nlm.nih.gov/29447345/)
+* [Karp, Peter D et al. "The BioCyc collection of microbial genomes and metabolic pathways." Briefings in bioinformatics vol. 20,4 (2019): 1085-1093. doi:10.1093/bib/bbx085](https://pubmed.ncbi.nlm.nih.gov/29447345/)
 
-* [Gama-Castro, Socorro et al. “RegulonDB version 9.0: high-level integration of gene regulation, coexpression, motif clustering and beyond.” Nucleic acids research vol. 44,D1 (2016): D133-43. doi:10.1093/nar/gkv1156](https://pubmed.ncbi.nlm.nih.gov/26527724/)
+* [Gama-Castro, Socorro et al. "RegulonDB version 9.0: high-level integration of gene regulation, coexpression, motif clustering and beyond." Nucleic acids research vol. 44,D1 (2016): D133-43. doi:10.1093/nar/gkv1156](https://pubmed.ncbi.nlm.nih.gov/26527724/)
 """
 
 # ╔═╡ 96d697e1-d190-4d9b-aeb8-53466cc1cce2
@@ -58,7 +58,7 @@ PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"KEGG-map01100.png"))
 md"""
 ### Example biological products
 
-Biotechnology can be divided into (roughly) two categories, industrial biotechnology, and medical biotechnology. Metabolic engineering plays a key role in both sectors. Industrial biotechnology is typically consumer-focused e.g., components of consumer products such as detergents, food products, and small-molecule chemical feedstocks. On the other hand, medical biotechnology develops molecules for human (and animal) health applications, e.g., antibodies, therapeutic proteins, vaccines, etc. 
+There are (roughly) two categories of Biotechnology, industrial biotechnology, and medical biotechnology. Metabolic engineering plays a vital role in both sectors. Industrial biotechnology is typically consumer-focused, e.g., components of consumer products such as detergents, food products, and small-molecule chemical feedstocks. On the other hand, medical biotechnology develops molecules for human (and animal) health applications, e.g., antibodies, therapeutic proteins, vaccines, etc. 
 
 """
 
@@ -69,7 +69,7 @@ PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"Figs-BiotechMarket-2020.png"))
 md"""
 
 ##### Monoclonal Antibodies (mAbs) and therapeutic proteins 
-[Monoclonal antibodies (mAbs)](https://en.wikipedia.org/wiki/Monoclonal_antibody) are important molecules for human health e.g., cancer treatments such as [Herceptin](https://www.herceptin.com) or everyday laboratory uses such as affinity reagents used [Western blotting](https://www.nature.com/scitable/definition/western-blot-288/). In addition to mAbs, there are a huge variety of therapeutic proteins e.g., clotting factors or recombinant human insulin [Humulin R](https://www.accessdata.fda.gov/drugsatfda_docs/label/2015/018780s150lbl.pdf) products in the `biologics` space.
+[Monoclonal antibodies (mAbs)](https://en.wikipedia.org/wiki/Monoclonal_antibody) are essential molecules for human health, e.g., cancer treatments such as [Herceptin](https://www.herceptin.com) or everyday laboratory uses such as affinity reagents used [Western blotting](https://www.nature.com/scitable/definition/western-blot-288/). In addition to mAbs, there are many therapeutic proteins, e.g., clotting factors or recombinant human insulin [Humulin R](https://www.accessdata.fda.gov/drugsatfda_docs/label/2015/018780s150lbl.pdf) products in the `biologics` space.
 
 * [Walsh G. Biopharmaceutical benchmarks 2018. Nat Biotechnol. 2018 Dec 6;36(12):1136-1145. doi: 10.1038/nbt.4305. PMID: 30520869](https://pubmed.ncbi.nlm.nih.gov/30520869/)
 """
@@ -123,16 +123,16 @@ md"""
 In this lecture we:
 
 * Introduced Metabolic Engineering: using models and engineering principles to design the production of metabolic products
-* Disucssed two classes of biotechology: industrial and medical biotechnology. Industrial biotechnology is primarly focused on consumer products, while medical biotechnology focusses on products humart to human health.
-* Discussed modes of biological regulation (one of the reasons this problem is hard). regulation can occur on a fast time scale (regulation of enzyme activity) and on a slow scale (regulation of gene expression).
+* Discussed two classes of biotechnology: industrial and medical biotechnology. Industrial biotechnology is primarily focused on consumer products, while medical biotechnology concentrates on human health products.
+* Discussed modes of biological regulation (one of the reasons this problem is complicated). Regulation can occur on a fast scale (regulation of enzyme activity) and a slow scale (regulation of gene expression).
 """
 
 # ╔═╡ 76eb92dc-600f-49c2-8ca3-54422cff4f00
 md"""
 ### Next time
 
-* We'll build our first mathematical model of coupled enzyme-caytalyzed reactions and take stocxk of what we know, and what we don't know. 
-* We'll introduce a life changing way of thinking: Constraints based analysis
+* We'll build our first mathematical model of coupled enzyme-catalyzed reactions and take stock of what we know and what we don't know. 
+* We'll introduce a life-changing way of thinking: Constraints based analysis
 """
 
 # ╔═╡ 42299ff5-93ac-4447-9b93-bf9222ef821b
@@ -424,14 +424,14 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─46a13c8a-1acf-4e22-9f29-44ac8519ce26
 # ╟─0a830a04-cfdd-4086-9f4d-8af6deed7e8f
 # ╟─419db086-ce0c-4e47-9f0e-63dd1a5150d3
-# ╠═cf05dc5a-b772-45e6-9f16-64448ab0f42b
+# ╟─cf05dc5a-b772-45e6-9f16-64448ab0f42b
 # ╟─092b0b15-8693-4280-a1b3-e23604db94f7
 # ╟─9994bb96-e76d-416a-913b-8f53cbb4fbcc
 # ╟─731ff161-434b-4ae1-89a5-37d6d6f165dc
-# ╠═76eb92dc-600f-49c2-8ca3-54422cff4f00
+# ╟─76eb92dc-600f-49c2-8ca3-54422cff4f00
 # ╠═42299ff5-93ac-4447-9b93-bf9222ef821b
 # ╠═a3101ae7-2699-43e7-aa28-332b0447bbc5
-# ╠═3f5396b0-4b17-4a20-9f88-4e7dadbcbe82
-# ╠═64329198-85ce-47ea-a8d9-e664481a9658
+# ╟─3f5396b0-4b17-4a20-9f88-4e7dadbcbe82
+# ╟─64329198-85ce-47ea-a8d9-e664481a9658
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

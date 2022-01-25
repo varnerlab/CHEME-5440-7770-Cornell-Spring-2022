@@ -24,14 +24,21 @@ end
 md"""
 ### Introduction to Metabolism and Metabolic Engineering
 
-Metabolic engineering is the practice of optimizing genetic and regulatory processes within cells to increase the cell's production of a desired molecule or protein of interest. 
+Metabolic engineering is the practice of optimizing genetic and regulatory processes within cells to increase the cell's production of a desired small molecule or protein product of interest. 
 
 Metabolic engineers manipulate the biochemical networks used by cells to convert raw materials into molecules necessary for the cell's survival. Metabolic engineering specifically seeks to:
 
-1. Mathematically model biochemical networks, calculate the yield (product divided substrate) of useful products, and identify parts of the network that constrain the production of the products of interest. 
+1. Mathematically model biochemical networks, calculate the yield (product divided substrate) of useful products and identify parts of the network that constrain the production of the products of interest. 
 1. Use genetic engineering techniques to modify the biochemical network in order to relieve constraints limiting production. The modified network can then be modeled to calculate the new product yield, and to identify new constraints (back to 1).
 
-Resources for biochemical network information:
+Resources for metabolic engineering:
+
+* [Bailey JE. Toward a science of metabolic engineering. Science. 1991 Jun 21;252(5013):1668-75. doi: 10.1126/science.2047876. PMID: 2047876.](https://pubmed.ncbi.nlm.nih.gov/2047876/)
+
+* [Stephanopoulos G, Vallino JJ. Network rigidity and metabolic engineering in metabolite overproduction. Science. 1991 Jun 21;252(5013):1675-81. doi: 10.1126/science.1904627. PMID: 1904627.](https://pubmed.ncbi.nlm.nih.gov/1904627/)
+
+Resources for biochemical network information
+
 * [Kanehisa M, Goto S. KEGG: kyoto encyclopedia of genes and genomes. Nucleic Acids Res. 2000 Jan 1;28(1):27-30. doi: 10.1093/nar/28.1.27. PMID: 10592173; PMCID: PMC102409.](https://www.genome.jp/kegg/)
 
 * [Karp, Peter D et al. “The BioCyc collection of microbial genomes and metabolic pathways.” Briefings in bioinformatics vol. 20,4 (2019): 1085-1093. doi:10.1093/bib/bbx085](https://pubmed.ncbi.nlm.nih.gov/29447345/)
@@ -346,7 +353,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╔═╡ Cell order:
 # ╟─45e60528-7b8d-11ec-3aa3-65625ebbbfb2
 # ╟─96d697e1-d190-4d9b-aeb8-53466cc1cce2
-# ╠═87c121a0-91ed-436f-a981-a8a5198c3226
+# ╟─87c121a0-91ed-436f-a981-a8a5198c3226
 # ╟─2e67cdc9-9cd4-4a20-9ac7-1ecfd4b46967
 # ╟─21f2c20b-0386-4532-a81d-18b05df6c3cf
 # ╟─226b8bdd-13aa-4ab6-b4cb-73dd9cba5cb2

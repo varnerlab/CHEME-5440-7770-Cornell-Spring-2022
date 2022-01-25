@@ -92,7 +92,7 @@ __Insulin references__:
 * [Riggs AD. Making, Cloning, and the Expression of Human Insulin Genes in Bacteria: The Path to Humulin. Endocr Rev. 2021;42(3):374-380. doi:10.1210/endrev/bnaa029](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8152450/)
 * [Hirsch IB, Juneja R, Beals JM, Antalis CJ, Wright EE. The Evolution of Insulin and How it Informs Therapy and Treatment Choices. Endocr Rev. 2020;41(5):733-755. doi:10.1210/endrev/bnaa015](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7366348/)
 
-__Insulin Litigation__ (since is always _just_ science):
+__Insulin Litigation__ (since science isn't always _just_ science):
 * [Fox JL. Insulin patent dispute revisits old biotechnology battleground. Nat Biotechnol. 1997 Apr;15(4):307. doi: 10.1038/nbt0497-307. PMID: 9094114.](https://pubmed.ncbi.nlm.nih.gov/9094114/)
 
 """
@@ -424,7 +424,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─46a13c8a-1acf-4e22-9f29-44ac8519ce26
 # ╟─0a830a04-cfdd-4086-9f4d-8af6deed7e8f
 # ╟─419db086-ce0c-4e47-9f0e-63dd1a5150d3
-# ╟─cf05dc5a-b772-45e6-9f16-64448ab0f42b
+# ╠═cf05dc5a-b772-45e6-9f16-64448ab0f42b
 # ╟─092b0b15-8693-4280-a1b3-e23604db94f7
 # ╟─9994bb96-e76d-416a-913b-8f53cbb4fbcc
 # ╟─731ff161-434b-4ae1-89a5-37d6d6f165dc

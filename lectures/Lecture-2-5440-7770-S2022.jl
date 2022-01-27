@@ -23,13 +23,13 @@ end
 
 # ╔═╡ 6627255a-b788-4aaa-bf8e-c98a39553dea
 md"""
-### Introduction to the Constraint-Based Perspective and Tools
+### Constraint-Based Perspective and Tools
 In this lecture, we introduce the underlying ideas of the constraints-based approach to the metabolic design problem in which we seek to maximize a metabolic network's performance (in some sense) subject to physical or economic constraints. In this lecture, we'll focus on reaction networks occurring in cells, but later show how we can adapt these tools to consider cell-free systems.
 
 In particular, we'll discuss:
 
 * Intracellular species material balance equations (in the continuum limit)
-* Constraint-Based Tools such as Flux Balance Analysis (FBA) and the related Metabolic Flux Analysis (MFA)
+* Constraint-Based tools such as Flux Balance Analysis (FBA)
 * The stoichiometric matrix and convex network decomposition methods
 
 Additional resources (optional):
@@ -37,7 +37,7 @@ Additional resources (optional):
 * [Systems Biology: Constraint-based Reconstruction and Analysis, Bernhard Ø. Palsson, Cambridge University Press, 2015](https://www.cambridge.org/us/academic/subjects/life-sciences/genomics-bioinformatics-and-systems-biology/systems-biology-constraint-based-reconstruction-and-analysis?format=HB)
 * [Lectures from SYSTEMS BIOLOGY: Constraint-based Reconstruction and Analysis (on YouTube by Palsson)](https://sbrg.ucsd.edu/Publications/Books/SB1-2LectureSlides)
 
-Who is Palsson?
+Who is Bernhard Palsson?
 * [Google Scholar Page for Bernhard Ø. Palsson](https://scholar.google.com/citations?user=lhS3Su4AAAAJ&hl=en)
 """
 
@@ -154,7 +154,9 @@ Additional resources:
 md"""
 ### The constraint based perspective
 
-The constraint-based family of mathematical modeling tools are widely used to understand the biosynthetic capabilities of organisms, and to redesign their metabolic networks.
+The constraint-based family of mathematical modeling tools is widely used to understand the biosynthetic capabilities of organisms and to redesign their metabolic networks.
+
+Constraint based review:
 
 * [O'Brien EJ, Monk JM, Palsson BO. Using Genome-scale Models to Predict Biological Capabilities. Cell. 2015 May 21;161(5):971-987. doi: 10.1016/j.cell.2015.05.019. PMID: 26000478; PMCID: PMC4451052.](https://pubmed.ncbi.nlm.nih.gov/26000478/)
 
@@ -175,17 +177,36 @@ PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS, "Fig-ToyNetwork-CBT.png"))
 md"""
 Consider a batch reactor where we supply cells $X$, and the starting materials $A_{1x}$ and $A_{2x}$ in the media. In this case, the physical control could be the volume of the culture in the reactor, and the logical control volume could be the intracellular compartment of the cells in the reactor. 
 
-Under this model, $A_{\star{x}}$, $P_{x}$ and $C_{x}$ would be governed by _dynamic_ material balances, but all the intracellular species would be at steady-state. However, this is one of the _perceived_ shortcomings of constraint-based approaches; they can only be used to model/design systems at steady-state. __However, this is not true__. 
+Under this model, $A_{\star{x}}$, $P_{x}$ and $C_{x}$ would be _extracellular_ variables governed by _dynamic_ material balances, while all the intracellular species would be at steady-state. However, this obvious partition illustrates a significant _perceived_ shortcoming of the constraint-based approach; constraint-based tools can only be used to model/design systems at steady-state. __However, this is not true__. 
 
+Let's consider a different scenario. Suppose the physical control volume is a cell, while the logical control volume was some local section of the metabolic network. Under this scenario, 
+$A_{\star{x}}$, $P_{x}$ and $C_{x}$ would be governed by _dynamic_ material balances (as before), but $A_{\star}$, B, C, x and y become _hypothetical local logical variables_ that are at steady-state. The _logical_ transport terms describe transport into/from the logical control volume. For example, suppose we partition the total amount of $A_{1, T}$ (what we would measure in the cell) into $A_{1x}$ and $A_{1}$. Let's write balances around $A_{1x}$ and $A_{1}$:
 
+$$\begin{eqnarray}
+\frac{dA_{1x}}{dt} &=& -\frac{\dot{n}_{4}}{\beta} - A_{1x}X^{-1}\dot{X}\\
+\frac{dA_{1}}{dt} &=& \frac{\dot{n}_{4}}{\beta} - \hat{r}_{1} - A_{1}X^{-1}\dot{X}
+\end{eqnarray}$$
 
+Adding the $A_{1x}$ and $A_{1}$ (to compute the time rate of change of the total amount to $A_{1}$) gives:
+
+$$\frac{dA_{1x}}{dt}+\frac{dA_{1}}{dt} = - \hat{r}_{1} - (A_{1x} + A_{1})X^{-1}\dot{X}$$
+
+We know that the total amount of $A_{1,T}$ (what we would actually measure in the cell) is the sum of the two types of $A_{1}$: $A_{1,T} = A_{1x}+A_{1}$. Thus, differentiating $A_{1,T}$ with respect to time gives:
+
+$$\frac{dA_{1,T}}{dt} = \frac{dA_{1x}}{dt} + \frac{dA_{1}}{dt}$$
+
+Putting everything together gives:
+
+$$\frac{dA_{1,T}}{dt} = - \hat{r}_{1} - A_{1,T}X^{-1}\dot{X}$$
+
+Thus, constraint-based tools can model dynamics; however, they do so in a sequence of discrete pseudo-steady-state snapshots. 
 
 """
 
 # ╔═╡ 84d7abb6-38ea-48b8-b598-e658d4c52544
 md"""
 ##### Flux Balance Analysis (FBA)
-Flux balance analysis (FBA) is a mathematical modeling and analysis approach that estimates the _intracellular_ reaction rate (metabolic flux) of carbon and energy throughout a metabolic network (units: $\star$mol/gDW-time or $\star$mol/L-time for cell-free networks). However, there are alternatives to FBA, such as metabolic flux analysis (MFA), but these alternatives vary more in the solution approach than the structure of the estimation problem. 
+Flux balance analysis (FBA) is a mathematical modeling and analysis approach that estimates the _intracellular_ reaction rate (metabolic flux) of carbon and energy throughout a metabolic network (units: $\star$mol/gDW-time or $\star$mol/L-time for cell-free networks). FBA arguably the most widely used tool in this space. However, there are alternatives to FBA, such as metabolic flux analysis (MFA), but these alternatives vary more in the solution approach than the structure of the estimation problem. 
 
 Let's look at the following reference to understand better the different components of a flux balance analysis problem:
 
@@ -217,14 +238,47 @@ $\mathcal{L}$ ($\mathcal{U}$) denote the permissible lower (upper) bounds on the
 md"""
 ### Formulation and properties of the stoichiometric matrix S
 The stoichiometric matrix $\mathbf{S}$ is a $\mathcal{M}\times\mathcal{R}$ array holding the 
-coefficients $\sigma_{ij}$; each row of $\mathbf{S}$ describes a metabolite, while each column represents a possible chemical reaction. Thus, the stoichiometric matrix is a _digital_ representation of the biochemical capabilities of a metabolic network. However, when formulating the stoichiometric matrix, there is always the question of what should be included to describe known phenomena. For example, should every possible reaction or just some _subset_ of all possible reactions be included in the stoichiometric matrix when exploring the features of a metabolic dataset, e.g., measurements of metabolites coming into and from the network? The practical significance of this question is two-fold:
+coefficients $\sigma_{ij}$; each row of $\mathbf{S}$ describes a metabolite, while each column represents a possible chemical reaction. Thus, the stoichiometric matrix is a _digital_ representation of the biochemical capabilities of a metabolic network. 
 
-* Fewer material balances can describe the behavior of a minimal network, and
-* Fewer chemical reactions result in less uncertainty when estimating the kinetic rates $\hat{r}_{j}$.
+When formulating the stoichiometric matrix, what should be included to describe known or unknown desired phenomena? For example, we are interested in producing product $P$ or making sense of a metabolic data set. Should every possible reaction or just some _subset_ of all possible reactions be included in the stoichiometric matrix? The practical significance of this question is two-fold:
 
-To explore this question, let's look at an example from the paper:
+* Fewer material balances are better when describing the behavior of a metabolic network, and
+* Fewer chemical reactions (fluxes) result in less uncertainty when estimating the kinetic rates $\hat{r}_{j}$ (bounds) or other constraints.
+
+Is there a systematic approach to systematically estimating all possible steady-state pathways through a metabolic network?
+
+"""
+
+# ╔═╡ 931b0890-af94-4085-960a-1e8733c4ec6a
+md"""
+##### Convex pathway analysis
+
+Convex pathway analysis is an approach to catalog all possible steady-state pathways through a metabolic network. In particular, convex decomposition approaches posit that any potential steady-state flux can be represented as the [convex combination](https://en.wikipedia.org/wiki/Convex_combination) of a set of [orthognal](https://en.wikipedia.org/wiki/Orthogonality) basis vectors called _extreme pathways_ $\mathbf{P}_{i}$:
+
+$$\mathbf{v} = \sum_{i=1}^{\mathcal{P}}\alpha_{i}\mathbf{P}_{i}$$
+
+where $\mathcal{P}$ denotes the number of basis pathways, and $\mathbf{P}_{i}$ denotes the $\mathcal{R}\times{1}$ extreme pathway basis vector. The term(s) $\alpha_{i}\geq{0}$ denotes the weight of extreme pathway $i$, where:
+
+$$\sum_{i=1}^{\mathcal{P}}\alpha_{i} = 1$$. 
+
+Extreme pathways are _very difficult_ to compute but can give super exciting insights into the operation and capabilities of a metabolic network.
+
+Convex pathway analysis approaches:
+
+* [Bell SL, Palsson BØ. Expa: a program for calculating extreme pathways in biochemical reaction networks. Bioinformatics. 2005 Apr 15;21(8):1739-40. doi: 10.1093/bioinformatics/bti228. Epub 2004 Dec 21. PMID: 15613397.](https://pubmed.ncbi.nlm.nih.gov/15613397/)
+
+* [Trinh CT, Wlaschin A, Srienc F. Elementary mode analysis: a useful metabolic pathway analysis tool for characterizing cellular metabolism. Appl Microbiol Biotechnol. 2009;81(5):813-826. doi:10.1007/s00253-008-1770-1](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2909134/)
 
 * [Bordbar A, Nagarajan H, Lewis NE, et al. Minimal metabolic pathway structure is consistent with associated biomolecular interactions. Mol Syst Biol. 2014;10(7):737. Published 2014 Jul 1. doi:10.15252/msb.20145243](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4299494/)
+
+* [Song HS, Goldberg N, Mahajan A, Ramkrishna D. Sequential computation of elementary modes and minimal cut sets in genome-scale metabolic networks using alternate integer linear programming. Bioinformatics. 2017 Aug 1;33(15):2345-2353. doi: 10.1093/bioinformatics/btx171. PMID: 28369193.](https://pubmed.ncbi.nlm.nih.gov/28369193/)
+
+
+"""
+
+# ╔═╡ 28637b44-e304-417e-a9b4-63f7a3bc044f
+md"""
+__Fig. 1C__ reproduced from [Bordbar A, Nagarajan H, Lewis NE, et al. Minimal metabolic pathway structure is consistent with associated biomolecular interactions. Mol Syst Biol. 2014;10(7):737. Published 2014 Jul 1. doi:10.15252/msb.20145243](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4299494/)
 """
 
 # ╔═╡ d9abf0a6-c968-4d2d-afad-58694eb287c0
@@ -234,12 +288,43 @@ $(PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"Fig-ToyNetwork-MinSpan.png")))
 
 # ╔═╡ b0f94535-e959-4500-9131-a15428ab40c6
 md"""
-##### Metabolite connectivity array
+##### Metabolite connectivity array (MCA)
+The metabolite connectivity array (MCA) gives information about the 'connectedness' of the chemical species (metabolites) in a metabolic network. The metabolite connectivity array (MCA):
+
+$$MCA = BB^{T}$$
+
+has dimensions of $\mathcal{M}\times\mathcal{M}$, where $\mathbf{B}$ denotes the _binary_ stoichiometric matrix (all non-zero values of $\mathbf{S}$ replaced by 1's). The diagonal elements of the MCA give the number of reactions that a particular metabolite participates in (either as a reactant or product). In contrast, the off-diagonal elements provide the number of shared reactions between metabolites $i$ and $j$.
 """
 
 # ╔═╡ ecb39c41-851b-4317-8cf4-b1ab88cceba9
 md"""
-##### Reaction connectivity array
+##### Reaction connectivity array (RCA)
+The reaction connectivity array (RCA) gives information about the 'connectedness' of the reaction space of a metabolic network. The reaction connectivity array (RCA):
+
+$$RCA = B^{T}B$$
+
+has dimensions of $\mathcal{R}\times\mathcal{R}$, where $\mathbf{B}$ denotes the _binary_ stoichiometric matrix (all non-zero values of $\mathbf{S}$ replaced by 1's). The diagonal of the RCA gives the number of metabolites participating in a reaction (either as a reactant or product). In contrast, the off-diagonal elements provide the number of shared metabolites between reactions $i$ and $j$.
+"""
+
+# ╔═╡ a069c1bb-2734-4318-a11a-c622d69979b3
+md"""
+### Summary and conclusions
+In this lecture we:
+
+* Derived intracellular species material balance equations (in the continuum limit)
+* Introduced constraint-based tools and concepts such as Flux Balance Analysis (FBA)
+* Introduced the stoichiometric matrix and convex network decomposition methods
+"""
+
+# ╔═╡ 006caab7-d7a0-414a-b378-e8854b7973be
+md"""
+### Next time
+
+In the next lecture we will: 
+
+* Estimate the flux through a metabolic network
+* Compare a dynamic simulation with a flux balance analysis computation
+* Why is convex pathway analysis helpful
 """
 
 # ╔═╡ 0a671b9d-3deb-447d-ad06-0a278f5af85b
@@ -491,6 +576,9 @@ a {
 }
 </style>"""
 
+# ╔═╡ 5b8a80b6-0168-4d2c-b511-c75793c57749
+TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true)
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -720,14 +808,18 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─5648a6c8-1913-4634-8339-10544a9f56b8
 # ╟─84d7abb6-38ea-48b8-b598-e658d4c52544
 # ╟─38df7ed4-ad9c-4d72-9d77-3aa08f9eec12
+# ╟─931b0890-af94-4085-960a-1e8733c4ec6a
+# ╟─28637b44-e304-417e-a9b4-63f7a3bc044f
 # ╟─d9abf0a6-c968-4d2d-afad-58694eb287c0
 # ╠═b941f57c-f1a2-4363-9a37-22cae5f2e825
 # ╠═137ab9c8-74ab-4b0c-bb94-8150355b01ad
 # ╠═ea9bcf75-eb3d-45d2-9877-422fc99dd1ee
-# ╠═b0f94535-e959-4500-9131-a15428ab40c6
+# ╟─b0f94535-e959-4500-9131-a15428ab40c6
 # ╠═ab9e65c4-fa99-43d8-b72a-d87f3d800b02
-# ╠═ecb39c41-851b-4317-8cf4-b1ab88cceba9
+# ╟─ecb39c41-851b-4317-8cf4-b1ab88cceba9
 # ╠═e839ef15-7776-49ce-b710-5b63814d4167
+# ╟─a069c1bb-2734-4318-a11a-c622d69979b3
+# ╟─006caab7-d7a0-414a-b378-e8854b7973be
 # ╟─0a671b9d-3deb-447d-ad06-0a278f5af85b
 # ╠═d24efd1b-f596-44ec-9dbc-cdf41f4cba83
 # ╠═7fd25bfd-bea0-4656-a51a-6f10a1850287
@@ -736,5 +828,6 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═fe33473f-084c-4d42-b37a-b3f2cb8ff1f0
 # ╠═b1b251d8-7e23-11ec-09d1-97ace15b3bd3
 # ╟─9833473a-3fc3-4b61-bb07-050d6e159cb2
+# ╠═5b8a80b6-0168-4d2c-b511-c75793c57749
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

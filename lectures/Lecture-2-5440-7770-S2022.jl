@@ -45,12 +45,15 @@ Who is Bernhard Palsson?
 md"""
 ### Dynamic species material balances in the continuum limit
 
-Let's consider the general case in which we have $\mathcal{R}$ chemical reactions and $\mathcal{M}$ metabolites (chemical species) operating in some well-mixed physical (or logical) control volume $\Omega$. In the general continuum well-mixed limit, the species mole balance around each chemical species $i$ takes the form:
+Let's consider the general case in which we have $\mathcal{R}$ chemical reactions and $\mathcal{M}$ metabolites (chemical species) operating in some well-mixed physical (or logical) control volume $\Omega$. In the general continuum well-mixed limit (we ignore random fluctuations, at least for now), the species mole balance around each chemical species (metabolite) $i$ is given by:
 
 $$\frac{d}{dt}\left(C_{i}\beta\right) = \sum_{s=1}^{\mathcal{S}}d_{is}\dot{n}_{is} + \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)\beta \qquad{i=1,2,\dots,\mathcal{M}}$$
 
 where $C_{i}$ denotes the concentration (or number density) of species $i$ calculated with respect to a _system basis_ $\beta$. 
-The first set of terms on the right-hand side denotes the rate of physical or _logical_ transport (units: mol or number per unit time) of chemical species $i$ into or from control volume $\Omega$, where $d_{is}$ denotes a direction parameter. The second set of terms denote the chemical reaction terms which describe the rate of production (consumption) of species $i$ by enzyme-catalyzed chemical reaction(s) $j$. The  net rate per unit $\beta$ is denoted by $\hat{r}_{j}$, while $\sigma_{ij}$ denotes the stoichiometric coefficient relating species $i$ with reaction $j$:
+
+The first set of terms on the right-hand side denotes the rate of physical or _logical_ transport (units: mol or number per unit time) of chemical species $i$ into or from control volume $\Omega$, where $d_{is}$ denotes a direction parameter (in = +1, out = -1) for metabolite $i$ in stream $s$. 
+
+The second set of terms describes the rate of chemical reactions that are occurring in the physical or logical control volume $\Omega$. The $\hat{r}_{j}$ terms describe the net rate of production (consumption) per unit $\beta$ of species $i$ by enzyme-catalyzed chemical reaction $j$, while $\sigma_{ij}$ denotes the stoichiometric coefficient relating species $i$ with reaction $j$:
 
 * A stoichiometric coefficient $\sigma_{ij}$ > 0 implies that metabolite $i$ is __produced__ by reaction $j$
 * A stoichiometric coefficient $\sigma_{ij}$  = 0 implies that metabolite $i$ is __not connected__ to reaction $j$
@@ -62,19 +65,20 @@ The first set of terms on the right-hand side denotes the rate of physical or _l
 md"""
 ##### General intracellular species material balances
 
-Let's use the general balance equations above, and develop a general model that we can use to write material balance equations for both extracellular and intracellular models. In particular, let's expand the accumulation term (chain rule):
+Let's use the balance equations above, to develop intracellular material balances governing the concentration of metabolite $i$. In particular, let's expand the accumulation term (chain rule):
 
 $$\frac{d}{dt}\left(C_{i}\beta\right) = \beta\frac{dC_{i}}{dt}+C_{i}\frac{d\beta}{dt}\qquad{i=1,\dots,\mathcal{M}}$$
 
-which can be substituted into the general balance equation to give the General continuum species material balance model:
+which can be substituted into the general balance equation to give:
 
 $$\frac{dC_{i}}{dt} = \frac{1}{\beta}\left(\sum_{s=1}^{\mathcal{S}}d_{is}\dot{n}_{is}\right) + \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - \frac{C_{i}}{\beta}\frac{d\beta}{dt}\qquad{i=1,\dots,\mathcal{M}}$$
 
-When building models of the _intracellular_ state of a cell, there are no physical transport terms (material is not flowing or from the cell). Intracellular balances in industrial metabolic engineering applications for liquid cultures are typically written in _biomass specific units_, e.g., 
+When building models of the _intracellular_ state of a cell, there are no physical transport terms (material is not flowing or from the cell). Intracellular balances in industrial metabolic engineering applications for liquid cultures are typically written in _biomass-specific units_, e.g., something per gram dry weight (gDW) of cells in the reactor; concentrations are given in units of $\star$-mol/gDW. In this case, the 
+abstract volume basis $\beta$ is given by:
 
 $$\beta = XV_{R}$$
 
-where $X$ denotes the _dry_ cell mass per liter in the culture (units: gDW/L) and $V_{R}$ denotes the volume of the culture. Substituting $\beta$ into the general case gives:
+where $X$ denotes the _dry_ cell mass per liter in the culture (units: gDW/L) and $V_{R}$ denotes the liquid volume of the culture. Substituting $\beta$ into general balance equation gives:
 
 $$\frac{dC_{i}}{dt} = \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - 
 \frac{C_{i}}{XV_{R}}\left(X\frac{dV_{R}}{dt}+V_{R}\frac{dX}{dt}\right)\qquad{i=1,\dots,\mathcal{M}}$$
@@ -130,7 +134,7 @@ Additional resources:
 md"""
 ##### Fed-batch culture 
 
-In a fed-batch reactor, there is an overall volume change in the bioreactor in a fed-batch culture because there is an input feed but no output stream. Thus, the culture volume increases over time. Suppose we have a sterile feed stream (no cells coming into the reactor), and the reactor is fed at the volumetric flow rate $F$ (units: L/hr). Then the cell mass balance is given by:
+The volume is not constant in a fed-batch reactor because there is an input stream(s) but no output stream. Thus, the culture volume increases over time. Suppose we have a sterile feed stream (no cells coming into the reactor), and the reactor is fed at the volumetric flow rate $F$ (units: L/hr). Then the cell mass balance is given by:
 
 $$\frac{dX}{dt} = \left(\mu-D\right)X$$
 
@@ -801,7 +805,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─cf04d58a-230d-47ea-ba4a-072719cc9aa2
 # ╟─d31d5e9c-a5d7-4f27-899c-bacfe350cd64
 # ╟─0bc7cc05-d2da-4b41-9c5a-06c21e3caf70
-# ╟─13d7ca39-f956-479e-b560-d6338c1d8b12
+# ╠═13d7ca39-f956-479e-b560-d6338c1d8b12
 # ╟─ec4871de-66cf-4691-93df-868d526c1ff4
 # ╟─4cd91244-c4df-4b70-bef6-d6afc35a7f04
 # ╟─ba387bbd-ec71-4d4b-aadc-e7015b217782

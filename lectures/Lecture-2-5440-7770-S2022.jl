@@ -173,7 +173,11 @@ PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS, "Fig-ToyNetwork-CBT.png"))
 
 # ╔═╡ 5648a6c8-1913-4634-8339-10544a9f56b8
 md"""
-Consider a batch reactor where we supply cells, and the starting materials $A_{1x}$ and $A_{2x}$ in the media. In this case, one model for the physical control is the volume of the culture in the reactor, and the logical control volume could be the intracellular compartment of the cells in the reactor. Using this model, $A_{\star{x}}$, $P_{x}$ and $C_{x}$ would be governed by _dynamic_ material balances, but all the intracellular species would be at steady-state. 
+Consider a batch reactor where we supply cells $X$, and the starting materials $A_{1x}$ and $A_{2x}$ in the media. In this case, the physical control could be the volume of the culture in the reactor, and the logical control volume could be the intracellular compartment of the cells in the reactor. 
+
+Under this model, $A_{\star{x}}$, $P_{x}$ and $C_{x}$ would be governed by _dynamic_ material balances, but all the intracellular species would be at steady-state. However, this is one of the _perceived_ shortcomings of constraint-based approaches; they can only be used to model/design systems at steady-state. __However, this is not true__. 
+
+
 
 
 """
@@ -713,7 +717,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─ec4871de-66cf-4691-93df-868d526c1ff4
 # ╟─4cd91244-c4df-4b70-bef6-d6afc35a7f04
 # ╟─ba387bbd-ec71-4d4b-aadc-e7015b217782
-# ╠═5648a6c8-1913-4634-8339-10544a9f56b8
+# ╟─5648a6c8-1913-4634-8339-10544a9f56b8
 # ╟─84d7abb6-38ea-48b8-b598-e658d4c52544
 # ╟─38df7ed4-ad9c-4d72-9d77-3aa08f9eec12
 # ╟─d9abf0a6-c968-4d2d-afad-58694eb287c0

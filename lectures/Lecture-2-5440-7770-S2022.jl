@@ -244,7 +244,7 @@ md"""
 The stoichiometric matrix $\mathbf{S}$ is a $\mathcal{M}\times\mathcal{R}$ array holding the 
 coefficients $\sigma_{ij}$; each row of $\mathbf{S}$ describes a metabolite, while each column represents a possible chemical reaction. Thus, the stoichiometric matrix is a _digital_ representation of the biochemical capabilities of a metabolic network. 
 
-When formulating the stoichiometric matrix, what should be included to describe known or unknown desired phenomena? For example, we are interested in producing product $P$ or making sense of a metabolic data set. Should every possible reaction or just some _subset_ of all possible reactions be included in the stoichiometric matrix? The practical significance of this question is two-fold:
+When formulating the stoichiometric matrix, what should be included to describe known or unknown desired phenomena? For example, suppose we are interested in producing product $P$ or making sense of a metabolic data set. Should every possible reaction or just some _subset_ of all possible reactions be included in the stoichiometric matrix? The practical significance of this question is two-fold:
 
 * Fewer material balances are better when describing the behavior of a metabolic network, and
 * Fewer chemical reactions (fluxes) result in less uncertainty when estimating the kinetic rates $\hat{r}_{j}$ (bounds) or other constraints.
@@ -257,7 +257,7 @@ Is there a systematic approach to systematically estimating all possible steady-
 md"""
 ##### Convex pathway analysis
 
-Convex pathway analysis is an approach to catalog all possible steady-state pathways through a metabolic network. In particular, convex decomposition approaches posit that any potential steady-state flux can be represented as the [convex combination](https://en.wikipedia.org/wiki/Convex_combination) of a set of [orthognal](https://en.wikipedia.org/wiki/Orthogonality) basis vectors called _extreme pathways_ $\mathbf{P}_{i}$:
+Convex pathway analysis is an approach to catalog all possible steady-state pathways through a metabolic network. In particular, convex decomposition approaches posit that any potential steady-state flux can be represented as the [convex combination](https://en.wikipedia.org/wiki/Convex_combination) of a set of [orthogonal](https://en.wikipedia.org/wiki/Orthogonality) basis vectors called _extreme pathways_ $\mathbf{P}_{i}$:
 
 $$\mathbf{v} = \sum_{i=1}^{\mathcal{P}}\alpha_{i}\mathbf{P}_{i}$$
 
@@ -500,6 +500,12 @@ end
 # ╔═╡ 137ab9c8-74ab-4b0c-bb94-8150355b01ad
 (ℳ,ℛ) = size(S)
 
+# ╔═╡ 8116d36a-93fd-451c-882e-6b1b93bcd203
+species_array
+
+# ╔═╡ afcc5288-b0fb-4457-8c1b-2142dda8270c
+S
+
 # ╔═╡ ea9bcf75-eb3d-45d2-9877-422fc99dd1ee
 B = S |> binary_stoichiometric_matrix
 
@@ -509,10 +515,19 @@ MCA = B*transpose(B)
 # ╔═╡ e839ef15-7776-49ce-b710-5b63814d4167
 RCA = transpose(B)*B
 
+# ╔═╡ c0ac7972-f12a-48d6-afd3-ce2a5edd978f
+diag(RCA)
+
+# ╔═╡ 566fd067-f988-418e-b9fa-b7ecf7d4b82e
+reaction_name_array[11]
+
 # ╔═╡ 5ed32467-894e-4c9f-aedb-30394404247e
 md"""
 ### Pluto notebook setup
 """
+
+# ╔═╡ 5b8a80b6-0168-4d2c-b511-c75793c57749
+TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true)
 
 # ╔═╡ b1b251d8-7e23-11ec-09d1-97ace15b3bd3
 html"""
@@ -579,9 +594,6 @@ a {
     padding: 0px 30px;
 }
 </style>"""
-
-# ╔═╡ 5b8a80b6-0168-4d2c-b511-c75793c57749
-TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -817,11 +829,15 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─d9abf0a6-c968-4d2d-afad-58694eb287c0
 # ╠═b941f57c-f1a2-4363-9a37-22cae5f2e825
 # ╠═137ab9c8-74ab-4b0c-bb94-8150355b01ad
+# ╠═8116d36a-93fd-451c-882e-6b1b93bcd203
+# ╠═afcc5288-b0fb-4457-8c1b-2142dda8270c
 # ╠═ea9bcf75-eb3d-45d2-9877-422fc99dd1ee
 # ╟─b0f94535-e959-4500-9131-a15428ab40c6
 # ╠═ab9e65c4-fa99-43d8-b72a-d87f3d800b02
 # ╟─ecb39c41-851b-4317-8cf4-b1ab88cceba9
 # ╠═e839ef15-7776-49ce-b710-5b63814d4167
+# ╠═c0ac7972-f12a-48d6-afd3-ce2a5edd978f
+# ╠═566fd067-f988-418e-b9fa-b7ecf7d4b82e
 # ╟─a069c1bb-2734-4318-a11a-c622d69979b3
 # ╟─006caab7-d7a0-414a-b378-e8854b7973be
 # ╟─0a671b9d-3deb-447d-ad06-0a278f5af85b
@@ -831,7 +847,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─5ed32467-894e-4c9f-aedb-30394404247e
 # ╠═fe33473f-084c-4d42-b37a-b3f2cb8ff1f0
 # ╠═5b8a80b6-0168-4d2c-b511-c75793c57749
-# ╟─b1b251d8-7e23-11ec-09d1-97ace15b3bd3
+# ╠═b1b251d8-7e23-11ec-09d1-97ace15b3bd3
 # ╟─9833473a-3fc3-4b61-bb07-050d6e159cb2
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

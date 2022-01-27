@@ -189,17 +189,17 @@ Consider a batch reactor where we supply cells $X$, and the starting materials $
 
 Under this model, $A_{\star{x}}$, $P_{x}$ and $C_{x}$ would be _extracellular_ variables governed by _dynamic_ material balances, while all the intracellular species would be at steady-state. However, this obvious partition illustrates a significant _perceived_ shortcoming of the constraint-based approach; constraint-based tools can only be used to model/design systems at steady-state. __However, this is not true__. 
 
-Let's consider a different scenario. Suppose the physical control volume is a cell, while the logical control volume was some local section of the metabolic network. Under this scenario, 
+Let's consider a different scenario. Suppose the physical control volume is a cell with some volume basis $\beta$, while the logical control volume was some local section of the metabolic network in the cell. Under this scenario, 
 $A_{\star{x}}$, $P_{x}$ and $C_{x}$ would be governed by _dynamic_ material balances (as before), but $A_{\star}$, B, C, x and y become _hypothetical local logical variables_ that are at steady-state. The _logical_ transport terms describe transport into/from the logical control volume. For example, suppose we partition the total amount of $A_{1, T}$ (what we would measure in the cell) into $A_{1x}$ and $A_{1}$. Let's write balances around $A_{1x}$ and $A_{1}$:
 
 $$\begin{eqnarray}
-\frac{dA_{1x}}{dt} &=& -\frac{\dot{n}_{4}}{\beta} - A_{1x}X^{-1}\dot{X}\\
-\frac{dA_{1}}{dt} &=& \frac{\dot{n}_{4}}{\beta} - \hat{r}_{1} - A_{1}X^{-1}\dot{X}
+\frac{dA_{1x}}{dt} &=& -\frac{\dot{n}_{4}}{\beta} - \frac{A_{1x}}{\beta}\frac{d\beta}{dt}\\
+\frac{dA_{1}}{dt} &=& \frac{\dot{n}_{4}}{\beta} - \hat{r}_{1} - \frac{A_{1}}{\beta}\frac{d\beta}{dt}
 \end{eqnarray}$$
 
-Adding the $A_{1x}$ and $A_{1}$ (to compute the time rate of change of the total amount to $A_{1}$) gives:
+Adding the $A_{1x}$ and $A_{1}$ balances (to compute the time rate of change of the total amount to $A_{1}$) gives:
 
-$$\frac{dA_{1x}}{dt}+\frac{dA_{1}}{dt} = - \hat{r}_{1} - (A_{1x} + A_{1})X^{-1}\dot{X}$$
+$$\frac{dA_{1x}}{dt}+\frac{dA_{1}}{dt} = - \hat{r}_{1} - (A_{1x} + A_{1})\beta^{-1}\dot{\beta}$$
 
 We know that the total amount of $A_{1,T}$ (what we would actually measure in the cell) is the sum of the two types of $A_{1}$: $A_{1,T} = A_{1x}+A_{1}$. Thus, differentiating $A_{1,T}$ with respect to time gives:
 
@@ -207,7 +207,7 @@ $$\frac{dA_{1,T}}{dt} = \frac{dA_{1x}}{dt} + \frac{dA_{1}}{dt}$$
 
 Putting everything together gives:
 
-$$\frac{dA_{1,T}}{dt} = - \hat{r}_{1} - A_{1,T}X^{-1}\dot{X}$$
+$$\frac{dA_{1,T}}{dt} = - \hat{r}_{1} - \frac{A_{1,T}}{\beta}\frac{d\beta}{dt}$$
 
 Thus, constraint-based tools can model dynamics; however, they do so in a sequence of discrete pseudo-steady-state snapshots. 
 

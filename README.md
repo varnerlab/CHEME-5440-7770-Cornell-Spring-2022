@@ -28,3 +28,5 @@ This repository holds lecture notes and example problems discussed in lecture. T
 ### Lectures
 
 * [Lecture 1: Introduction to Metabolic Engineering](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-1-5440-7770-S2022.jl.html)
+
+* [Lecture 2: onstraint-Based Perspective and Tools](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-2-5440-7770-S2022.jl.html)

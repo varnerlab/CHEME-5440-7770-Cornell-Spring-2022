@@ -328,7 +328,7 @@ In the next lecture we will:
 
 * Estimate the flux through a metabolic network
 * Compare a dynamic simulation with a flux balance analysis computation
-* Why is convex pathway analysis helpful
+* Why is convex pathway analysis helpful (expa calculation and analysis)
 """
 
 # ╔═╡ 0a671b9d-3deb-447d-ad06-0a278f5af85b
@@ -805,7 +805,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─cf04d58a-230d-47ea-ba4a-072719cc9aa2
 # ╟─d31d5e9c-a5d7-4f27-899c-bacfe350cd64
 # ╟─0bc7cc05-d2da-4b41-9c5a-06c21e3caf70
-# ╠═13d7ca39-f956-479e-b560-d6338c1d8b12
+# ╟─13d7ca39-f956-479e-b560-d6338c1d8b12
 # ╟─ec4871de-66cf-4691-93df-868d526c1ff4
 # ╟─4cd91244-c4df-4b70-bef6-d6afc35a7f04
 # ╟─ba387bbd-ec71-4d4b-aadc-e7015b217782
@@ -830,8 +830,8 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═84c245b4-21b9-430b-8859-7a348c003141
 # ╟─5ed32467-894e-4c9f-aedb-30394404247e
 # ╠═fe33473f-084c-4d42-b37a-b3f2cb8ff1f0
-# ╠═b1b251d8-7e23-11ec-09d1-97ace15b3bd3
-# ╟─9833473a-3fc3-4b61-bb07-050d6e159cb2
 # ╠═5b8a80b6-0168-4d2c-b511-c75793c57749
+# ╟─b1b251d8-7e23-11ec-09d1-97ace15b3bd3
+# ╟─9833473a-3fc3-4b61-bb07-050d6e159cb2
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

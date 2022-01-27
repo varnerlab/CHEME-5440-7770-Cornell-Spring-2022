@@ -24,7 +24,7 @@ end
 # ╔═╡ 6627255a-b788-4aaa-bf8e-c98a39553dea
 md"""
 ### Introduction to the Constraint-Based Perspective and Tools
-In this lecture, we introduce the underlying ideas of the constraints-based approach to the metabolic design problem in which we seek to maximize a metabolic network's performance (in some sense). In this lecture, we'll focus on reaction networks occurring in cells, but later show how we can adapt these tools to consider cell-free systems.
+In this lecture, we introduce the underlying ideas of the constraints-based approach to the metabolic design problem in which we seek to maximize a metabolic network's performance (in some sense) subject to physical or economic constraints. In this lecture, we'll focus on reaction networks occurring in cells, but later show how we can adapt these tools to consider cell-free systems.
 
 In particular, we'll discuss:
 
@@ -165,14 +165,18 @@ md"""
 ##### Logical and Physical Control Volumes
 One of the critical ideas of the constraint-based approach is the decomposition of (potentially) dynamic problems into a sequence of steady-state or pseudo-steady-state subproblems, which give snapshots of the flow through a metabolic network (in this world called _flux_). 
 
-The mental model that makes this decomposition possible relies on partitioning variables into physical and _logical_ control volumes. Let's take a look at an example to make this clear.
+The mental model that makes this decomposition possible relies on partitioning variables into physical and _logical_ control volumes. In the constraint-based world, systems inside a logical control volume are at a steady state. Let's take a look at an example to make this clear.
 """
 
 # ╔═╡ ba387bbd-ec71-4d4b-aadc-e7015b217782
 PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS, "Fig-ToyNetwork-CBT.png"))
 
 # ╔═╡ 5648a6c8-1913-4634-8339-10544a9f56b8
+md"""
+Consider a batch reactor where we supply cells, and the starting materials $A_{1x}$ and $A_{2x}$ in the media. In this case, one model for the physical control is the volume of the culture in the reactor, and the logical control volume could be the intracellular compartment of the cells in the reactor. Using this model, $A_{\star{x}}$, $P_{x}$ and $C_{x}$ would be governed by _dynamic_ material balances, but all the intracellular species would be at steady-state. 
 
+
+"""
 
 # ╔═╡ 84d7abb6-38ea-48b8-b598-e658d4c52544
 md"""

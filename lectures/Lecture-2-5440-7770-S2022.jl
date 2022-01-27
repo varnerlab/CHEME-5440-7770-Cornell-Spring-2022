@@ -9,7 +9,8 @@ begin
 
 	# import some packages -
 	using PlutoUI
-
+	using LinearAlgebra
+	
 	# setup paths -
 	const _PATH_TO_NOTEBOOK = pwd()
 	const _PATH_TO_DATA = joinpath(_PATH_TO_NOTEBOOK,"data")
@@ -22,7 +23,22 @@ end
 
 # ╔═╡ 6627255a-b788-4aaa-bf8e-c98a39553dea
 md"""
-### Introduction to the Constraint-Based Perspective
+### Introduction to the Constraint-Based Perspective and Tools
+In this lecture, we introduce the underlying ideas of the constraints-based approach to the metabolic design problem in which we seek to maximize a metabolic network's performance (in some sense). In this lecture, we'll focus on reaction networks occurring in cells, but later show how we can adapt these tools to consider cell-free systems.
+
+In particular, we'll discuss:
+
+* Intracellular species material balance equations (in the continuum limit)
+* Constraint-Based Tools such as Flux Balance Analysis (FBA) and the related Metabolic Flux Analysis (MFA)
+* The stoichiometric matrix and convex network decomposition methods
+
+Additional resources (optional):
+
+* [Systems Biology: Constraint-based Reconstruction and Analysis, Bernhard Ø. Palsson, Cambridge University Press, 2015](https://www.cambridge.org/us/academic/subjects/life-sciences/genomics-bioinformatics-and-systems-biology/systems-biology-constraint-based-reconstruction-and-analysis?format=HB)
+* [Lectures from SYSTEMS BIOLOGY: Constraint-based Reconstruction and Analysis (on YouTube by Palsson)](https://sbrg.ucsd.edu/Publications/Books/SB1-2LectureSlides)
+
+Who is Palsson?
+* [Google Scholar Page for Bernhard Ø. Palsson](https://scholar.google.com/citations?user=lhS3Su4AAAAJ&hl=en)
 """
 
 # ╔═╡ a5da8cc5-7ec8-4072-bf36-9e54e77c2a3f
@@ -70,44 +86,109 @@ $$\frac{dC_{i}}{dt} = \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right
 
 """
 
-# ╔═╡ 0bc7cc05-d2da-4b41-9c5a-06c21e3caf70
-md"""
-###### Batch culture 
-
-In a batch culture, there is no liquid volume change ($dV_{R}/dt$ = 0). However, cell mass accumulates over time in the culture. Thus, the dilution terms become:
-
-$$\frac{dC_{i}}{dt} = \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - {\mu}C_{i}\qquad{i=1,\dots,\mathcal{M}}$$
-
-where $\mu$ denotes the _specific growth rate_ of the cells in the batch culture $\mu = X^{-1}\dot{X}$ (units: hr$^{-1}$). 
-"""
-
 # ╔═╡ d31d5e9c-a5d7-4f27-899c-bacfe350cd64
 md"""
-###### Continuous culture 
+##### Continuous culture 
 
-In continuous culture, there is also no volume change (volume flow rate = volume flow rate out). However, there are transport terms into and from the reactor for _extracellular_ variables. In particular, the cell mass balance equation for a continuous culture (assuming a sterile feed stream) is given by:
+In continuous culture, material stream(s) are introduced in the reactor as some volumetric rate $F$ (units: L/hr) and removed at the same volumetric rate. Hence, there is no overall volume change in the reactor (volume flow rate in = volume flow rate out in). The cell mass balance equation for a continuous culture (assuming a sterile feed stream) is given by:
 
 $$\frac{dX}{dt} = \left(\mu-D\right)X$$
 
-where $\mu$ denotes the specific growth rate (units: hr$^{-1}$), and $D$ denotes the _dilution rate_ (units: hr$^{-1}$). Substituting the cell mass time rate of change into the general species material balance gives:
+where $\mu$ denotes the specific growth rate of the cells (units: hr$^{-1}$), and $D$ denotes the _dilution rate_ (units: hr$^{-1}$) which is defined as $D{\equiv}F/V_{R}$ (inverse of the residence time in the reactor). Substituting the cell mass time rate of change into the general species material balance gives:
 
 $$\frac{dC_{i}}{dt} = \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - 
 C_{i}\left(\mu - D\right)\qquad{i=1,\dots,\mathcal{M}}$$
 
+At steady-state, all the time-derivatives vanish, and $\mu$=$D$. 
+Thus the _intracellular metabolic state_ of the cell is governed by:
+
+$$\left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) = 0\qquad{i=1,\dots,\mathcal{M}}$$
+
+In other words, what comes into the cell _must_ come out in some form. If we make metabolite _A_ (a node in the network), we must consume _A_ somehow (chemical reaction, or export _A_ out of the cell).
+
+"""
+
+# ╔═╡ 0bc7cc05-d2da-4b41-9c5a-06c21e3caf70
+md"""
+##### Batch culture 
+
+In a batch culture, there is no liquid volume change ($dV_{R}/dt$ = 0). However, cell mass and products accumulate, and starting materials (substrates) decrease over time in the culture. Thus, the dilution terms become:
+
+$$\frac{dC_{i}}{dt} = \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - {\mu}C_{i}\qquad{i=1,\dots,\mathcal{M}}$$
+
+where $\mu$ denotes the _specific growth rate_ of the cells in the batch culture $\mu = X^{-1}\dot{X}$ (units: hr$^{-1}$). There is never an _extracellular_ steady-state in a batch culture, however, inside the cell in certain time windows (typically when $\mu\simeq\mu_{g}^{max}$) there is a pseudo-steady-state called _balanced growth_ in which all intracellular quantities are time-invariant leading to the condition:
+
+$$\left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)-{\mu}C_{i} = 0\qquad{i=1,\dots,\mathcal{M}}$$
+
+Additional resources:
+
+* [Fishov I, Zaritsky A, Grover NB. On microbial states of growth. Mol Microbiol. 1995 Mar;15(5):789-94. doi: 10.1111/j.1365-2958.1995.tb02349.x. PMID: 7596281.](https://pubmed.ncbi.nlm.nih.gov/7596281/)
 
 """
 
 # ╔═╡ 13d7ca39-f956-479e-b560-d6338c1d8b12
 md"""
-###### Fed-batch culture 
+##### Fed-batch culture 
 
-In continuous culture, there is also no volume change. However, there are transport terms into and from the reactor. 
+In a fed-batch reactor, there is an overall volume change in the bioreactor in a fed-batch culture because there is an input feed but no output stream. Thus, the culture volume increases over time. Suppose we have a sterile feed stream (no cells coming into the reactor), and the reactor is fed at the volumetric flow rate $F$ (units: L/hr). Then the cell mass balance is given by:
 
+$$\frac{dX}{dt} = \left(\mu-D\right)X$$
+
+which at first glance appears to be the same as the continuous culture case, however unlike a chemostat (continuous culture), the dilution rate $D$ in a fed-batch reactor is a function of time, and no external steady-state is possible. Substituting the cell mass time rate of change into the general species material balance gives:
+
+$$\frac{dC_{i}}{dt} = \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - 
+C_{i}\left(\mu - D\right)\qquad{i=1,\dots,\mathcal{M}}$$
+
+While no _extracelluar_ steady-state is possible, under the _balanced growth_ hypothesis the intracellular state is governed by:
+
+$$\left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - 
+C_{i}\left(\mu - D\right) = 0\qquad{i=1,\dots,\mathcal{M}}$$
+
+Additional resources:
+
+* [Fishov I, Zaritsky A, Grover NB. On microbial states of growth. Mol Microbiol. 1995 Mar;15(5):789-94. doi: 10.1111/j.1365-2958.1995.tb02349.x. PMID: 7596281.](https://pubmed.ncbi.nlm.nih.gov/7596281/)
+
+"""
+
+# ╔═╡ ec4871de-66cf-4691-93df-868d526c1ff4
+md"""
+### The constraint based perspective
+"""
+
+# ╔═╡ 4cd91244-c4df-4b70-bef6-d6afc35a7f04
+md"""
+##### The constraints based perspective of the intracellular steady-state
 """
 
 # ╔═╡ 84d7abb6-38ea-48b8-b598-e658d4c52544
 md"""
-### The constraint based perspective
+##### Flux Balance Analysis (FBA)
+Flux balance analysis (FBA) is a mathematical modeling and analysis approach that estimates the _intracellular_ reaction rate (metabolic flux) of carbon and energy throughout a metabolic network (units: $\star$mol/gDW-time or $\star$mol/L-time for cell-free networks). FBA, a member of the [constraint-based family of mathematical modeling tools](https://pubmed.ncbi.nlm.nih.gov/26000478/), is a widely used approach to compute metabolic flux. However, there are alternatives to FBA, such as metabolic flux analysis (MFA), but these alternatives vary more in the solution approach than the structure of the estimation problem. 
+
+Let's look at the following reference to understand better the different components of a flux balance analysis problem:
+
+* [Orth, J., Thiele, I. & Palsson, B. What is flux balance analysis?. Nat Biotechnol 28, 245–248 (2010). https://doi.org/10.1038/nbt.1614](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC3108565/)
+
+Computational tools for working with flux balance analysis models:
+
+* [Heirendt, Laurent et al. "Creation and analysis of biochemical constraint-based models using the COBRA Toolbox v.3.0." Nature protocols vol. 14,3 (2019): 639-702. doi:10.1038/s41596-018-0098-2](https://pubmed.ncbi.nlm.nih.gov/30787451/)
+
+###### Flux balance analysis problem structure
+The FBA problem is typically encoded as a linear programming (LP) problem of the form:
+
+$$\max_{v}\sum_{i=1}^{\mathcal{R}}c_{i}v_{i}$$
+
+subject to the constraints:
+
+$$\begin{eqnarray}
+\mathbf{S}\mathbf{v} &=& \mathbf{0}\\
+\mathcal{L}\leq&\mathbf{v}&\leq\mathcal{U}\\
+\dots &=& \dots
+\end{eqnarray}$$
+
+where $\mathbf{S}$ denotes the stoichiometric matrix, $c_{i}$ denote the objective coefficients, 
+$\mathbf{v}$ denotes the metabolic flux (the unknown that we are trying to estimate), and 
+$\mathcal{L}$ ($\mathcal{U}$) denote the permissible lower (upper) bounds on the _unkown_ metabolic flux. The first set of constraints enforces conservation of mass, while the second imparts thermodynamic and kinetic information into the calculation. Finally, there are potentially other types of constraints (both linear and nonlinear) used in this type of problem (we will not cover these here, but these additional constraints may be important in specific applications that we see later).
 """
 
 # ╔═╡ 38df7ed4-ad9c-4d72-9d77-3aa08f9eec12
@@ -129,41 +210,43 @@ md"""
 $(PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"Fig-ToyNetwork-MinSpan.png")))
 """
 
-# ╔═╡ b941f57c-f1a2-4363-9a37-22cae5f2e825
-begin
+# ╔═╡ b0f94535-e959-4500-9131-a15428ab40c6
+md"""
+##### Metabolite connectivity array
+"""
 
-	# Setup a collection of reaction strings -
-	reaction_array = Array{String,1}()
+# ╔═╡ ecb39c41-851b-4317-8cf4-b1ab88cceba9
+md"""
+##### Reaction connectivity array
+"""
 
-	# encode the reactions -
-	push!(reaction_array,"v₁,A+ATP,B+ADP,false")
-	push!(reaction_array,"v₂,B+NAD,C+NADH,false")
-	push!(reaction_array,"v₃,C+ADP,D+ATP,false")
-	push!(reaction_array,"v₄,D+NADH,E+NAD,false")
-	push!(reaction_array,"v₅,D+NAD,F+NADH,false")
-	push!(reaction_array,"v₆,F+NADH,G+NAD,true")
-	push!(reaction_array,"v₇,F,H,true")
-	push!(reaction_array,"v₈,G+ATP,I+ADP,true")
-	push!(reaction_array,"v₉,H+NAD,I+NADH,true")
-	push!(reaction_array,"v₁₀,G,J,true")
-	push!(reaction_array,"vₐ,Aₓ,A,false")
-	push!(reaction_array,"vₑ,E,Eₓ,false")
-	push!(reaction_array,"vₕ,H,Hₓ,true")
-	push!(reaction_array,"vⱼ,J,Jₓ,true")
-	push!(reaction_array,"vATP,ATP,ATPₓ,true")
-	push!(reaction_array,"vADP,ADP,ADPₓ,true")
-	push!(reaction_array,"vNADH,NADH,NADHₓ,true")
-	push!(reaction_array,"vNAD,NAD,NADₓ,true")
+# ╔═╡ 0a671b9d-3deb-447d-ad06-0a278f5af85b
+md"""
+### Julia function library
+"""
 
+# ╔═╡ d24efd1b-f596-44ec-9dbc-cdf41f4cba83
+function binary_stoichiometric_matrix(matrix::Array{Float64,2})::Array{Int64,2}
+
+	# initialize -
+	(ℳ,ℛ) = size(matrix)
+	B = Array{Int64,2}(undef,ℳ,ℛ)
+
+	for row_index ∈ 1:ℳ
+		for col_index ∈ 1:ℛ
+
+			old_value = matrix[row_index,col_index]
+			if (old_value == 0.0)
+				B[row_index,col_index] = 0
+			else
+				B[row_index,col_index] = 1
+			end
+		end
+	end
 	
-	
+	# return -
+	return B
 end
-
-# ╔═╡ 000109db-2cf2-439f-8803-306bb92b18c2
-split("H+NAD",'+')
-
-# ╔═╡ 2840b124-c1bd-4abf-ae37-5cc0b909a75c
-
 
 # ╔═╡ 84c245b4-21b9-430b-8859-7a348c003141
 function extract_species_dictionary(reaction_phrase::String;
@@ -181,12 +264,21 @@ function extract_species_dictionary(reaction_phrase::String;
 			tmp_array = split(component,'*')
 			st_coeff = direction*parse(Float64,tmp_array[1])
 			species_symbol = String(tmp_array[2])
-			species_symbol_dictionary[species_symbol] = st_coeff
+
+			# don't cache the ∅ -
+			if (species_symbols != "∅")
+				species_symbol_dictionary[species_symbol] = st_coeff
+			end
+		else 
+			
+			# strip any spaces -
+			species_symbol = component |> lstrip |> rstrip
+
+			# don't cache the ∅ -
+			if (species_symbol != "∅")
+				species_symbol_dictionary[species_symbol] = direction*1.0
+			end
 		end
-		
-		# strip any spaces -
-		species_symbol = component |> lstrip |> rstrip
-		species_symbol_dictionary[species_symbol] = direction*1.0
 	end
 
 	# return -
@@ -194,14 +286,15 @@ function extract_species_dictionary(reaction_phrase::String;
 end
 
 # ╔═╡ 7fd25bfd-bea0-4656-a51a-6f10a1850287
-function build_stoichiometric_matrix(reactions::Array{String,1})
+function build_stoichiometric_matrix(reactions::Array{String,1})::Tuple{Array{Float64,2},
+	Array{String,1}, Array{String,1}}
 
 	# initialize -
 	species_array = Array{String,1}()
+	reaction_array = Array{String,1}()
 	reaction_dictionary_array = Array{Dict{String,Float64},1}()
-	number_of_reactions = length(reactions)
 	
-	# first: discover the species list -
+	# first: let's discover the species list -
 	for reaction_string ∈ reactions
 
 		# initialize tmp storage -
@@ -210,15 +303,17 @@ function build_stoichiometric_matrix(reactions::Array{String,1})
 		# split the reaction into its components -
 		component_array = split(reaction_string,',');
 
+		# reaction name -
+		reaction_name = String.(component_array[1]);
+		push!(reaction_array, reaction_name);
+		
 		# reactant phrase => 2, and product phrase => 3
 		reactant_phrase = String.(component_array[2]);
 		product_phrase = String.(component_array[3]);
 
 		# generate species lists for the reactants and products, then merge -
-		tmp_dict_reactant = extract_species_dictionary(reactant_phrase; direction = -1.0);
-		tmp_dict_product = extract_species_dictionary(product_phrase; direction = 1.0);
-		merge!(tmp_dictionary, tmp_dict_reactant)
-		merge!(tmp_dictionary, tmp_dict_product)
+		merge!(tmp_dictionary, extract_species_dictionary(reactant_phrase; direction = -1.0))
+		merge!(tmp_dictionary, extract_species_dictionary(product_phrase; direction = 1.0))
 
 		# grab the tmp_dictionary for later -
 		push!(reaction_dictionary_array, tmp_dictionary)
@@ -240,8 +335,8 @@ function build_stoichiometric_matrix(reactions::Array{String,1})
 	# sort alphabetically -
 	sort!(species_array)
 	
-	# now that we have a *unique* species array, let's initialize some storage for the stoichiometric array
-	S = zeros(length(species_array), number_of_reactions);
+	# we have a *unique* species array, let's initialize some storage for the stoichiometric array
+	S = zeros(length(species_array), length(reactions));
 
 	# last: fill in the values for stoichiometric coefficents -
 	for (row_index, species_symbol) ∈ enumerate(species_array)
@@ -255,14 +350,58 @@ function build_stoichiometric_matrix(reactions::Array{String,1})
 	end
 
 	# return -
-	return S
+	return (S, species_array, reaction_array)
 end
 
-# ╔═╡ 6495c567-7756-48cf-8c70-797c7e00f420
-tmp = build_stoichiometric_matrix(reaction_array)
+# ╔═╡ b941f57c-f1a2-4363-9a37-22cae5f2e825
+begin
 
-# ╔═╡ 8862ce06-cf11-4654-a471-6aa135a86917
+	# Setup a collection of reaction strings -
+	reaction_array = Array{String,1}()
 
+	# encode the reactions -
+	push!(reaction_array,"v₁,A+ATP,B+ADP,false")
+	push!(reaction_array,"v₂,B+NAD,C+NADH,false")
+	push!(reaction_array,"v₃,C+ADP,D+ATP,false")
+	push!(reaction_array,"v₄,D+NADH,E+NAD,false")
+	push!(reaction_array,"v₅,D+NAD,F+NADH,false")
+	push!(reaction_array,"v₆,F+NADH,G+NAD,true")
+	push!(reaction_array,"v₇,F,H,true")
+	push!(reaction_array,"v₈,G+ATP,I+ADP,true")
+	push!(reaction_array,"v₉,H+NAD,I+NADH,true")
+	push!(reaction_array,"v₁₀,G,J,true")
+	push!(reaction_array,"vₐ,∅,A,false")
+	push!(reaction_array,"vₑ,E,∅,false")
+	push!(reaction_array,"vₕ,H,∅,true")
+	push!(reaction_array,"vⱼ,J,∅,true")
+	push!(reaction_array,"vATP,ATP,∅,true")
+	push!(reaction_array,"vADP,ADP,∅,true")
+	push!(reaction_array,"vNADH,NADH,∅,true")
+	push!(reaction_array,"vNAD,NAD,∅,true")
+
+	# compute the stoichiometric matrix -
+	(S, species_array, reaction_name_array) = build_stoichiometric_matrix(reaction_array);
+
+	# show -
+	nothing
+end
+
+# ╔═╡ 137ab9c8-74ab-4b0c-bb94-8150355b01ad
+(ℳ,ℛ) = size(S)
+
+# ╔═╡ ea9bcf75-eb3d-45d2-9877-422fc99dd1ee
+B = S |> binary_stoichiometric_matrix
+
+# ╔═╡ ab9e65c4-fa99-43d8-b72a-d87f3d800b02
+MCA = B*transpose(B)
+
+# ╔═╡ e839ef15-7776-49ce-b710-5b63814d4167
+RCA = transpose(B)*B
+
+# ╔═╡ 5ed32467-894e-4c9f-aedb-30394404247e
+md"""
+### Pluto notebook setup
+"""
 
 # ╔═╡ b1b251d8-7e23-11ec-09d1-97ace15b3bd3
 html"""
@@ -333,6 +472,7 @@ a {
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
@@ -549,19 +689,26 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─6627255a-b788-4aaa-bf8e-c98a39553dea
 # ╟─a5da8cc5-7ec8-4072-bf36-9e54e77c2a3f
 # ╟─cf04d58a-230d-47ea-ba4a-072719cc9aa2
-# ╟─0bc7cc05-d2da-4b41-9c5a-06c21e3caf70
 # ╟─d31d5e9c-a5d7-4f27-899c-bacfe350cd64
+# ╟─0bc7cc05-d2da-4b41-9c5a-06c21e3caf70
 # ╟─13d7ca39-f956-479e-b560-d6338c1d8b12
-# ╟─84d7abb6-38ea-48b8-b598-e658d4c52544
+# ╟─ec4871de-66cf-4691-93df-868d526c1ff4
+# ╟─4cd91244-c4df-4b70-bef6-d6afc35a7f04
+# ╠═84d7abb6-38ea-48b8-b598-e658d4c52544
 # ╟─38df7ed4-ad9c-4d72-9d77-3aa08f9eec12
 # ╟─d9abf0a6-c968-4d2d-afad-58694eb287c0
 # ╠═b941f57c-f1a2-4363-9a37-22cae5f2e825
-# ╠═6495c567-7756-48cf-8c70-797c7e00f420
-# ╠═000109db-2cf2-439f-8803-306bb92b18c2
+# ╠═137ab9c8-74ab-4b0c-bb94-8150355b01ad
+# ╠═ea9bcf75-eb3d-45d2-9877-422fc99dd1ee
+# ╠═b0f94535-e959-4500-9131-a15428ab40c6
+# ╠═ab9e65c4-fa99-43d8-b72a-d87f3d800b02
+# ╠═ecb39c41-851b-4317-8cf4-b1ab88cceba9
+# ╠═e839ef15-7776-49ce-b710-5b63814d4167
+# ╟─0a671b9d-3deb-447d-ad06-0a278f5af85b
+# ╠═d24efd1b-f596-44ec-9dbc-cdf41f4cba83
 # ╠═7fd25bfd-bea0-4656-a51a-6f10a1850287
-# ╠═2840b124-c1bd-4abf-ae37-5cc0b909a75c
 # ╠═84c245b4-21b9-430b-8859-7a348c003141
-# ╠═8862ce06-cf11-4654-a471-6aa135a86917
+# ╟─5ed32467-894e-4c9f-aedb-30394404247e
 # ╠═fe33473f-084c-4d42-b37a-b3f2cb8ff1f0
 # ╠═b1b251d8-7e23-11ec-09d1-97ace15b3bd3
 # ╟─9833473a-3fc3-4b61-bb07-050d6e159cb2

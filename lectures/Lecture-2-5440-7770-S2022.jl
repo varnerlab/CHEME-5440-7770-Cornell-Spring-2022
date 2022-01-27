@@ -140,13 +140,19 @@ $$\frac{dX}{dt} = \left(\mu-D\right)X$$
 
 which at first glance appears to be the same as the continuous culture case, however unlike a chemostat (continuous culture), the dilution rate $D$ in a fed-batch reactor is a function of time, and no external steady-state is possible. Substituting the cell mass time rate of change into the general species material balance gives:
 
-$$\frac{dC_{i}}{dt} = \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - 
+$$\frac{dC_{i}}{dt} = \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - DC_{i} -
 C_{i}\left(\mu - D\right)\qquad{i=1,\dots,\mathcal{M}}$$
+
+which after combining the dilution terms terms becomes:
+
+$$\frac{dC_{i}}{dt} = \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - \mu{C_{i}}\qquad{i=1,\dots,\mathcal{M}}$$
 
 While no _extracelluar_ steady-state is possible, under the _balanced growth_ hypothesis the intracellular state is governed by:
 
-$$\left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - 
-C_{i}\left(\mu - D\right) = 0\qquad{i=1,\dots,\mathcal{M}}$$
+$$\left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) -
+\mu{C_{i}} = 0\qquad{i=1,\dots,\mathcal{M}}$$
+
+which is the same form as the _batch_ culture.
 
 Additional resources:
 

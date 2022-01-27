@@ -153,17 +153,31 @@ Additional resources:
 # ╔═╡ ec4871de-66cf-4691-93df-868d526c1ff4
 md"""
 ### The constraint based perspective
+
+The constraint-based family of mathematical modeling tools are widely used to understand the biosynthetic capabilities of organisms, and to redesign their metabolic networks.
+
+* [O'Brien EJ, Monk JM, Palsson BO. Using Genome-scale Models to Predict Biological Capabilities. Cell. 2015 May 21;161(5):971-987. doi: 10.1016/j.cell.2015.05.019. PMID: 26000478; PMCID: PMC4451052.](https://pubmed.ncbi.nlm.nih.gov/26000478/)
+
 """
 
 # ╔═╡ 4cd91244-c4df-4b70-bef6-d6afc35a7f04
 md"""
-##### The constraints based perspective of the intracellular steady-state
+##### Logical and Physical Control Volumes
+One of the critical ideas of the constraint-based approach is the decomposition of (potentially) dynamic problems into a sequence of steady-state or pseudo-steady-state subproblems, which give snapshots of the flow through a metabolic network (in this world called _flux_). 
+
+The mental model that makes this decomposition possible relies on partitioning variables into physical and _logical_ control volumes. Let's take a look at an example to make this clear.
 """
+
+# ╔═╡ ba387bbd-ec71-4d4b-aadc-e7015b217782
+PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS, "Fig-ToyNetwork-CBT.png"))
+
+# ╔═╡ 5648a6c8-1913-4634-8339-10544a9f56b8
+
 
 # ╔═╡ 84d7abb6-38ea-48b8-b598-e658d4c52544
 md"""
 ##### Flux Balance Analysis (FBA)
-Flux balance analysis (FBA) is a mathematical modeling and analysis approach that estimates the _intracellular_ reaction rate (metabolic flux) of carbon and energy throughout a metabolic network (units: $\star$mol/gDW-time or $\star$mol/L-time for cell-free networks). FBA, a member of the [constraint-based family of mathematical modeling tools](https://pubmed.ncbi.nlm.nih.gov/26000478/), is a widely used approach to compute metabolic flux. However, there are alternatives to FBA, such as metabolic flux analysis (MFA), but these alternatives vary more in the solution approach than the structure of the estimation problem. 
+Flux balance analysis (FBA) is a mathematical modeling and analysis approach that estimates the _intracellular_ reaction rate (metabolic flux) of carbon and energy throughout a metabolic network (units: $\star$mol/gDW-time or $\star$mol/L-time for cell-free networks). However, there are alternatives to FBA, such as metabolic flux analysis (MFA), but these alternatives vary more in the solution approach than the structure of the estimation problem. 
 
 Let's look at the following reference to understand better the different components of a flux balance analysis problem:
 
@@ -694,7 +708,9 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─13d7ca39-f956-479e-b560-d6338c1d8b12
 # ╟─ec4871de-66cf-4691-93df-868d526c1ff4
 # ╟─4cd91244-c4df-4b70-bef6-d6afc35a7f04
-# ╠═84d7abb6-38ea-48b8-b598-e658d4c52544
+# ╟─ba387bbd-ec71-4d4b-aadc-e7015b217782
+# ╠═5648a6c8-1913-4634-8339-10544a9f56b8
+# ╟─84d7abb6-38ea-48b8-b598-e658d4c52544
 # ╟─38df7ed4-ad9c-4d72-9d77-3aa08f9eec12
 # ╟─d9abf0a6-c968-4d2d-afad-58694eb287c0
 # ╠═b941f57c-f1a2-4363-9a37-22cae5f2e825

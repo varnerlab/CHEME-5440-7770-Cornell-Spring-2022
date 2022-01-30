@@ -4,6 +4,9 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ 9e2566fd-4fc9-4828-913f-f755c5e5cf50
+idx_ep = 4
+
 # ╔═╡ 907af081-4a01-4a51-bda9-3a34295f9208
 function ingredients(path::String)
 	
@@ -64,10 +67,10 @@ begin
 	push!(reaction_array,"vₑ,E,∅,false")
 	push!(reaction_array,"vₕ,H,∅,false") # change
 	push!(reaction_array,"vⱼ,J,∅,false") # change
-	push!(reaction_array,"vATP,ATP,∅,true")
-	push!(reaction_array,"vADP,ADP,∅,true")
-	push!(reaction_array,"vNADH,NADH,∅,true")
-	push!(reaction_array,"vNAD,NAD,∅,true")
+	push!(reaction_array,"vATP,ATP,∅,false")
+	push!(reaction_array,"vADP,ADP,∅,false")
+	push!(reaction_array,"vNADH,NADH,∅,false")
+	push!(reaction_array,"vNAD,NAD,∅,false")
 	
 	# compute the stoichiometric matrix -
 	(S, species_array, reaction_name_array) = lib.build_stoichiometric_matrix(reaction_array; 
@@ -83,23 +86,8 @@ end
 # ╔═╡ f305c659-76d6-4a89-b231-80f5fbf1517a
 S
 
-# ╔═╡ 8be1e489-7382-4315-8c4c-111abdead290
-PM = lib.expa(S)
-
-# ╔═╡ c425a427-071c-45dc-a417-27a96f3da32e
-N = PM[:,1:ℛ]
-
-# ╔═╡ bbfeb47e-8bbd-4c4b-9d29-65cb99ca26c1
-Z = N[118:119,:]
-
-# ╔═╡ ac545d57-5630-4d3b-b0d9-0ebbf5e3d8a3
-size(N)
-
-# ╔═╡ 97bd9c04-2aaf-44ee-af60-537529975230
-rank(N)
-
 # ╔═╡ 276a5591-bf84-4750-95ea-9fc48ea7bacb
-function expa(stoichiometric_matrix::Array{Float64,2})::Array{Float64,2}
+function expa(stoichiometric_matrix::Array{Float64,2})
 
     # initialize -
     (ℳ,ℛ) = size(stoichiometric_matrix) 
@@ -145,9 +133,9 @@ function expa(stoichiometric_matrix::Array{Float64,2})::Array{Float64,2}
             end
         end
     
-        # ok, so we have a new set of possible pathways, check for independent pathways -
+		# ok, so we have a new set of possible pathways, check for independent pathways -
         P = transpose(hcat(TMP_ARR...))
-		(NRP,_) = size(P)
+        (NRP,_) = size(P)
         OK_ARR = Matrix{Float64}(I,NRP,NRP);
         for outer_row_index ∈ 1:NRP
             for inner_row_index ∈ 1:NRP
@@ -159,17 +147,28 @@ function expa(stoichiometric_matrix::Array{Float64,2})::Array{Float64,2}
                     idx_zero_inner = findall(x->x==0.0,P[inner_row_index,:])
 
                     # Ok, so now what?
-				    Z = setdiff(idx_zero_outer,idx_zero_inner);
+				    Z = setdiff(idx_zero_inner,idx_zero_outer);
 				    if (isempty(Z))
 					    OK_ARR[outer_row_index, inner_row_index] = 0.0;
-				    end
+					else
+						OK_ARR[outer_row_index, inner_row_index] = 1.0;				
+					end
                 end
 
             end # inner 
         end # outer
 
+
+		idx_rows_to_keep = Array{Int64,1}()
+		for row_index ∈ 1:NRP
+			TMP_OK_ROW = OK_ARR[row_index,:]
+			N = length(findall(x->x==1.0,TMP_OK_ROW))
+			if (N == NRP)
+				push!(idx_rows_to_keep,row_index)
+			end
+		end
+
 		# which rows should we keep?
-		idx_rows_to_keep = findall(x->x==1.0,diag(OK_ARR))
 		P_IND = P[idx_rows_to_keep,:]
 
 		if (isempty(P_IND) == false)
@@ -178,10 +177,29 @@ function expa(stoichiometric_matrix::Array{Float64,2})::Array{Float64,2}
 		end
     end # main -
 
+	
     # return - 
     return T
 
 end # function -
+
+# ╔═╡ 8be1e489-7382-4315-8c4c-111abdead290
+PM = expa(S)
+
+# ╔═╡ c425a427-071c-45dc-a417-27a96f3da32e
+N = PM[:,1:ℛ]
+
+# ╔═╡ 95bb3270-8487-43ee-9795-766dd36ad092
+N[3,:]
+
+# ╔═╡ b25cf5a8-483a-418a-960c-ae6a9deedf8b
+idxnz = findall(x->x!=0,N[idx_ep,:])
+
+# ╔═╡ 57b93c34-6528-41d9-8af3-b5b7fce5d9b6
+reaction_name_array[idxnz]
+
+# ╔═╡ bbfeb47e-8bbd-4c4b-9d29-65cb99ca26c1
+N[3,idxnz]
 
 # ╔═╡ d201abce-202c-44f6-98a3-67e47c2a99f4
 html"""
@@ -471,9 +489,11 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═f305c659-76d6-4a89-b231-80f5fbf1517a
 # ╠═8be1e489-7382-4315-8c4c-111abdead290
 # ╠═c425a427-071c-45dc-a417-27a96f3da32e
+# ╠═9e2566fd-4fc9-4828-913f-f755c5e5cf50
+# ╠═95bb3270-8487-43ee-9795-766dd36ad092
+# ╠═b25cf5a8-483a-418a-960c-ae6a9deedf8b
 # ╠═bbfeb47e-8bbd-4c4b-9d29-65cb99ca26c1
-# ╠═ac545d57-5630-4d3b-b0d9-0ebbf5e3d8a3
-# ╠═97bd9c04-2aaf-44ee-af60-537529975230
+# ╠═57b93c34-6528-41d9-8af3-b5b7fce5d9b6
 # ╠═276a5591-bf84-4750-95ea-9fc48ea7bacb
 # ╠═c51f8430-8147-11ec-3501-498c9bf67b57
 # ╠═907af081-4a01-4a51-bda9-3a34295f9208

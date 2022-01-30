@@ -46,7 +46,7 @@ function expa(stoichiometric_matrix::Array{Float64,2})::Array{Float64,2}
     
         # ok, so we have a new set of possible pathways, check for independent pathways -
         P = transpose(hcat(TMP_ARR...))
-		(NRP,_) = size(P)
+        (NRP,_) = size(P)
         OK_ARR = Matrix{Float64}(I,NRP,NRP);
         for outer_row_index ∈ 1:NRP
             for inner_row_index ∈ 1:NRP

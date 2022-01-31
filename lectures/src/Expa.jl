@@ -1,12 +1,9 @@
-function expa(stoichiometric_matrix::Array{Float64,2})::Array{Float64,2}
+function expa(stoichiometric_matrix::Array{Float64,2})
 
     # initialize -
-    (ℳ,ℛ) = size(stoichiometric_matrix) 
+	(ℳ,ℛ) = size(stoichiometric_matrix)
     T = [Matrix{Float64}(I,ℛ,ℛ) transpose(stoichiometric_matrix)];
-
-    # what is the dimension of the tables?
-    (NRT,NCT) = size(T)
-
+	
     # outer loop -
     for col_index = 1:ℳ
 
@@ -44,40 +41,67 @@ function expa(stoichiometric_matrix::Array{Float64,2})::Array{Float64,2}
             end
         end
     
-        # ok, so we have a new set of possible pathways, check for independent pathways -
-        P = transpose(hcat(TMP_ARR...))
-        (NRP,_) = size(P)
-        OK_ARR = Matrix{Float64}(I,NRP,NRP);
-        for outer_row_index ∈ 1:NRP
-            for inner_row_index ∈ 1:NRP
-                
-                if (outer_row_index != inner_row_index)
-                    
-                    # grab the index of zeros for the outer and inner row -
-                    idx_zero_outer = findall(x->x==0.0,P[outer_row_index,:])
-                    idx_zero_inner = findall(x->x==0.0,P[inner_row_index,:])
-
-                    # Ok, so now what?
-				    Z = setdiff(idx_zero_outer,idx_zero_inner);
-				    if (isempty(Z))
-					    OK_ARR[outer_row_index, inner_row_index] = 0.0;
-				    end
-                end
-
-            end # inner 
-        end # outer
-
-		# which rows should we keep?
-		idx_rows_to_keep = findall(x->x==1.0,diag(OK_ARR))
-		P_IND = P[idx_rows_to_keep,:]
-
-		if (isempty(P_IND) == false)
+		# ok, so we have a new set of possible pathways, check for independent pathways -
+        P = transpose(hcat(TMP_ARR...))		
+		if (isempty(P) == false)
 			# Update T -
-			T = vcat(TNEW,P_IND);
+			T = vcat(TNEW,P);
 		end
     end # main -
 
+	# ok, check for indepedent pathways -
+	rows_to_keep_set = compute_convex_independent_rows(T)
+
+	# grab: which rows should we keep?
+    T_IND = T[(rows_to_keep_set |> collect),:]
+	
     # return - 
-    return T
+    return T_IND
 
 end # function -
+
+function compute_convex_independent_rows(P)::Set{Int64}
+
+	# ok, so we have a new set of possible pathways, check for independent pathways -
+	(NRP,_) = size(P)
+	IPA = Matrix{Float64}(I,NRP,NRP)
+	for i ∈ 1:NRP
+
+		# get rᵢ -
+		rᵢ = P[i,:]
+
+		# compare rᵢ against rⱼ i neq j
+		for j ∈ 1:NRP
+			if (i != j)
+
+				# get rⱼ -
+				rⱼ = P[j,:]
+				
+				# check: is convex independent?
+				if (is_convex_independent(rᵢ,rⱼ) == true)
+					IPA[i,j] = 1.0					
+				else
+					IPA[i,j] = 0.0	
+				end
+			end
+		end # inner 
+	end # outer
+
+	# rows we should keep -
+	rows_to_keep_set = Set{Int64}()
+	for i ∈ 1:NRP
+		sᵢ = sum(IPA[i,:])
+		if (sᵢ == NRP)
+			push!(rows_to_keep_set,i)
+		end
+	end
+
+	# return -
+	return rows_to_keep_set
+end
+
+function is_convex_independent(rᵢ,rⱼ)::Bool
+	idx_zero_rᵢ = findall(x->x==0.0,rᵢ)
+	idx_zero_rⱼ = findall(x->x==0.0,rⱼ)	
+	return issubset(idx_zero_rᵢ,idx_zero_rⱼ) ? false : true
+end

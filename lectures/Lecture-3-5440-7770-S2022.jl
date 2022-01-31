@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.7
+# v0.17.3
 
 using Markdown
 using InteractiveUtils
@@ -70,20 +70,11 @@ $\mathcal{L}$ ($\mathcal{U}$) denote the permissible lower (upper) bounds on the
 # ╔═╡ 72e5c813-2545-4d7c-9437-dc3f98f4e6e7
 md"""
 ##### FBA example
+Let's consider a continuous culture at a steady state.
 """
 
-# ╔═╡ 45222d77-906b-4393-b2f9-63452300c28e
-begin
+# ╔═╡ b620232d-6c8f-478c-93e5-9b4743518ff6
 
-	# specify the bounds -
-	# ...
-
-	# specify the objective -
-	# ...
-
-	# compute the optimal flux distribution -
-	# ...
-end
 
 # ╔═╡ 907af081-4a01-4a51-bda9-3a34295f9208
 function ingredients(path::String)
@@ -111,6 +102,8 @@ begin
 	using IterativeSolvers
 	using Combinatorics
 	using Plots
+	using GLPK
+	using PrettyTables
 	
 	# setup paths -
 	const _PATH_TO_NOTEBOOK = pwd()
@@ -180,6 +173,79 @@ begin
 	@show reaction_list_expa
 end
 
+# ╔═╡ 45222d77-906b-4393-b2f9-63452300c28e
+begin
+
+	# species bounds array -
+	species_bounds_array = zeros(ℳ,2);
+	
+	# specify the flux_bounds -
+	flux_bounds_array = [
+
+		# v₁ (ℒ,𝒰)
+		0.0 100.0 		; # 1 v₁ units: mmol/gDW-L
+		
+		# v₂
+		0.0 100.0 		; # 2 Fv₂ units: mmol/gDW-L
+		0.0 100.0 		; # 3 Rv₂ units: mmol/gDW-L
+
+		# v₃
+		0.0 100.0 		; # 4 Fv₃ units: mmol/gDW-L
+		0.0 100.0 		; # 5 Rv₃ units: mmol/gDW-L
+
+		# v₄
+		0.0 100.0 		; # 6 v₄ units: mmol/gDW-L
+
+		# b₁
+		0.0 100.0 		; # 7 Fb₁ units: mmol/gDW-L
+		0.0 0.0 		; # 8 Rb₁ units: mmol/gDW-L
+
+		# b₂
+		0.0 0.0 		; # 9 Fb₂ units: mmol/gDW-L
+		0.0 0.0 		; # 10 Rb₂ units: mmol/gDW-L
+
+		# b₃
+		0.0 100.0 		; # 11 Fb₃ units: mmol/gDW-L
+		0.0 0.0 		; # 12 Rb₃ units: mmol/gDW-L
+
+		# b₄
+		0.0 100.0 		; # 13 Fb₄ units: mmol/gDW-L
+		0.0 100.0 		; # 14 Rb₄ units: mmol/gDW-L
+	];
+
+	# specify the objective -
+	c = zeros(ℛ)
+	c[11] = -1 # negative: default is minimize
+
+	# compute the optimal flux distribution -
+	result = lib.flux(S, flux_bounds_array,species_bounds_array,c);
+
+	# show -
+	nothing
+end
+
+# ╔═╡ 39f3f612-114e-4f71-be75-ec427607e577
+with_terminal() do
+
+	# initialize -
+	state_table = Array{Any,2}(undef,ℛ,3)
+	
+	# compute the reaction string array -
+	reaction_string_array = lib.generate_reaction_strings(reaction_array; expand=true)
+
+	# what is v?
+	v = result[2]
+		
+	# build state table?
+	for i ∈ 1:ℛ
+		state_table[i,1] = i
+		state_table[i,2] = reaction_string_array[i]
+		state_table[i,3] = v[i]
+	end
+	header_row = (["index", "reaction", "flux"], ["","","mmol/gDW-L"])
+	pretty_table(state_table; header=header_row)
+end
+
 # ╔═╡ d201abce-202c-44f6-98a3-67e47c2a99f4
 html"""
 <style>
@@ -246,17 +312,21 @@ html"""
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
+GLPK = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
 IterativeSolvers = "42fd0dbc-a981-5370-80f2-aaf504508153"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
 RowEchelon = "af85af4c-bcd5-5d23-b03a-a909639aa875"
 
 [compat]
 Combinatorics = "~1.0.2"
+GLPK = "~0.15.3"
 IterativeSolvers = "~0.9.2"
 Plots = "~1.25.7"
 PlutoUI = "~0.7.32"
+PrettyTables = "~1.3.1"
 RowEchelon = "~0.2.1"
 """
 
@@ -288,11 +358,28 @@ uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
+[[deps.BenchmarkTools]]
+deps = ["JSON", "Logging", "Printf", "Profile", "Statistics", "UUIDs"]
+git-tree-sha1 = "940001114a0147b6e4d10624276d56d531dd9b49"
+uuid = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+version = "1.2.2"
+
+[[deps.BinaryProvider]]
+deps = ["Libdl", "Logging", "SHA"]
+git-tree-sha1 = "ecdec412a9abc8db54c0efc5548c64dfce072058"
+uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
+version = "0.5.10"
+
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "19a35467a82e236ff51bc17a3a44b69ef35185a2"
 uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
 version = "1.0.8+0"
+
+[[deps.CEnum]]
+git-tree-sha1 = "215a9aa4a1f23fbd05b92769fdd62559488d70e9"
+uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
+version = "0.4.1"
 
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Pkg", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
@@ -311,6 +398,18 @@ deps = ["ChainRulesCore", "LinearAlgebra", "Test"]
 git-tree-sha1 = "bf98fa45a0a4cee295de98d4c1462be26345b9a1"
 uuid = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
 version = "0.1.2"
+
+[[deps.CodecBzip2]]
+deps = ["Bzip2_jll", "Libdl", "TranscodingStreams"]
+git-tree-sha1 = "2e62a725210ce3c3c2e1a3080190e7ca491f18d7"
+uuid = "523fee87-0ab8-5b00-afb7-3ecf72e48cfd"
+version = "0.7.2"
+
+[[deps.CodecZlib]]
+deps = ["TranscodingStreams", "Zlib_jll"]
+git-tree-sha1 = "ded953804d019afa9a3f98981d99b33e3db7b6da"
+uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
+version = "0.7.0"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "Colors", "FixedPointNumbers", "Random"]
@@ -350,6 +449,11 @@ deps = ["StaticArrays"]
 git-tree-sha1 = "9f02045d934dc030edad45944ea80dbd1f0ebea7"
 uuid = "d38c429a-6771-53c6-b99e-75d170b6e991"
 version = "0.5.7"
+
+[[deps.Crayons]]
+git-tree-sha1 = "249fe38abf76d48563e2f4556bebd215aa317e15"
+uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
+version = "4.1.1"
 
 [[deps.DataAPI]]
 git-tree-sha1 = "cc70b17275652eb47bc9e5f81635981f13cea5c8"
@@ -448,6 +552,22 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Pkg", "Xorg_libXcu
 git-tree-sha1 = "0c603255764a1fa0b61752d2bec14cfbd18f7fe8"
 uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
 version = "3.3.5+1"
+
+[[deps.GLPK]]
+deps = ["BinaryProvider", "CEnum", "GLPK_jll", "Libdl", "MathOptInterface"]
+git-tree-sha1 = "6f4e9754ee93e2b2ff40c0b0a6b4cdffd289190d"
+uuid = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
+version = "0.15.3"
+
+[[deps.GLPK_jll]]
+deps = ["Artifacts", "GMP_jll", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "fe68622f32828aa92275895fdb324a85894a5b1b"
+uuid = "e8aa6df9-e6ca-548a-97ff-1f85fc5b8b98"
+version = "5.0.1+0"
+
+[[deps.GMP_jll]]
+deps = ["Artifacts", "Libdl"]
+uuid = "781609d7-10c4-51f6-84f2-b8444358ff6d"
 
 [[deps.GR]]
 deps = ["Base64", "DelimitedFiles", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Pkg", "Printf", "Random", "RelocatableFolders", "Serialization", "Sockets", "Test", "UUIDs"]
@@ -687,6 +807,12 @@ version = "0.5.9"
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
+[[deps.MathOptInterface]]
+deps = ["BenchmarkTools", "CodecBzip2", "CodecZlib", "JSON", "LinearAlgebra", "MutableArithmetics", "OrderedCollections", "Printf", "SparseArrays", "Test", "Unicode"]
+git-tree-sha1 = "38062215a56109442d4ec25a0a2970cbfef55bbc"
+uuid = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
+version = "0.10.7"
+
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "Random", "Sockets"]
 git-tree-sha1 = "1c38e51c3d08ef2278062ebceade0e46cefc96fe"
@@ -713,6 +839,12 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
+
+[[deps.MutableArithmetics]]
+deps = ["LinearAlgebra", "SparseArrays", "Test"]
+git-tree-sha1 = "73deac2cbae0820f43971fad6c08f6c4f2784ff2"
+uuid = "d8a4904e-b15c-11e9-3269-09a3773c0cb0"
+version = "0.3.2"
 
 [[deps.NaNMath]]
 git-tree-sha1 = "b086b7ea07f8e38cf122f5016af580881ac914fe"
@@ -801,9 +933,19 @@ git-tree-sha1 = "2cf929d64681236a2e074ffafb8d568733d2e6af"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
 version = "1.2.3"
 
+[[deps.PrettyTables]]
+deps = ["Crayons", "Formatting", "Markdown", "Reexport", "Tables"]
+git-tree-sha1 = "dfb54c4e414caa595a1f2ed759b160f5a3ddcba5"
+uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
+version = "1.3.1"
+
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
+[[deps.Profile]]
+deps = ["Printf"]
+uuid = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
 
 [[deps.Qt5Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Pkg", "Xorg_libXext_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "xkbcommon_jll"]
@@ -938,6 +1080,12 @@ uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[[deps.TranscodingStreams]]
+deps = ["Random", "Test"]
+git-tree-sha1 = "216b95ea110b5972db65aa90f88d8d89dcb8851c"
+uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
+version = "0.9.6"
 
 [[deps.URIs]]
 git-tree-sha1 = "97bbe755a53fe859669cd907f2d96aee8d2c1355"
@@ -1190,6 +1338,8 @@ version = "0.9.1+5"
 # ╟─3f98b575-eb2c-40b3-ac6f-43c55e4ec9d3
 # ╟─72e5c813-2545-4d7c-9437-dc3f98f4e6e7
 # ╠═45222d77-906b-4393-b2f9-63452300c28e
+# ╟─39f3f612-114e-4f71-be75-ec427607e577
+# ╠═b620232d-6c8f-478c-93e5-9b4743518ff6
 # ╠═c51f8430-8147-11ec-3501-498c9bf67b57
 # ╠═907af081-4a01-4a51-bda9-3a34295f9208
 # ╠═d201abce-202c-44f6-98a3-67e47c2a99f4

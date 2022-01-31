@@ -4,6 +4,34 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ a55ad25a-e4ff-4af7-9684-c1b02fec900d
+md"""
+### Extreme pathways
+The set of extreme pathways, a generating set for all possible steady-state flux maps in a biochemical reaction network, can be computed from the stoichiometric matrix $\mathbf{S}$. In particular, any steady-state flux through a metabolic network can be written as:
+
+$$\mathbf{v} = \sum_{i=1}^{\mathcal{P}}\alpha_{i}\mathbf{P}_{i}$$
+
+where $\mathcal{P}$ denotes the number of convex basis pathways, and $\mathbf{P}_{i}$ denotes the $\mathcal{R}\times{1}$ extreme pathway basis vector. The term(s) $\alpha_{i}\geq{0}$ denotes the weight of extreme pathway $i$. 
+
+For more information on extreme pathways, check out:
+* [Lecture 12: Pathways. Systems Biology: Constraint-based Reconstruction and Analysis, Bernhard Ø. Palsson, Cambridge University Press, 2015](https://www.youtube.com/watch?v=5o46XASlNDw)
+"""
+
+# ╔═╡ dc712cba-1f18-46ec-a7f1-b25b0aca1e0a
+md"""
+##### Extreme pathways example using expa
+We've implemented the expa algorithm from Palsson and coworkers:
+
+* [Bell SL, Palsson BØ. Expa: a program for calculating extreme pathways in biochemical reaction networks. Bioinformatics. 2005 Apr 15;21(8):1739-40. doi: 10.1093/bioinformatics/bti228. Epub 2004 Dec 21. PMID: 15613397.](https://pubmed.ncbi.nlm.nih.gov/15613397/)
+
+Let's use expa to explore the toy network taken from (note: we've renumbered the reactions):
+
+* [Schilling CH, Letscher D, Palsson BO. Theory for the systemic definition of metabolic pathways and their use in interpreting metabolic function from a pathway-oriented perspective. J Theor Biol. 2000 Apr 7;203(3):229-48. doi: 10.1006/jtbi.2000.1073. PMID: 10716907.](https://pubmed.ncbi.nlm.nih.gov/10716907/)
+"""
+
+# ╔═╡ 2b9ca1ce-9080-4c42-91a1-e5005ddc4ee5
+pidx = 5
+
 # ╔═╡ b14d750b-5f36-46c7-bdb8-7deba7ac0bb7
 function is_convex_independent(rᵢ,rⱼ)::Bool
 	idx_zero_rᵢ = findall(x->x==0.0,rᵢ)
@@ -56,6 +84,9 @@ begin
 	nothing
 end
 
+# ╔═╡ 306e390f-acbe-4b2a-8e4f-3571003359ad
+PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"Fig-expa-ToyNetwork.png"))
+
 # ╔═╡ be4b1854-1a14-4452-ad7e-22d614740a10
 begin
 
@@ -66,16 +97,17 @@ begin
 	reaction_array = Array{String,1}()
 
 	# encode the reactions -
+	# internal reactions -
 	push!(reaction_array,"v₁,A,B,false")
 	push!(reaction_array,"v₂,B,C,true")
 	push!(reaction_array,"v₃,C,D,true")
 	push!(reaction_array,"v₄,C,E,false")
 
-	
-	push!(reaction_array,"b₁,∅,A,false")
-	push!(reaction_array,"b₂,B,∅,false")
-	push!(reaction_array,"b₃,D,∅,false")
-	push!(reaction_array,"b₄,E,∅,false")
+	# exchange reactions -
+	push!(reaction_array,"b₁,∅,A,true")
+	push!(reaction_array,"b₂,∅,B,true")
+	push!(reaction_array,"b₃,D,∅,true")
+	push!(reaction_array,"b₄,E,∅,true")
 	
 	# compute the stoichiometric matrix -
 	(S, species_array, reaction_name_array) = lib.build_stoichiometric_matrix(reaction_array; 
@@ -88,8 +120,10 @@ end
 # ╔═╡ 8965f69d-3014-46b3-816d-7d6f7fd57adf
 (ℳ,ℛ) = size(S)
 
-# ╔═╡ faa86b5e-8e38-4efd-a59d-4a35a5b707fc
-species_array
+# ╔═╡ 99afb054-dfba-4a5e-8028-0dc455bd9632
+with_terminal() do
+println("No working")
+end
 
 # ╔═╡ 5f0dbbdd-7bb9-443a-9109-c7a32143bb6d
 function compute_convex_independent_rows(P)::Set{Int64}
@@ -178,20 +212,20 @@ function expa(stoichiometric_matrix::Array{Float64,2})
     
 		# ok, so we have a new set of possible pathways, check for independent pathways -
         P = transpose(hcat(TMP_ARR...))		
-
-		# compute which rows we are going to keep -
-		rows_to_keep_set = compute_convex_independent_rows(P)
-
-		# grab: which rows should we keep?
-        P_IND = P[(rows_to_keep_set |> collect),:]
-		if (isempty(P_IND) == false)
+		if (isempty(P) == false)
 			# Update T -
-			T = vcat(TNEW,P_IND);
+			T = vcat(TNEW,P);
 		end
     end # main -
+
+	# ok, check for indepedent pathways -
+	rows_to_keep_set = compute_convex_independent_rows(T)
+
+	# grab: which rows should we keep?
+    T_IND = T[(rows_to_keep_set |> collect),:]
 	
     # return - 
-    return T
+    return T_IND
 
 end # function -
 
@@ -200,18 +234,6 @@ PM = expa(S)
 
 # ╔═╡ e4881741-cf5b-4e4f-8d97-5849f8a58a81
 P = PM[:,1:ℛ]
-
-# ╔═╡ 65163c1b-2db9-443c-96c1-e218966a5397
-rank(P)
-
-# ╔═╡ de981aba-e442-4a83-96c4-dc57cada0363
-idx_s = compute_convex_independent_rows(P)
-
-# ╔═╡ 1116e2a2-2aea-4cc5-a416-e2268c47418f
-IPA = P[idx_s |> collect, :]
-
-# ╔═╡ def18538-736c-47d5-8af3-48550ed0c05a
-rank(IPA)
 
 # ╔═╡ d201abce-202c-44f6-98a3-67e47c2a99f4
 html"""
@@ -524,15 +546,15 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 """
 
 # ╔═╡ Cell order:
+# ╟─a55ad25a-e4ff-4af7-9684-c1b02fec900d
+# ╟─dc712cba-1f18-46ec-a7f1-b25b0aca1e0a
+# ╟─306e390f-acbe-4b2a-8e4f-3571003359ad
 # ╠═be4b1854-1a14-4452-ad7e-22d614740a10
 # ╠═8965f69d-3014-46b3-816d-7d6f7fd57adf
 # ╠═8be1e489-7382-4315-8c4c-111abdead290
 # ╠═e4881741-cf5b-4e4f-8d97-5849f8a58a81
-# ╠═faa86b5e-8e38-4efd-a59d-4a35a5b707fc
-# ╠═65163c1b-2db9-443c-96c1-e218966a5397
-# ╠═de981aba-e442-4a83-96c4-dc57cada0363
-# ╠═1116e2a2-2aea-4cc5-a416-e2268c47418f
-# ╠═def18538-736c-47d5-8af3-48550ed0c05a
+# ╠═2b9ca1ce-9080-4c42-91a1-e5005ddc4ee5
+# ╠═99afb054-dfba-4a5e-8028-0dc455bd9632
 # ╠═276a5591-bf84-4750-95ea-9fc48ea7bacb
 # ╠═5f0dbbdd-7bb9-443a-9109-c7a32143bb6d
 # ╠═b14d750b-5f36-46c7-bdb8-7deba7ac0bb7

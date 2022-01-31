@@ -4,9 +4,6 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 9e2566fd-4fc9-4828-913f-f755c5e5cf50
-idx_ep = 4
-
 # ╔═╡ b14d750b-5f36-46c7-bdb8-7deba7ac0bb7
 function is_convex_independent(rᵢ,rⱼ)::Bool
 	idx_zero_rᵢ = findall(x->x==0.0,rᵢ)
@@ -70,19 +67,19 @@ begin
 
 	# encode the reactions -
 	push!(reaction_array,"v₁,A,B,false")
-	push!(reaction_array,"v₂,B,C,false")
-	push!(reaction_array,"v₃,C,D,false")
+	push!(reaction_array,"v₂,B,C,true")
+	push!(reaction_array,"v₃,C,D,true")
 	push!(reaction_array,"v₄,C,E,false")
 
 	
 	push!(reaction_array,"b₁,∅,A,false")
-	push!(reaction_array,"b₂,∅,B,false")
+	push!(reaction_array,"b₂,B,∅,false")
 	push!(reaction_array,"b₃,D,∅,false")
 	push!(reaction_array,"b₄,E,∅,false")
 	
 	# compute the stoichiometric matrix -
 	(S, species_array, reaction_name_array) = lib.build_stoichiometric_matrix(reaction_array; 
-		expand=false);
+		expand=true);
 
 	# show -
 	nothing
@@ -93,6 +90,47 @@ end
 
 # ╔═╡ faa86b5e-8e38-4efd-a59d-4a35a5b707fc
 species_array
+
+# ╔═╡ 5f0dbbdd-7bb9-443a-9109-c7a32143bb6d
+function compute_convex_independent_rows(P)::Set{Int64}
+
+	# ok, so we have a new set of possible pathways, check for independent pathways -
+	(NRP,_) = size(P)
+	IPA = Matrix{Float64}(I,NRP,NRP)
+	for i ∈ 1:NRP
+
+		# get rᵢ -
+		rᵢ = P[i,:]
+
+		# compare rᵢ against rⱼ i neq j
+		for j ∈ 1:NRP
+			if (i != j)
+
+				# get rⱼ -
+				rⱼ = P[j,:]
+				
+				# check: is convex independent?
+				if (is_convex_independent(rᵢ,rⱼ) == true)
+					IPA[i,j] = 1.0					
+				else
+					IPA[i,j] = 0.0	
+				end
+			end
+		end # inner 
+	end # outer
+
+	# rows we should keep -
+	rows_to_keep_set = Set{Int64}()
+	for i ∈ 1:NRP
+		sᵢ = sum(IPA[i,:])
+		if (sᵢ == NRP)
+			push!(rows_to_keep_set,i)
+		end
+	end
+
+	# return -
+	return rows_to_keep_set
+end
 
 # ╔═╡ 276a5591-bf84-4750-95ea-9fc48ea7bacb
 function expa(stoichiometric_matrix::Array{Float64,2})
@@ -139,39 +177,10 @@ function expa(stoichiometric_matrix::Array{Float64,2})
         end
     
 		# ok, so we have a new set of possible pathways, check for independent pathways -
-        P = transpose(hcat(TMP_ARR...))
-		rows_to_keep_set = Set{Int64}()
-		
-		(NRP,_) = size(P)
-		OK_ARR = Matrix{Float64}(I,NRP,NRP);
-        for outer_row_index ∈ 1:NRP
+        P = transpose(hcat(TMP_ARR...))		
 
-			# get rᵢ -
-			rᵢ = P[outer_row_index,:]
-
-			if (is_cycle(rᵢ) == false)
-				# assume we can keep (for now ..)
-				push!(rows_to_keep_set, outer_row_index)
-				
-				for inner_row_index ∈ 1:NRP
-					if (outer_row_index != inner_row_index)
-	
-						# get rⱼ -
-						rⱼ = P[inner_row_index,:]
-						
-						# check: is convex independent?
-						if (is_convex_independent(rᵢ,rⱼ) == true)
-							push!(rows_to_keep_set, outer_row_index)
-						else
-	
-							# oops: this rᵢ is NOT independent - if we have
-							# in the rows to keep set, we need to remove it
-							delete!(rows_to_keep_set,outer_row_index)
-						end
-					end
-				end # inner 
-			end # cycle
-        end # outer
+		# compute which rows we are going to keep -
+		rows_to_keep_set = compute_convex_independent_rows(P)
 
 		# grab: which rows should we keep?
         P_IND = P[(rows_to_keep_set |> collect),:]
@@ -180,42 +189,29 @@ function expa(stoichiometric_matrix::Array{Float64,2})
 			T = vcat(TNEW,P_IND);
 		end
     end # main -
-
-	# check: remove cycles -
-	P = T[:,1:ℛ]
-	(NCP,_) = size(P)
-	is_not_cycle_set = Set{Int64}()
-	for i ∈ 1:NCP
-		if (is_cycle(P[i,:]) == false)
-			push!(is_not_cycle_set,i)
-		end
-	end
 	
     # return - 
-    return T[(is_not_cycle_set |> collect), :]
+    return T
 
 end # function -
 
 # ╔═╡ 8be1e489-7382-4315-8c4c-111abdead290
 PM = expa(S)
 
-# ╔═╡ 46cdb1ff-84fe-4222-97aa-2a52369fdbf6
+# ╔═╡ e4881741-cf5b-4e4f-8d97-5849f8a58a81
 P = PM[:,1:ℛ]
-
-# ╔═╡ 4054b145-9aee-49ed-b015-66b3370a2d38
-S*P[4,:]
-
-# ╔═╡ b25cf5a8-483a-418a-960c-ae6a9deedf8b
-idxnz = findall(x->x!=0.0,P[idx_ep,:])
-
-# ╔═╡ 57b93c34-6528-41d9-8af3-b5b7fce5d9b6
-reaction_name_array[idxnz]
-
-# ╔═╡ 11094ebd-cd4b-4dfb-8810-afcf9f78ad26
-rank(P)
 
 # ╔═╡ 65163c1b-2db9-443c-96c1-e218966a5397
 rank(P)
+
+# ╔═╡ de981aba-e442-4a83-96c4-dc57cada0363
+idx_s = compute_convex_independent_rows(P)
+
+# ╔═╡ 1116e2a2-2aea-4cc5-a416-e2268c47418f
+IPA = P[idx_s |> collect, :]
+
+# ╔═╡ def18538-736c-47d5-8af3-48550ed0c05a
+rank(IPA)
 
 # ╔═╡ d201abce-202c-44f6-98a3-67e47c2a99f4
 html"""
@@ -531,15 +527,14 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═be4b1854-1a14-4452-ad7e-22d614740a10
 # ╠═8965f69d-3014-46b3-816d-7d6f7fd57adf
 # ╠═8be1e489-7382-4315-8c4c-111abdead290
-# ╠═46cdb1ff-84fe-4222-97aa-2a52369fdbf6
-# ╠═4054b145-9aee-49ed-b015-66b3370a2d38
-# ╠═9e2566fd-4fc9-4828-913f-f755c5e5cf50
-# ╠═b25cf5a8-483a-418a-960c-ae6a9deedf8b
-# ╠═57b93c34-6528-41d9-8af3-b5b7fce5d9b6
-# ╠═11094ebd-cd4b-4dfb-8810-afcf9f78ad26
+# ╠═e4881741-cf5b-4e4f-8d97-5849f8a58a81
 # ╠═faa86b5e-8e38-4efd-a59d-4a35a5b707fc
 # ╠═65163c1b-2db9-443c-96c1-e218966a5397
+# ╠═de981aba-e442-4a83-96c4-dc57cada0363
+# ╠═1116e2a2-2aea-4cc5-a416-e2268c47418f
+# ╠═def18538-736c-47d5-8af3-48550ed0c05a
 # ╠═276a5591-bf84-4750-95ea-9fc48ea7bacb
+# ╠═5f0dbbdd-7bb9-443a-9109-c7a32143bb6d
 # ╠═b14d750b-5f36-46c7-bdb8-7deba7ac0bb7
 # ╠═2bd35555-b771-43b8-acec-86c8d7d20fcd
 # ╠═c51f8430-8147-11ec-3501-498c9bf67b57

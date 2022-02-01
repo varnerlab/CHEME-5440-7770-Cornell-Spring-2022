@@ -47,11 +47,11 @@ md"""
 
 Let's consider the general case in which we have $\mathcal{R}$ chemical reactions and $\mathcal{M}$ metabolites (chemical species) operating in some well-mixed physical (or logical) control volume $\Omega$. In the general continuum well-mixed limit (we ignore random fluctuations, at least for now), the species mole balance around each chemical species (metabolite) $i$ is given by:
 
-$$\frac{d}{dt}\left(C_{i}\beta\right) = \sum_{s=1}^{\mathcal{S}}d_{is}\dot{n}_{is} + \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)\beta \qquad{i=1,2,\dots,\mathcal{M}}$$
+$$\frac{d}{dt}\left(C_{i}\beta\right) = \sum_{s=1}^{\mathcal{S}}d_{s}\dot{n}_{s} + \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)\beta \qquad{i=1,2,\dots,\mathcal{M}}$$
 
 where $C_{i}$ denotes the concentration (or number density) of species $i$ calculated with respect to a _system basis_ $\beta$. 
 
-The first set of terms on the right-hand side denotes the rate of physical or _logical_ transport (units: mol or number per unit time) of chemical species $i$ into or from control volume $\Omega$, where $d_{is}$ denotes a direction parameter (in = +1, out = -1) for metabolite $i$ in stream $s$. 
+The first set of terms on the right-hand side denotes the rate of physical or _logical_ transport (units: mol or number per unit time) of chemical species $i$ into or from control volume $\Omega$, where $d_{s}$ denotes a direction parameter (in = +1, out = -1) for stream $s$. 
 
 The second set of terms describes the rate of chemical reactions that are occurring in the physical or logical control volume $\Omega$. The $\hat{r}_{j}$ terms describe the net rate of production (consumption) per unit $\beta$ of species $i$ by enzyme-catalyzed chemical reaction $j$, while $\sigma_{ij}$ denotes the stoichiometric coefficient relating species $i$ with reaction $j$:
 
@@ -71,7 +71,7 @@ $$\frac{d}{dt}\left(C_{i}\beta\right) = \beta\frac{dC_{i}}{dt}+C_{i}\frac{d\beta
 
 which can be substituted into the general balance equation to give:
 
-$$\frac{dC_{i}}{dt} = \frac{1}{\beta}\left(\sum_{s=1}^{\mathcal{S}}d_{is}\dot{n}_{is}\right) + \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - \frac{C_{i}}{\beta}\frac{d\beta}{dt}\qquad{i=1,\dots,\mathcal{M}}$$
+$$\frac{dC_{i}}{dt} = \frac{1}{\beta}\left(\sum_{s=1}^{\mathcal{S}}d_{s}\dot{n}_{is}\right) + \left(\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right) - \frac{C_{i}}{\beta}\frac{d\beta}{dt}\qquad{i=1,\dots,\mathcal{M}}$$
 
 When building models of the _intracellular_ state of a cell, there are no physical transport terms (material is not flowing or from the cell). Intracellular balances in industrial metabolic engineering applications for liquid cultures are typically written in _biomass-specific units_, e.g., something per gram dry weight (gDW) of cells in the reactor; concentrations are given in units of $\star$-mol/gDW. In this case, the 
 abstract volume basis $\beta$ is given by:
@@ -263,13 +263,11 @@ Is there a systematic approach to systematically estimating all possible steady-
 md"""
 ##### Convex pathway analysis
 
-Convex pathway analysis is an approach to catalog all possible steady-state pathways through a metabolic network. In particular, convex decomposition approaches posit that any potential steady-state flux can be represented as the [convex combination](https://en.wikipedia.org/wiki/Convex_combination) of a set of [orthogonal](https://en.wikipedia.org/wiki/Orthogonality) basis vectors called _extreme pathways_ $\mathbf{P}_{i}$:
+Convex pathway analysis is an approach to catalog all possible steady-state pathways through a metabolic network. In particular, convex decomposition approaches posit that any potential steady-state flux can be represented as the [convex combination](https://en.wikipedia.org/wiki/Convex_combination) of a set of [convex independent](https://en.wikipedia.org/wiki/Convex_position) basis vectors called _extreme pathways_ $\mathbf{P}_{i}$:
 
 $$\mathbf{v} = \sum_{i=1}^{\mathcal{P}}\alpha_{i}\mathbf{P}_{i}$$
 
-where $\mathcal{P}$ denotes the number of basis pathways, and $\mathbf{P}_{i}$ denotes the $\mathcal{R}\times{1}$ extreme pathway basis vector. The term(s) $\alpha_{i}\geq{0}$ denotes the weight of extreme pathway $i$, where:
-
-$$\sum_{i=1}^{\mathcal{P}}\alpha_{i} = 1$$. 
+where $\mathcal{P}$ denotes the number of basis pathways, and $\mathbf{P}_{i}$ denotes the $\mathcal{R}\times{1}$ extreme pathway basis vector. The term(s) $\alpha_{i}\geq{0}$ denotes the weight of extreme pathway $i$.
 
 Extreme pathways are _very difficult_ to compute but can give super exciting insights into the operation and capabilities of a metabolic network.
 
@@ -853,7 +851,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─5ed32467-894e-4c9f-aedb-30394404247e
 # ╠═fe33473f-084c-4d42-b37a-b3f2cb8ff1f0
 # ╠═5b8a80b6-0168-4d2c-b511-c75793c57749
-# ╠═b1b251d8-7e23-11ec-09d1-97ace15b3bd3
+# ╟─b1b251d8-7e23-11ec-09d1-97ace15b3bd3
 # ╟─9833473a-3fc3-4b61-bb07-050d6e159cb2
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

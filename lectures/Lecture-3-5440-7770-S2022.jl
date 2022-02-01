@@ -108,7 +108,7 @@ __Table 2__: Flux table for maximizing toy network. The [GNU Linear Programming 
 # ╔═╡ a40ef7cf-3e46-4f4b-9af9-5a0c88d15ac9
 md"""
 ### Some fun with constraints and the FBA problem formulation
-The standard flux balance analysis problem is written in `concentration` units and metabolic reaction flux e.g., $\star$mol/gDW-hr. However, there is nothing that says we have to do that. For example, instead of working in concentration units, it may be more convenient to work in mass or mole units. Let's consider the latter. 
+The standard flux balance analysis problem is written in `concentration` units and metabolic reaction flux, e.g., $\star$mol/gDW-hr. However, there is nothing that says we have to do that. For example, it may be more convenient to work in mass or mole units instead of working in concentration units. Let's consider the latter. 
 
 We know from our material and energy balance class that the open mole balance around component $i$ in the _logical_ control volume is given by:
 
@@ -128,7 +128,7 @@ In other words, when searching for the optimal set of $\dot{\epsilon}_{j}$ we ha
 
 $$\mathcal{L}_{j}\leq\dot{\epsilon}_{j}\leq\mathcal{U}_{j}\qquad{j=1,2\dots,\mathcal{R}}$$
 
-where the $\mathcal{L}_{j}$ and $\mathcal{U}_{j}$ denote the lower and upper bounds that $\dot{\epsilon}_{j}$ can take. Remember that the open extents $\dot{\epsilon}_{j}$ are just reaction rates times the volume. Thus, the lower and upper bounds describe the permissible range that we expect the rate _could_ obtain.  
+where the $\mathcal{L}_{j}$ and $\mathcal{U}_{j}$ denote the lower and upper bounds that $\dot{\epsilon}_{j}$ can take, remember that the open extents $\dot{\epsilon}_{j}$ are just reaction rates times the volume. Thus, the lower and upper bounds describe the permissible range we expect the rate _could_ obtain.  
 
 Putting everything together gives a slightly different problem formulation to compute the mol/time flux through a reaction network. An objective:
 
@@ -1588,14 +1588,14 @@ version = "0.9.1+5"
 # ╠═2b9ca1ce-9080-4c42-91a1-e5005ddc4ee5
 # ╟─4b32c7ae-397f-43c4-ac43-d3107b4de9c4
 # ╟─0a325629-0a14-426f-a99e-9bccdc2e0dfa
-# ╠═009df867-8c26-422a-8adf-a83da0b667bd
-# ╠═3f98b575-eb2c-40b3-ac6f-43c55e4ec9d3
+# ╟─009df867-8c26-422a-8adf-a83da0b667bd
+# ╟─3f98b575-eb2c-40b3-ac6f-43c55e4ec9d3
 # ╟─72e5c813-2545-4d7c-9437-dc3f98f4e6e7
 # ╠═45222d77-906b-4393-b2f9-63452300c28e
 # ╠═87436aa6-289f-48f7-93ed-865360f27d92
 # ╟─6dd988f9-28d3-47cb-8b32-a415132b388b
 # ╟─39f3f612-114e-4f71-be75-ec427607e577
-# ╠═a40ef7cf-3e46-4f4b-9af9-5a0c88d15ac9
+# ╟─a40ef7cf-3e46-4f4b-9af9-5a0c88d15ac9
 # ╟─a7dd770b-22b3-4561-a85b-6071e7142c6d
 # ╟─3a091b76-76cd-479c-b382-d5f2e3e75c59
 # ╟─0fd5a620-682e-48d8-b1e6-ba110018f9e3

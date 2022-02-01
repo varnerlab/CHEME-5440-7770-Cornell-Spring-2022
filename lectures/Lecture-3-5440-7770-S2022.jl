@@ -52,7 +52,7 @@ Let's use expa to explore the toy network taken from (note: we've renumbered the
 """
 
 # ╔═╡ 2b9ca1ce-9080-4c42-91a1-e5005ddc4ee5
-pidx = 5
+pidx = 7
 
 # ╔═╡ 4b32c7ae-397f-43c4-ac43-d3107b4de9c4
 md"""
@@ -118,7 +118,7 @@ The first term is the rate of `transport` into and from the control volume (unit
 
 Let's suppose that we have a single logical stream entering (s=1) and exiting (s=2) the control volume. In this case, the open mole balance becomes:
 
-$$n_{i,2} = n_{i,1} + \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\dot{\epsilon}_{j}\qquad{i=1,2,\dots,\mathcal{M}}$$
+$$\dot{n}_{i,2} = \dot{n}_{i,1} + \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\dot{\epsilon}_{j}\qquad{i=1,2,\dots,\mathcal{M}}$$
 
 These balances can be used as constraints to find the optimal open extent of reaction. In particular, we know that we actually pass $\alpha\leq{S\dot{\epsilon}}\leq\beta$ to the solve. Thus, because $\dot{n}_{i,2}\geq{0}$, the FBA problem is subject to the mol constraints: 
 
@@ -259,6 +259,9 @@ end
 # ╔═╡ 8965f69d-3014-46b3-816d-7d6f7fd57adf
 (ℳ,ℛ) = size(S)
 
+# ╔═╡ d0e0e084-c706-45cf-b40f-47ca2e5ce088
+S
+
 # ╔═╡ 8be1e489-7382-4315-8c4c-111abdead290
 begin 
 
@@ -272,6 +275,12 @@ begin
 	# show -
 	nothing
 end
+
+# ╔═╡ a655928e-a275-4bb1-bca3-39640804ed63
+size(P)
+
+# ╔═╡ 9108a028-a5fb-428e-9fd8-2c7f0d80f4af
+rank(P)
 
 # ╔═╡ 0a325629-0a14-426f-a99e-9bccdc2e0dfa
 begin
@@ -310,7 +319,7 @@ begin
 	flux_bounds_array = [
 
 		# v₁ (ℒ,𝒰)
-		0.0 100.0 		; # 1 v₁ units: mmol/gDW-L
+		0.0 100.0 		; # 1 v₁ units: mmol/gDW-hr
 		
 		# v₂
 		0.0 100.0 		; # 2 Fv₂ units: mmol/gDW-L
@@ -328,8 +337,8 @@ begin
 		0.0 0.0 		; # 8 Rb₁ units: mmol/gDW-L
 
 		# b₂
-		0.0 0.0 		; # 9 Fb₂ units: mmol/gDW-L
-		0.0 0.0 		; # 10 Rb₂ units: mmol/gDW-L
+		0.0 100.0 		; # 9 Fb₂ units: mmol/gDW-L
+		0.0 100.0 		; # 10 Rb₂ units: mmol/gDW-L
 
 		# b₃
 		0.0 100.0 		; # 11 Fb₃ units: mmol/gDW-L
@@ -337,12 +346,12 @@ begin
 
 		# b₄
 		0.0 100.0 		; # 13 Fb₄ units: mmol/gDW-L
-		0.0 100.0 		; # 14 Rb₄ units: mmol/gDW-L
+		0.0 0.0 		; # 14 Rb₄ units: mmol/gDW-L
 	];
 
 	# specify the objective -
 	c = zeros(ℛ)
-	c[11] = -1 # negative: default is minimize
+	c[13] = -1 # negative: default is minimize
 
 	# compute the optimal flux distribution -
 	result = lib.flux(S, flux_bounds_array,species_bounds_array,c);
@@ -385,7 +394,7 @@ begin
 	# units: *mol/time
 	n_dot_in = [
 		10.0 	; # 1 A₁ 
-		1.0 	; # 2 A₂
+		10.0 	; # 2 A₂
 		0.0 	; # 3 B
 		0.0 	; # 4 P
 		0.0 	; # 5 C
@@ -412,8 +421,8 @@ begin
 	flux_bounds_array₂ = [
 
 		# ℒ 𝒰
-		0.0 10.0 	; # 1 r₁
-		0.0 10.0  	; # 2 r₂
+		0.0 1000.0 	; # 1 r₁
+		0.0 1000.0  	; # 2 r₂
 		0.0 20.0 	; # 3 r₃
 	];
 
@@ -1584,7 +1593,10 @@ version = "0.9.1+5"
 # ╟─306e390f-acbe-4b2a-8e4f-3571003359ad
 # ╠═be4b1854-1a14-4452-ad7e-22d614740a10
 # ╠═8965f69d-3014-46b3-816d-7d6f7fd57adf
+# ╠═d0e0e084-c706-45cf-b40f-47ca2e5ce088
 # ╠═8be1e489-7382-4315-8c4c-111abdead290
+# ╠═a655928e-a275-4bb1-bca3-39640804ed63
+# ╠═9108a028-a5fb-428e-9fd8-2c7f0d80f4af
 # ╠═2b9ca1ce-9080-4c42-91a1-e5005ddc4ee5
 # ╟─4b32c7ae-397f-43c4-ac43-d3107b4de9c4
 # ╟─0a325629-0a14-426f-a99e-9bccdc2e0dfa
@@ -1597,7 +1609,7 @@ version = "0.9.1+5"
 # ╟─39f3f612-114e-4f71-be75-ec427607e577
 # ╟─a40ef7cf-3e46-4f4b-9af9-5a0c88d15ac9
 # ╟─a7dd770b-22b3-4561-a85b-6071e7142c6d
-# ╠═3a091b76-76cd-479c-b382-d5f2e3e75c59
+# ╟─3a091b76-76cd-479c-b382-d5f2e3e75c59
 # ╟─0fd5a620-682e-48d8-b1e6-ba110018f9e3
 # ╠═1f31384d-13f8-4f31-9e23-9f6ad18eda23
 # ╟─bc52eb4b-9761-459c-8a6e-c457f13d7335

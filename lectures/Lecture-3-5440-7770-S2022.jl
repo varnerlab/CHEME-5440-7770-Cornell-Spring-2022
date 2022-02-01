@@ -1,8 +1,30 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.7
 
 using Markdown
 using InteractiveUtils
+
+# ╔═╡ 7ed39fbc-8c1a-4d10-a6b7-7608e6e87395
+md"""
+### Estimation of flux through a metabolic network
+
+Our overall objective as a metabolic engineer is to maximize the `performance` of a metabolic network, e.g., develop a system that produces a desired product with the highest possible yield, or at the maximum possible rate, etc. 
+
+Toward this goal, we developed material balances that describe the dynamic and steady-state `concentration` of chemical species (metabolites) in a metabolic network. In particular, the `concentration` of metabolites (written in cellmass specific units e.g., $\star$mol/gDW) for a metabolic network with $\mathcal{R}$ reactions and $\mathcal{M}$ metabolites operating in batch culture can be written (in matrix-vector form) as:
+
+$$\frac{d\mathbf{x}}{dt} = \mathbf{S}\mathbf{v} - \mu\mathbf{x}$$
+
+where $\mathbf{x}$ denbotes the $\mathcal{M}\times{1}$ column vector of metabolite concentrations, $\mathbf{S}$ denotes the $\mathcal{M}\times\mathcal{R}$ stoichiometricx matrix, $\mathbf{v}$ denotes the $\mathcal{R}\times{1}$ column vector of (net)reaction rates, and $\mu\mathbf{x}$ denotes the diliution due to growth term. Note: the form of the dilution terms depends upon the concentration basis.
+
+We also introduced some tools that we might use to achieve our engineering objective. In particular, we introduced some tools to explore the structure and properties of the stoichiometric matrix $\mathbf{S}$, and Flux Balance Analysis (FBA) a tool to compute optimal flux through a metabolic network.
+
+Today, we will:
+
+* Compute [extreme pathways](https://pubmed.ncbi.nlm.nih.gov/10716907/) using the [expa](https://pubmed.ncbi.nlm.nih.gov/15613397/) algorithm
+* Compute optimal `flux` through a metabolic network using [flux balance analysis (FBA)](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC3108565/)
+
+
+"""
 
 # ╔═╡ a55ad25a-e4ff-4af7-9684-c1b02fec900d
 md"""
@@ -19,7 +41,7 @@ For more information on extreme pathways, check out:
 
 # ╔═╡ dc712cba-1f18-46ec-a7f1-b25b0aca1e0a
 md"""
-##### Extreme pathways example using expa
+##### Computing extreme pathways using expa
 We've implemented the expa algorithm from Palsson and coworkers:
 
 * [Bell SL, Palsson BØ. Expa: a program for calculating extreme pathways in biochemical reaction networks. Bioinformatics. 2005 Apr 15;21(8):1739-40. doi: 10.1093/bioinformatics/bti228. Epub 2004 Dec 21. PMID: 15613397.](https://pubmed.ncbi.nlm.nih.gov/15613397/)
@@ -74,7 +96,24 @@ Let's consider a continuous culture at a steady state.
 """
 
 # ╔═╡ b620232d-6c8f-478c-93e5-9b4743518ff6
+md"""
+### Summary and conclusions
+In this lecture we:
 
+* Computed [extreme pathways](https://pubmed.ncbi.nlm.nih.gov/10716907/) using the [expa](https://pubmed.ncbi.nlm.nih.gov/15613397/) algorithm
+* Computed the optimal `flux` through a metabolic network using [flux balance analysis (FBA)](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC3108565/)
+
+"""
+
+# ╔═╡ ebb0d7cf-fd92-45be-ab98-5bb4de2c2ba2
+md"""
+### Next time:
+
+* Compare a dynamic experiment with a flux balance analysis computation: [Varma A, Palsson BO. Stoichiometric flux balance models quantitatively predict growth and metabolic by-product secretion in wild-type Escherichia coli W3110. Appl Environ Microbiol. 1994 Oct;60(10):3724-31. doi: 10.1128/aem.60.10.3724-3731.1994. PMID: 7986045; PMCID: PMC201879](https://pubmed.ncbi.nlm.nih.gov/7986045/)
+
+* Flux problem basics: how do we compute the bounds of a reaction?
+
+"""
 
 # ╔═╡ 907af081-4a01-4a51-bda9-3a34295f9208
 function ingredients(path::String)
@@ -144,6 +183,7 @@ begin
 	push!(reaction_array,"b₄,E,∅,true")
 	
 	# compute the stoichiometric matrix -
+	# the optional expand arguement = should we split reversible reactions? (default: false)
 	(S, species_array, reaction_name_array) = lib.build_stoichiometric_matrix(reaction_array; 
 		expand=true);
 
@@ -156,8 +196,16 @@ end
 
 # ╔═╡ 8be1e489-7382-4315-8c4c-111abdead290
 begin 
+
+	# compute the extreme pathways Tableu -
 	PM = lib.expa(S)
+	
+	# P constaints the extreme pathways (rows) and 𝒩 is the "balanced" array (should be all zeros) -
 	P = PM[:,1:ℛ]
+	𝒩 = PM[:,(ℛ+1):end]
+
+	# show -
+	nothing
 end
 
 # ╔═╡ 0a325629-0a14-426f-a99e-9bccdc2e0dfa
@@ -169,8 +217,7 @@ begin
 	# which reactions are being used?
 	reaction_list_expa = reaction_name_array[idx_non_zero]
 
-	# which reactions does this pathway use?
-	@show reaction_list_expa
+	
 end
 
 # ╔═╡ 45222d77-906b-4393-b2f9-63452300c28e
@@ -1326,6 +1373,7 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
+# ╠═7ed39fbc-8c1a-4d10-a6b7-7608e6e87395
 # ╟─a55ad25a-e4ff-4af7-9684-c1b02fec900d
 # ╟─dc712cba-1f18-46ec-a7f1-b25b0aca1e0a
 # ╟─306e390f-acbe-4b2a-8e4f-3571003359ad
@@ -1334,15 +1382,16 @@ version = "0.9.1+5"
 # ╠═8be1e489-7382-4315-8c4c-111abdead290
 # ╠═2b9ca1ce-9080-4c42-91a1-e5005ddc4ee5
 # ╠═0a325629-0a14-426f-a99e-9bccdc2e0dfa
-# ╟─009df867-8c26-422a-8adf-a83da0b667bd
+# ╠═009df867-8c26-422a-8adf-a83da0b667bd
 # ╟─3f98b575-eb2c-40b3-ac6f-43c55e4ec9d3
 # ╟─72e5c813-2545-4d7c-9437-dc3f98f4e6e7
 # ╠═45222d77-906b-4393-b2f9-63452300c28e
-# ╟─39f3f612-114e-4f71-be75-ec427607e577
-# ╠═b620232d-6c8f-478c-93e5-9b4743518ff6
+# ╠═39f3f612-114e-4f71-be75-ec427607e577
+# ╟─b620232d-6c8f-478c-93e5-9b4743518ff6
+# ╟─ebb0d7cf-fd92-45be-ab98-5bb4de2c2ba2
 # ╠═c51f8430-8147-11ec-3501-498c9bf67b57
 # ╠═907af081-4a01-4a51-bda9-3a34295f9208
-# ╠═d201abce-202c-44f6-98a3-67e47c2a99f4
+# ╟─d201abce-202c-44f6-98a3-67e47c2a99f4
 # ╠═647315d2-e0d7-4a55-bab8-e8ff9d784b97
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

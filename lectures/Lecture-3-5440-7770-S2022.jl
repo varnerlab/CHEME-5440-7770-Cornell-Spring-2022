@@ -10,13 +10,13 @@ md"""
 
 Our overall objective as a metabolic engineer is to maximize the `performance` of a metabolic network, e.g., develop a system that produces a desired product with the highest possible yield, or at the maximum possible rate, etc. 
 
-Toward this goal, we developed material balances that describe the dynamic and steady-state `concentration` of chemical species (metabolites) in a metabolic network. In particular, the `concentration` of metabolites (written in cellmass specific units e.g., $\star$mol/gDW) for a metabolic network with $\mathcal{R}$ reactions and $\mathcal{M}$ metabolites operating in batch culture can be written (in matrix-vector form) as:
+Toward this goal, we developed material balances that describe the dynamic and steady-state `concentration` of chemical species (metabolites) in a metabolic network. In particular, the `concentration` of metabolites (written in cell mass-specific units, e.g., $\star$mol/gDW) for a metabolic network with $\mathcal{R}$ reactions and $\mathcal{M}$ metabolites operating in batch culture can be written (in matrix-vector form) as:
 
 $$\frac{d\mathbf{x}}{dt} = \mathbf{S}\mathbf{v} - \mu\mathbf{x}$$
 
 where $\mathbf{x}$ denbotes the $\mathcal{M}\times{1}$ column vector of metabolite concentrations, $\mathbf{S}$ denotes the $\mathcal{M}\times\mathcal{R}$ stoichiometricx matrix, $\mathbf{v}$ denotes the $\mathcal{R}\times{1}$ column vector of (net)reaction rates, and $\mu\mathbf{x}$ denotes the diliution due to growth term. Note: the form of the dilution terms depends upon the concentration basis.
 
-We also introduced some tools that we might use to achieve our engineering objective. In particular, we introduced some tools to explore the structure and properties of the stoichiometric matrix $\mathbf{S}$, and Flux Balance Analysis (FBA) a tool to compute optimal flux through a metabolic network.
+We also introduced some tools that we might use to achieve our engineering objective. In particular, we introduced some tools to explore the structure and properties of the stoichiometric matrix $\mathbf{S}$, and Flux Balance Analysis (FBA), a tool to compute optimal flux through a metabolic network.
 
 Today, we will:
 
@@ -29,7 +29,7 @@ Today, we will:
 # ╔═╡ a55ad25a-e4ff-4af7-9684-c1b02fec900d
 md"""
 ### Extreme pathways
-The set of extreme pathways, a generating set for all possible steady-state flux maps in a biochemical reaction network, can be computed from the stoichiometric matrix $\mathbf{S}$. In particular, any steady-state flux through a metabolic network can be written as:
+The set of extreme pathways, a generating set for all possible steady-state flux distributions in a metabolic network, can be computed from the stoichiometric matrix $\mathbf{S}$. In particular, any steady-state flux through a metabolic network can be written as:
 
 $$\mathbf{v} = \sum_{i=1}^{\mathcal{P}}\alpha_{i}\mathbf{P}_{i}$$
 
@@ -53,6 +53,11 @@ Let's use expa to explore the toy network taken from (note: we've renumbered the
 
 # ╔═╡ 2b9ca1ce-9080-4c42-91a1-e5005ddc4ee5
 pidx = 5
+
+# ╔═╡ 4b32c7ae-397f-43c4-ac43-d3107b4de9c4
+md"""
+__Table 1__: Extreme pathways table for the toy network of [Schilling CH, Letscher D, Palsson BO. Theory for the systemic definition of metabolic pathways and their use in interpreting metabolic function from a pathway-oriented perspective. J Theor Biol. 2000 Apr 7;203(3):229-48. doi: 10.1006/jtbi.2000.1073. PMID: 10716907.](https://pubmed.ncbi.nlm.nih.gov/10716907/)
+"""
 
 # ╔═╡ 009df867-8c26-422a-8adf-a83da0b667bd
 md"""
@@ -91,8 +96,68 @@ $\mathcal{L}$ ($\mathcal{U}$) denote the permissible lower (upper) bounds on the
 
 # ╔═╡ 72e5c813-2545-4d7c-9437-dc3f98f4e6e7
 md"""
-##### FBA example
-Let's consider a continuous culture at a steady state.
+##### Toy FBA example
+Let's consider the `toy` network above. Assume this network is operating in cells growing in a continuous culture at a steady-state, where we use cell mass specific units.  We'll use the [GNU Linear Programming Kit (GLPK)](https://www.gnu.org/software/glpk/) and the [GLPK.jl](https://github.com/jump-dev/GLPK.jl) package to solve the linear programming problem. 
+"""
+
+# ╔═╡ 6dd988f9-28d3-47cb-8b32-a415132b388b
+md"""
+__Table 2__: Flux table for maximizing toy network. The [GNU Linear Programming Kit solver](https://www.gnu.org/software/glpk/) produced an estimate of metabolic flux ($\star$mol/gDW-hr) given the problem constraints. 
+"""
+
+# ╔═╡ a40ef7cf-3e46-4f4b-9af9-5a0c88d15ac9
+md"""
+### Some fun with constraints and the FBA problem formulation
+The standard flux balance analysis problem is written in `concentration` units and metabolic reaction flux e.g., $\star$mol/gDW-hr. However, there is nothing that says we have to do that. For example, instead of working in concentration units, it may be more convenient to work in mass or mole units. Let's consider the latter. 
+
+We know from our material and energy balance class that the open mole balance around component $i$ in the _logical_ control volume is given by:
+
+$$\sum_{s=1}^{\mathcal{S}}d_{s}\dot{n}_{is} + \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\dot{\epsilon}_{j} = 0\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+The first term is the rate of `transport` into and from the control volume (units: mol $i$/time) from $\mathcal{S}$ possible `streams`; the `transport` terms can be physical or logical where $d_{s} = 1$ if the stream $s$ enters control volume, $d_{s}=-1$ is stream $s$ exits the control volume. The second summation denotes the reaction terms, where $\sigma_{ij}$ denote the stoichiometric coefficient describing the connection between metabolite $i$ and reaction $j$ and $\dot{\epsilon}_{j}$ denote the open extent of reaction (units: mol/time).
+
+Let's suppose that we have a single logical stream entering (s=1) and exiting (s=2) the control volume. In this case, the open mole balance becomes:
+
+$$n_{i,2} = n_{i,1} + \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\dot{\epsilon}_{j}\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+These balances can be used as constraints to find the optimal open extent of reaction. In particular, we know that we actually pass $\alpha\leq{S\dot{\epsilon}}\leq\beta$ to the solve. Thus, because $\dot{n}_{i,2}\geq{0}$, the FBA problem is subject to the mol constraints: 
+
+$$\dot{n}_{i,1} + \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\dot{\epsilon}_{j}\geq{0}\qquad\forall{i}$$
+
+In other words, when searching for the optimal set of $\dot{\epsilon}_{j}$ we have to select values that give physically realistic answers (we can't have a negative mol flow rate). Next, the $\dot{\epsilon}_{j}$ terms (just flux) are bounded from above and below: 
+
+$$\mathcal{L}_{j}\leq\dot{\epsilon}_{j}\leq\mathcal{U}_{j}\qquad{j=1,2\dots,\mathcal{R}}$$
+
+where the $\mathcal{L}_{j}$ and $\mathcal{U}_{j}$ denote the lower and upper bounds that $\dot{\epsilon}_{j}$ can take. Remember that the open extents $\dot{\epsilon}_{j}$ are just reaction rates times the volume. Thus, the lower and upper bounds describe the permissible range that we expect the rate _could_ obtain.  
+
+Putting everything together gives a slightly different problem formulation to compute the mol/time flux through a reaction network. An objective:
+
+$$\mathcal{O} = \sum_{j=1}^{\mathcal{R}}c_{j}\dot{\epsilon}_{j}$$
+
+is minimized (or maximized) subject to a collection of linear constraints:
+
+$$\begin{eqnarray}
+\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\dot{\epsilon}_{j}&\geq&{-\dot{n}_{i,1}}\qquad\forall{i}\\
+\dot{n}_{i,2}&\geq&{0}\qquad\forall{i}\\ 
+\mathcal{L}_{j}&\leq\dot{\epsilon}_{j}\leq&\mathcal{U}_{j}\qquad{j=1,2\dots,\mathcal{R}}
+\end{eqnarray}$$
+
+"""
+
+# ╔═╡ a7dd770b-22b3-4561-a85b-6071e7142c6d
+md"""
+##### Example: flux balance analysis with mole flow rates and reaction open extent
+Let's suppose the objective was to maximize the production of $P_{x}$. Let's set up a flux balance analysis problem to solve this problem.
+"""
+
+# ╔═╡ 0fd5a620-682e-48d8-b1e6-ba110018f9e3
+md"""
+__Table 3__: Flux table for maximizing $P$ production. The [GNU Linear Programming Kit solver](https://www.gnu.org/software/glpk/) produced an estimate of the (open) reaction extents $\dot{\epsilon}_{j}~\forall{j}$ given the problem constraints. 
+"""
+
+# ╔═╡ bc52eb4b-9761-459c-8a6e-c457f13d7335
+md"""
+__Table 4__: State table for maximizing $P$ production. The flux balance analysis problem produces estimates for the optimal value of the (open) reaction extents $\dot{\epsilon}_{j}~\forall{j}$ (units: $\star$mol/hr). We can then use the steady-state species mol balances to compute the output composition (stream 1 input, stream 2 is an output)
 """
 
 # ╔═╡ b620232d-6c8f-478c-93e5-9b4743518ff6
@@ -217,6 +282,19 @@ begin
 	# which reactions are being used?
 	reaction_list_expa = reaction_name_array[idx_non_zero]
 
+	# generate the reaction strings -
+	reaction_display_string_array = lib.generate_reaction_strings(reaction_array; expand=true)
+
+	# make a table -
+	expa_pathway_table = Array{Any,2}(undef,length(idx_non_zero),2)
+
+	for i ∈ 1:length(reaction_list_expa)
+		expa_pathway_table[i,1] = reaction_list_expa[i]
+		expa_pathway_table[i,2] = reaction_display_string_array[idx_non_zero[i]]
+	end
+
+	expa_header_row = (["name", "reaction string"])
+	pretty_table(HTML, expa_pathway_table; header=expa_header_row, tf=tf_html_minimalist)
 	
 end
 
@@ -224,6 +302,8 @@ end
 begin
 
 	# species bounds array -
+	# Sv = 0
+	# Solver by default takes L <= Sv <= U
 	species_bounds_array = zeros(ℳ,2);
 	
 	# specify the flux_bounds -
@@ -271,9 +351,11 @@ begin
 	nothing
 end
 
-# ╔═╡ 39f3f612-114e-4f71-be75-ec427607e577
-with_terminal() do
+# ╔═╡ 87436aa6-289f-48f7-93ed-865360f27d92
+result
 
+# ╔═╡ 39f3f612-114e-4f71-be75-ec427607e577
+begin
 	# initialize -
 	state_table = Array{Any,2}(undef,ℛ,3)
 	
@@ -289,9 +371,132 @@ with_terminal() do
 		state_table[i,2] = reaction_string_array[i]
 		state_table[i,3] = v[i]
 	end
-	header_row = (["index", "reaction", "flux"], ["","","mmol/gDW-L"])
-	pretty_table(state_table; header=header_row)
+	header_row = (["index", "reaction string", "optimal flux"], ["","","mmol/gDW-L"])
+	pretty_table(HTML, state_table; header=header_row, tf=tf_html_minimalist)
 end
+
+# ╔═╡ 3a091b76-76cd-479c-b382-d5f2e3e75c59
+PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"Fig-ToyNetwork-CBT_v2.png"))
+
+# ╔═╡ 1f31384d-13f8-4f31-9e23-9f6ad18eda23
+begin
+
+	# setup flow rate in
+	# units: *mol/time
+	n_dot_in = [
+		10.0 	; # 1 A₁ 
+		1.0 	; # 2 A₂
+		0.0 	; # 3 B
+		0.0 	; # 4 P
+		0.0 	; # 5 C
+		0.0 	; # 6 x
+		0.0 	; # 7 y
+	]
+	
+	# Setup STM -
+	# notice: the STM does NOT have the exchange fluxes b*
+	S₂ = [
+
+		# r₁ r₂ r₃
+		-1.0 0.0 0.0 ; # 1 A₁
+		0.0 0.0 -1.0 ; # 2 A₂
+		1.0 -1.0 0.0 ; # 3 B
+		0.0 1.0 0.0  ; # 4 P
+		0.0 0.0 1.0  ; # 5 C
+		-1.0 0.0 1.0 ; # 6 x
+		1.0 0.0 -1.0 ; # 7 y 
+	];
+	
+	# set the flux bounds array -
+	# assume: all reactions are *irreversible* -
+	flux_bounds_array₂ = [
+
+		# ℒ 𝒰
+		0.0 10.0 	; # 1 r₁
+		0.0 10.0  	; # 2 r₂
+		0.0 20.0 	; # 3 r₃
+	];
+
+	# set the species bounds array -
+	# units: *mol/time
+	species_bounds_array₂ = [
+
+		# ℒ lower     𝒰 upper
+		-n_dot_in[1] 1000.0 				; # 1 A₁
+		-n_dot_in[2] 1000.0 				; # 2 A₂
+		-n_dot_in[3] 1000.0 				; # 3 B
+		-n_dot_in[4] 1000.0 				; # 4 P
+		-n_dot_in[5] 1000.0 				; # 5 C
+		-n_dot_in[6] 1000.0 				; # 6 x
+		-n_dot_in[7] 1000.0 				; # 7 y
+	];
+
+	# max P formation -
+	(ℳ₂,ℛ₂) = size(S₂)
+	obj_vector₂ = zeros(ℛ₂)
+	obj_vector₂[2] = -1.0
+
+	# compute the optimal flux -
+	result₂= lib.flux(S₂, flux_bounds_array₂, species_bounds_array₂, obj_vector₂)
+	
+	# initialize some storage -
+	flux_table = Array{Any,2}(undef,ℛ₂,4)
+
+	# reactions -
+	reaction_strings = [
+		"A₁ + x --> B + y" 	; # 1 r₁
+		"B --> P" 			; # 2 r₂
+		"A₂ + y --> C + x" 	; # 3 r₃
+	]
+
+	# populate the state table -
+	for reaction_index ∈ 1:ℛ₂
+		flux_table[reaction_index,1] = reaction_strings[reaction_index]
+		flux_table[reaction_index,2] = result₂.calculated_flux_array[reaction_index]
+		flux_table[reaction_index,3] = flux_bounds_array₂[reaction_index,1]
+		flux_table[reaction_index,4] = flux_bounds_array₂[reaction_index,2]
+	end
+
+	# header row -
+	flux_table_header_row = (["Reaction","ϵᵢ_dot", "ϵ₁_dot LB", "ϵ₁_dot UB"],
+		["","mol/time", "mol/time", "mol/time"]);
+		
+	# write the table -
+	pretty_table(HTML, flux_table; header=flux_table_header_row, tf=tf_html_minimalist)
+end
+
+# ╔═╡ c1368f87-bd93-448f-ad10-b70040f5c854
+begin
+
+	# setup: state table -
+	ϵ = result₂.calculated_flux_array
+	n_dot_out = n_dot_in + S₂*ϵ
+
+	state_symbol_array = [
+		"A₁", "A₂", "B", "P", "C", "x","y"
+	]
+
+	# build state table -
+	state_table₂ = Array{Any,2}(undef,ℳ₂,5)
+	for state_index ∈ 1:ℳ₂
+
+		state_table₂[state_index,1] = state_index
+		state_table₂[state_index,2] = state_symbol_array[state_index]
+		state_table₂[state_index,3] = n_dot_in[state_index]
+		state_table₂[state_index,4] = n_dot_out[state_index]
+		state_table₂[state_index,5] = n_dot_out[state_index] - n_dot_in[state_index]
+	end
+
+	# header row -
+	state_table_header_row = (["index i","state","nᵢ_dot_in", "nᵢ_dot_out", "Δnᵢ_dot"],
+		["","", "mol/time", "mol/time", "mol/time"]);
+
+	# write the table -
+	pretty_table(HTML, state_table₂; header=state_table_header_row, tf=tf_html_minimalist)
+end
+
+# ╔═╡ 0e46d5ca-197f-47ca-a075-7281e3087460
+TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true)
 
 # ╔═╡ d201abce-202c-44f6-98a3-67e47c2a99f4
 html"""
@@ -1373,7 +1578,7 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╠═7ed39fbc-8c1a-4d10-a6b7-7608e6e87395
+# ╟─7ed39fbc-8c1a-4d10-a6b7-7608e6e87395
 # ╟─a55ad25a-e4ff-4af7-9684-c1b02fec900d
 # ╟─dc712cba-1f18-46ec-a7f1-b25b0aca1e0a
 # ╟─306e390f-acbe-4b2a-8e4f-3571003359ad
@@ -1381,14 +1586,25 @@ version = "0.9.1+5"
 # ╠═8965f69d-3014-46b3-816d-7d6f7fd57adf
 # ╠═8be1e489-7382-4315-8c4c-111abdead290
 # ╠═2b9ca1ce-9080-4c42-91a1-e5005ddc4ee5
-# ╠═0a325629-0a14-426f-a99e-9bccdc2e0dfa
+# ╟─4b32c7ae-397f-43c4-ac43-d3107b4de9c4
+# ╟─0a325629-0a14-426f-a99e-9bccdc2e0dfa
 # ╠═009df867-8c26-422a-8adf-a83da0b667bd
-# ╟─3f98b575-eb2c-40b3-ac6f-43c55e4ec9d3
+# ╠═3f98b575-eb2c-40b3-ac6f-43c55e4ec9d3
 # ╟─72e5c813-2545-4d7c-9437-dc3f98f4e6e7
 # ╠═45222d77-906b-4393-b2f9-63452300c28e
-# ╠═39f3f612-114e-4f71-be75-ec427607e577
+# ╠═87436aa6-289f-48f7-93ed-865360f27d92
+# ╟─6dd988f9-28d3-47cb-8b32-a415132b388b
+# ╟─39f3f612-114e-4f71-be75-ec427607e577
+# ╠═a40ef7cf-3e46-4f4b-9af9-5a0c88d15ac9
+# ╟─a7dd770b-22b3-4561-a85b-6071e7142c6d
+# ╟─3a091b76-76cd-479c-b382-d5f2e3e75c59
+# ╟─0fd5a620-682e-48d8-b1e6-ba110018f9e3
+# ╠═1f31384d-13f8-4f31-9e23-9f6ad18eda23
+# ╟─bc52eb4b-9761-459c-8a6e-c457f13d7335
+# ╟─c1368f87-bd93-448f-ad10-b70040f5c854
 # ╟─b620232d-6c8f-478c-93e5-9b4743518ff6
 # ╟─ebb0d7cf-fd92-45be-ab98-5bb4de2c2ba2
+# ╠═0e46d5ca-197f-47ca-a075-7281e3087460
 # ╠═c51f8430-8147-11ec-3501-498c9bf67b57
 # ╠═907af081-4a01-4a51-bda9-3a34295f9208
 # ╟─d201abce-202c-44f6-98a3-67e47c2a99f4

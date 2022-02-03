@@ -299,7 +299,7 @@ In this lecture we:
 # ╔═╡ 71ccee21-d68a-40c3-bac2-b5b9e102acde
 md"""
 ### Next time
-Could we use Direct Gibbs energy calculations to compute metabolic network flux?
+Could we use Direct Gibbs energy calculations to compute the reversibility of many coupled reactions (or perhaps the flux itself)?
 """
 
 # ╔═╡ d29d1328-0993-4118-95da-ac0525dd2610

@@ -36,46 +36,69 @@ In this lecture, we will
 # ╔═╡ db68d9a1-7b50-466d-985a-13bc8a2c3a03
 md"""
 ### A model for flux bounds
-The flux bounds are important constraints in flux balance analysis calculations and the convex decomposition of the stoichiometric array. Beyond their role in the flux estimation problem, the flux bounds are _inetgrative_, i.e., these constraints integrate many types of genetic and biochemical information into the flux estimation problem. 
+The flux bounds are important constraints in flux balance analysis calculations and the convex decomposition of the stoichiometric array. Beyond their role in the flux estimation problem, the flux bounds are _integrative_, i.e., these constraints integrate many types of genetic and biochemical information into the flux estimation problem. 
 
 Flux bounds constrain the values that each reaction in a metabolic network can take. A general model for these bounds is given by:
 
-$$-\delta\left[{V_{max,j}^{\circ}}\left(\frac{\epsilon}{\epsilon^{\circ}}\right)\theta_{j}\left(\dots\right){f_{j}\left(\dots\right)}\right]\leq{v_{j}}\leq{V_{max,j}^{\circ}}\left(\frac{\epsilon}{\epsilon^{\circ}}\right)\theta_{j}\left(\dots\right){f_{j}\left(\dots\right)}$$
+$$-\delta_{j}\left[{V_{max,j}^{\circ}}\left(\frac{e}{e^{\circ}}\right)\theta_{j}\left(\dots\right){f_{j}\left(\dots\right)}\right]\leq{v_{j}}\leq{V_{max,j}^{\circ}}\left(\frac{e}{e^{\circ}}\right)\theta_{j}\left(\dots\right){f_{j}\left(\dots\right)}$$
 
-where $V_{max,j}^{\circ}$ denotes the maximum reaction velocity (units: flux) computed at some characteristic enzyme abundance (units: concentration), the ratio $\epsilon/\epsilon^{\circ}$ is a correction for enzyme abundance (units: dimensioness), $\theta_{j}\left(\dots\right)\in\left[0,1\right]$ is the fraction of maximial enzyme activity (a function or measurement producing units: dimensionless), and $f_{j}\left(\dots\right)$ is a function describing the substrate dependence of the reaction rate $j$ (units: dimensionless). Both $\theta_{j}\left(\dots\right)$ and $f_{j}\left(\dots\right)$ could have associated parameters, e.g., saturation or binding constants, etc.  Finally, the quanity $\delta_{j}\in\left\{0,1\right\}$ is a _binary_ variable: 
+where $V_{max,j}^{\circ}$ denotes the maximum reaction velocity (units: flux) computed at some characteristic enzyme abundance (units: concentration), the ratio $e/e^{\circ}$ is a correction for enzyme abundance (units: dimensioness), $\theta_{j}\left(\dots\right)\in\left[0,1\right]$ is the fraction of maximial enzyme activity (a function or measurement producing units: dimensionless), and $f_{j}\left(\dots\right)$ is a function describing the substrate dependence of the reaction rate $j$ (units: dimensionless). Both $\theta_{j}\left(\dots\right)$ and $f_{j}\left(\dots\right)$ could have associated parameters, e.g., saturation or binding constants, etc.  Finally, the quanity $\delta_{j}\in\left\{0,1\right\}$ is a _binary_ variable: 
 * If reaction $j$ is __reversible__ $\delta_{j}=1$ or,
 * If reaction $j$ is __irreversible__ $\delta_{j}=0$
 
-Today, let's focus on approaches for computing the binary direction parameter $\delta_{j}$.
+Today, let's focus on approaches for computing the binary direction parameter $\delta_{j}$. However, before we consider the reversibility, let's quickly discuss the other terms.
+"""
 
+# ╔═╡ ac28ae43-3d94-4c34-91a4-f002f13044cc
+md"""
 ##### A glimpse into the future
+
+In addition to thermodynamics, the flux bounds integrate two levels of biological control:
+* __fast__ control mechanisms (allosteric) modulate enzyme activity (the biochemial state influences the catalytic rate), and
+* __slow__ control mechanisms (gene expression) modulate the abundance of system enzymes 
+
+The $\theta_{j}\left(\dots\right)$ terms describe the __fast__ control mechansisms, while the __slow__ control mechanisms are buried in the enzyme abundance $e$. 
+
+Some classics references that we'll discussion (in the future some time):
+* [MONOD J, WYMAN J, CHANGEUX JP. ON THE NATURE OF ALLOSTERIC TRANSITIONS: A PLAUSIBLE MODEL. J Mol Biol. 1965 May;12:88-118. doi: 10.1016/s0022-2836(65)80285-6. PMID: 14343300.](https://pubmed.ncbi.nlm.nih.gov/14343300/)
+
+* [Covert MW, Palsson BO. Constraints-based models: regulation of gene expression reduces the steady-state solution space. J Theor Biol. 2003 Apr 7;221(3):309-25. doi: 10.1006/jtbi.2003.3071. PMID: 12642111.](https://pubmed.ncbi.nlm.nih.gov/12642111/)
+
 
 
 """
 
 # ╔═╡ 39c87c90-348e-444b-9375-02b81dc254aa
 md"""
-##### Direct Gibbs energy calculation for a single reaction
+##### Direct Gibbs energy calculation for a single reaction in a closed system
 
-One method to compute the equilibrium extent of reaction is to _directly_ compute the Gibbs energy for the reaction mixture, and the search over the reaction extent $\epsilon$ that minimizes the Gibbs energy. For a reaction mixture of $\mathcal{M}$ chemical components, the Gibbs energy can be written as the sum of the partial molar Gibbs energies (what we called G-bar) at constant T,P:
+We can compute the reversibility of biochemical reactions by computing thier equlibrium (or steady-state in the case of open systems) reaction extent. To do this, we minimize the Gibbs energy for the reaction mixture, by searching over the reaction extent $\epsilon$ (units: mol) that minimizes the Gibbs energy. For a reaction mixture of $\mathcal{M}$ chemical components, the Gibbs energy can be written as the sum of the partial molar Gibbs energies (what we call G-bar) at constant T,P:
 
 $$\hat{G} = \sum_{i=1}^{\mathcal{M}}\bar{G}_{i}n_{i}$$
 
-where $\hat{G}$ denotes the total Gibbs energy for the reaction mixture (units: kJ), $\bar{G}_{i}$ denotes the partial molar Gibbs energy for chemical component $i$ (units: kJ/mol) and $n_{i}$ denotes the number of mols of chemical component $i$. From lecture we know that:
+where $\hat{G}$ denotes the total Gibbs energy for the reaction mixture (units: kJ), $\bar{G}_{i}$ denotes the partial molar Gibbs energy for chemical component $i$ (units: kJ/mol) and $n_{i}$ denotes the number of mols of chemical component $i$. From classical thermodynamics we know that the partial molar Gibbs energy for chemical species $i$ is given by:
 
 $$\bar{G}_{i} = G_{i}^{\circ} + RT\ln\hat{a}_{i}$$
 
 where $G_{i}^{\circ}$ denotes the Gibbs energy for pure component $i$ at a reference state, and $\hat{a}_{i}$ denotes the ratio of fugacities (mixture at reaction T,P/pure component $i$ at reference conditions). We can subsitute $\bar{G}_{i}$ into the expression for $\hat{G}$, and after some algebraic magic, we get:
 
 $$\frac{1}{RT}\left(\hat{G}-\sum_{i=1}^{\mathcal{M}}n_{i}^{\circ}G_{i}^{\circ}\right) = 
-\epsilon_{1}\frac{\Delta{G}^{\circ}}{RT}+\sum_{i=1}^{\mathcal{M}}\left(n_{i}^{\circ}+\sigma_{i1}\epsilon_{1}\right)\ln\hat{a}_{i}$$
+\epsilon_{1}\frac{\Delta{G}^{\circ}}{RT}+\sum_{i=1}^{\mathcal{M}}n_{i}\ln\hat{a}_{i}$$
 
-We need to search for $\epsilon_{1}$ such that the total Gibbs energy $\hat{G}$ is small.
+The first term on the right-hand side is the extent of reaction times the scaled Gibbs energy of reaction; we can think of this term as how much of the Gibbs energy of reaction we recover as the reaction proceeds to the right. The second term describes how the overall Gibbs energy changes as the composition changes (at a fixed T,P). In particular, we know that:
+
+$$n_{i} = n_{i}^{\circ}+\sigma_{i1}\epsilon_{1}\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+and (for an ideal liquid reaction mixture) we know that $\hat{a}_{i}=x_{i}$ where:
+
+$$x_{i} = \frac{n_{i}}{\sum_{j=1}^{\mathcal{M}}n_{j}}\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+Thus, we need to search for $\epsilon_{1}$ (subject to bounds on permissible values of the extent) such that the total Gibbs energy $\hat{G}$ is at a minimum.
 """
 
 # ╔═╡ 3dfa9f6c-224f-4a1f-8d1f-683992c1b82e
 md"""
-Example reaction:
+##### Example reaction: phosphoglucose isomerase (PGI)
 """
 
 # ╔═╡ c659d217-9ba9-47f4-9f6f-7f96dcdbbea3
@@ -223,6 +246,10 @@ begin
 	bgfs_soln = Optim.minimizer(opt_result)[1]
 	@show "Optim found ϵ = $(bgfs_soln)"
 end
+
+# ╔═╡ be13e99b-fc7c-4d80-9a19-5a0536eae108
+md"""
+"""
 
 # ╔═╡ 66eb0580-706c-4321-a02c-c4f3733af494
 md"""
@@ -1338,7 +1365,8 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╟─84cd8fcb-f0f7-480b-abe6-58686d6bd7e2
-# ╠═db68d9a1-7b50-466d-985a-13bc8a2c3a03
+# ╟─db68d9a1-7b50-466d-985a-13bc8a2c3a03
+# ╟─ac28ae43-3d94-4c34-91a4-f002f13044cc
 # ╟─39c87c90-348e-444b-9375-02b81dc254aa
 # ╟─3dfa9f6c-224f-4a1f-8d1f-683992c1b82e
 # ╠═c659d217-9ba9-47f4-9f6f-7f96dcdbbea3
@@ -1353,6 +1381,7 @@ version = "0.9.1+5"
 # ╟─b8bed863-8140-4b17-a97b-a07a45e1099a
 # ╠═a4a028a8-6ffb-4849-8b4a-e41abd6290f7
 # ╠═ce55c19c-1137-4801-81c1-bf2ff07c0480
+# ╠═be13e99b-fc7c-4d80-9a19-5a0536eae108
 # ╟─66eb0580-706c-4321-a02c-c4f3733af494
 # ╟─71ccee21-d68a-40c3-bac2-b5b9e102acde
 # ╠═d29d1328-0993-4118-95da-ac0525dd2610

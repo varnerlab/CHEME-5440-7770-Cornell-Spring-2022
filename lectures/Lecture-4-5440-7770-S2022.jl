@@ -12,6 +12,7 @@ begin
 	using PrettyTables
 	using Optim
 	using Plots
+	using LinearAlgebra
 	
 	# setup paths -
 	const _PATH_TO_NOTEBOOK = pwd()
@@ -72,7 +73,9 @@ Some classics references that we'll discussion (in the future some time):
 md"""
 ##### Direct Gibbs energy calculation for a single reaction in a closed system
 
-We can compute the reversibility of biochemical reactions by computing thier equlibrium (or steady-state in the case of open systems) reaction extent. To do this, we minimize the Gibbs energy for the reaction mixture, by searching over the reaction extent $\epsilon$ (units: mol) that minimizes the Gibbs energy. For a reaction mixture of $\mathcal{M}$ chemical components, the Gibbs energy can be written as the sum of the partial molar Gibbs energies (what we call G-bar) at constant T,P:
+We can compute the reversibility of biochemical reactions by computing thier equlibrium (or steady-state in the case of open systems) reaction extent. To do this, we minimize the Gibbs energy for the reaction mixture, by searching over the reaction extent $\epsilon$ (units: mol) subject to bounds on the extent. 
+
+For a single reaction with $\mathcal{M}$ chemical components, the Gibbs energy can be written as the sum of the partial molar Gibbs energies (what we call G-bar) at constant T,P:
 
 $$\hat{G} = \sum_{i=1}^{\mathcal{M}}\bar{G}_{i}n_{i}$$
 
@@ -93,7 +96,9 @@ and (for an ideal liquid reaction mixture) we know that $\hat{a}_{i}=x_{i}$ wher
 
 $$x_{i} = \frac{n_{i}}{\sum_{j=1}^{\mathcal{M}}n_{j}}\qquad{i=1,2,\dots,\mathcal{M}}$$
 
-Thus, we need to search for $\epsilon_{1}$ (subject to bounds on permissible values of the extent) such that the total Gibbs energy $\hat{G}$ is at a minimum.
+Thus, we need to search for $\epsilon_{1}$ (subject to bounds on permissible values of the extent) such that the total Gibbs energy $\hat{G}$ is at a minimum. Once we have the equilibrium extent of reaction, we can compute the equlibrium constant (for an ideal liquid phase reaction at moderate pressures):
+
+$$K_{eq} = \prod_{i=1}^{\mathcal{M}}x_{i}^{\sigma_{i1}}$$
 """
 
 # ╔═╡ 3dfa9f6c-224f-4a1f-8d1f-683992c1b82e
@@ -247,8 +252,37 @@ begin
 	@show "Optim found ϵ = $(bgfs_soln)"
 end
 
+# ╔═╡ 67e69515-6d22-4693-85e0-c3767e5b9a06
+begin
+
+	# what is the equilibrium extent?
+	ϵ_scaled = bgfs_soln;
+	ϵ = sum(initial_mol_array)*ϵ_scaled
+	
+	# compute the equlibrium constant -
+	n_final = initial_mol_array + stoichiometric_array*ϵ
+
+	# compute the final mol fraction -
+	ln_x_final = log.((1/sum(n_final)).*n_final)
+
+	# compute the Keq -
+	tmp = dot(stoichiometric_array,ln_x_final)
+	K_eq = exp(tmp)
+
+	with_terminal() do
+		println("Estimated Keq = $(K_eq)")
+	end
+end
+
 # ╔═╡ be13e99b-fc7c-4d80-9a19-5a0536eae108
 md"""
+### The eQuilibrator application programming interface (API)
+
+The [eQuilibrator application programming interface](https://equilibrator.weizmann.ac.il) is a tool for thermodynamic calculations in biological reaction networks. It was developed by the [Milo lab](https://www.weizmann.ac.il/plants/Milo/) at the Weizmann Institute in Rehovot, Israel.
+
+* [Beber ME, Gollub MG, Mozaffari D, Shebek KM, Flamholz AI, Milo R, Noor E. eQuilibrator 3.0: a database solution for thermodynamic constant estimation. Nucleic Acids Res. 2022 Jan 7;50(D1): D603-D609. doi: 10.1093/nar/gkab1106. PMID: 34850162; PMCID: PMC8728285.](https://pubmed.ncbi.nlm.nih.gov/34850162/)
+
+The [eQuilibrator.jl](https://stelmo.github.io/eQuilibrator.jl/dev/) package is a [Julia](https://julialang.org) wrapper around eQuilibrator (which is written in Python). 
 """
 
 # ╔═╡ 66eb0580-706c-4321-a02c-c4f3733af494
@@ -336,6 +370,7 @@ html"""
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
@@ -1367,7 +1402,7 @@ version = "0.9.1+5"
 # ╟─84cd8fcb-f0f7-480b-abe6-58686d6bd7e2
 # ╟─db68d9a1-7b50-466d-985a-13bc8a2c3a03
 # ╟─ac28ae43-3d94-4c34-91a4-f002f13044cc
-# ╟─39c87c90-348e-444b-9375-02b81dc254aa
+# ╠═39c87c90-348e-444b-9375-02b81dc254aa
 # ╟─3dfa9f6c-224f-4a1f-8d1f-683992c1b82e
 # ╠═c659d217-9ba9-47f4-9f6f-7f96dcdbbea3
 # ╠═af832bd3-316b-4c78-bd00-d626cae50dff
@@ -1381,7 +1416,8 @@ version = "0.9.1+5"
 # ╟─b8bed863-8140-4b17-a97b-a07a45e1099a
 # ╠═a4a028a8-6ffb-4849-8b4a-e41abd6290f7
 # ╠═ce55c19c-1137-4801-81c1-bf2ff07c0480
-# ╠═be13e99b-fc7c-4d80-9a19-5a0536eae108
+# ╠═67e69515-6d22-4693-85e0-c3767e5b9a06
+# ╟─be13e99b-fc7c-4d80-9a19-5a0536eae108
 # ╟─66eb0580-706c-4321-a02c-c4f3733af494
 # ╟─71ccee21-d68a-40c3-bac2-b5b9e102acde
 # ╠═d29d1328-0993-4118-95da-ac0525dd2610

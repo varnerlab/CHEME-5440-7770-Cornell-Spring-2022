@@ -127,7 +127,7 @@ begin
 	
 	# setup the initial number of mols -
 	initial_mol_array = zeros(ℳ,1)
-	initial_mol_array[1,1] = 20.0 	# units: mmol G6P = 1
+	initial_mol_array[1,1] = 22.0 	# units: mmol G6P = 1
 	initial_mol_array[2,1] = 0.0 	# units: mmol F6P = 2
 	
 	# G of formation -
@@ -194,7 +194,7 @@ md"""
 begin
 	
 	# initialize -
-	number_of_steps = 100
+	number_of_steps = 200
 	gibbs_energy_array = Array{Float64,1}()
 	epsilon_range = range(0.00001,stop=0.99999,length=number_of_steps) |> collect
 	
@@ -237,7 +237,7 @@ Let's recast the Gibbs energy estimation as a (nonlinear) _constrained_ optimiza
 begin
 	
 	# Use the answer from Method 2 as a starting point 
-	xinitial = [0.99]
+	xinitial = [0.65]
 	
 	# setup bounds -
 	L = 0.00001
@@ -280,9 +280,12 @@ begin
 	end
 end
 
+# ╔═╡ a5d45e1a-a284-4aec-8025-791e89e2d9d1
+n_final
+
 # ╔═╡ 40eff115-6527-4fb9-8640-216ba104fd37
 md"""
-##### Rule of thumd for reversibility
+##### Rule of thumb for reversibility
 The reversibility parameter can be computed in one of several possible ways. For example, one method in the literature is to use the sign of Gibbs reaction energy:
 
 * if $sgn\left(\Delta{G}^{\circ}\right)<0$ then $\delta = 0$ (irreversible)
@@ -331,7 +334,7 @@ TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true
 html"""
 <style>
 main {
-    max-width: 900px;
+    max-width: 760px;
     width: 75%;
     margin: auto;
     font-family: "Roboto, monospace";
@@ -1439,13 +1442,14 @@ version = "0.9.1+5"
 # ╠═a4a028a8-6ffb-4849-8b4a-e41abd6290f7
 # ╠═ce55c19c-1137-4801-81c1-bf2ff07c0480
 # ╠═67e69515-6d22-4693-85e0-c3767e5b9a06
+# ╠═a5d45e1a-a284-4aec-8025-791e89e2d9d1
 # ╟─40eff115-6527-4fb9-8640-216ba104fd37
 # ╟─be13e99b-fc7c-4d80-9a19-5a0536eae108
 # ╟─66eb0580-706c-4321-a02c-c4f3733af494
 # ╟─71ccee21-d68a-40c3-bac2-b5b9e102acde
 # ╠═d29d1328-0993-4118-95da-ac0525dd2610
 # ╠═5e179f89-2302-4342-987f-ff341fa824b1
-# ╟─97eff132-84de-11ec-2343-513ada272849
+# ╠═97eff132-84de-11ec-2343-513ada272849
 # ╠═0bfd4739-2c80-496e-a627-be06f68d950b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

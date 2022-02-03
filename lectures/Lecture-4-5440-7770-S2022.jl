@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.7
 
 using Markdown
 using InteractiveUtils
@@ -55,12 +55,12 @@ md"""
 ##### A glimpse into the future
 
 In addition to thermodynamics, the flux bounds integrate two levels of biological control:
-* __fast__ control mechanisms (allosteric) modulate enzyme activity (the biochemial state influences the catalytic rate), and
+* __fast__ control mechanisms (allosteric) modulate enzyme activity (the biochemical state influences the catalytic rate), and
 * __slow__ control mechanisms (gene expression) modulate the abundance of system enzymes 
 
 The $\theta_{j}\left(\dots\right)$ terms describe the __fast__ control mechansisms, while the __slow__ control mechanisms are buried in the enzyme abundance $e$. 
 
-Some classics references that we'll discussion (in the future some time):
+Some classics references that we'll discuss (in the future sometime):
 * [MONOD J, WYMAN J, CHANGEUX JP. ON THE NATURE OF ALLOSTERIC TRANSITIONS: A PLAUSIBLE MODEL. J Mol Biol. 1965 May;12:88-118. doi: 10.1016/s0022-2836(65)80285-6. PMID: 14343300.](https://pubmed.ncbi.nlm.nih.gov/14343300/)
 
 * [Covert MW, Palsson BO. Constraints-based models: regulation of gene expression reduces the steady-state solution space. J Theor Biol. 2003 Apr 7;221(3):309-25. doi: 10.1006/jtbi.2003.3071. PMID: 12642111.](https://pubmed.ncbi.nlm.nih.gov/12642111/)
@@ -73,7 +73,7 @@ Some classics references that we'll discussion (in the future some time):
 md"""
 ##### Direct Gibbs energy calculation for a single reaction in a closed system
 
-We can compute the reversibility of biochemical reactions by computing thier equlibrium (or steady-state in the case of open systems) reaction extent. To do this, we minimize the Gibbs energy for the reaction mixture, by searching over the reaction extent $\epsilon$ (units: mol) subject to bounds on the extent. 
+We can compute the reversibility of biochemical reactions by computing the equilibrium (or steady-state in the case of open systems) reaction extent. To do this, we minimize the Gibbs energy for the reaction mixture by searching over the reaction extent $\epsilon$ (units: mol) subject to bounds on the extent. 
 
 For a single reaction with $\mathcal{M}$ chemical components, the Gibbs energy can be written as the sum of the partial molar Gibbs energies (what we call G-bar) at constant T,P:
 
@@ -88,7 +88,7 @@ where $G_{i}^{\circ}$ denotes the Gibbs energy for pure component $i$ at a refer
 $$\frac{1}{RT}\left(\hat{G}-\sum_{i=1}^{\mathcal{M}}n_{i}^{\circ}G_{i}^{\circ}\right) = 
 \epsilon_{1}\frac{\Delta{G}^{\circ}}{RT}+\sum_{i=1}^{\mathcal{M}}n_{i}\ln\hat{a}_{i}$$
 
-The first term on the right-hand side is the extent of reaction times the scaled Gibbs energy of reaction; we can think of this term as how much of the Gibbs energy of reaction we recover as the reaction proceeds to the right. The second term describes how the overall Gibbs energy changes as the composition changes (at a fixed T,P). In particular, we know that:
+The first term on the right-hand side is the extent of reaction times the scaled Gibbs energy of reaction; we can think of this term as how much of the Gibbs energy of reaction we recover as the reaction proceeds to the right. The second term describes how the overall Gibbs energy changes as the composition changes (at a fixed T, P). In particular, we know that:
 
 $$n_{i} = n_{i}^{\circ}+\sigma_{i1}\epsilon_{1}\qquad{i=1,2,\dots,\mathcal{M}}$$
 
@@ -96,7 +96,7 @@ and (for an ideal liquid reaction mixture) we know that $\hat{a}_{i}=x_{i}$ wher
 
 $$x_{i} = \frac{n_{i}}{\sum_{j=1}^{\mathcal{M}}n_{j}}\qquad{i=1,2,\dots,\mathcal{M}}$$
 
-Thus, we need to search for $\epsilon_{1}$ (subject to bounds on permissible values of the extent) such that the total Gibbs energy $\hat{G}$ is at a minimum. Once we have the equilibrium extent of reaction, we can compute the equlibrium constant (for an ideal liquid phase reaction at moderate pressures):
+Thus, we need to search for $\epsilon_{1}$ (subject to bounds on permissible values of the extent) such that the total Gibbs energy $\hat{G}$ is at a minimum. Once we have the equilibrium extent of reaction, we can compute the equilibrium constant (for an ideal liquid phase reaction at moderate pressures):
 
 $$K_{eq} = \prod_{i=1}^{\mathcal{M}}x_{i}^{\sigma_{i1}}$$
 """
@@ -104,6 +104,7 @@ $$K_{eq} = \prod_{i=1}^{\mathcal{M}}x_{i}^{\sigma_{i1}}$$
 # ╔═╡ 3dfa9f6c-224f-4a1f-8d1f-683992c1b82e
 md"""
 ##### Example reaction: phosphoglucose isomerase (PGI)
+Phosphoglucose isomerase (PGI) is the second step in [glycolysis](https://www.kegg.jp/kegg-bin/show_pathway?eco00010).
 """
 
 # ╔═╡ c659d217-9ba9-47f4-9f6f-7f96dcdbbea3
@@ -127,9 +128,10 @@ begin
 	# setup the initial number of mols -
 	initial_mol_array = zeros(ℳ,1)
 	initial_mol_array[1,1] = 20.0 	# units: mmol G6P = 1
-	initial_mol_array[2,1] = 0.0 		# units: mmol F6P = 2
+	initial_mol_array[2,1] = 0.0 	# units: mmol F6P = 2
 	
 	# G of formation -
+	# we get these numbers from: eQuilibrator 
 	G_formation_array = zeros(ℳ,1)
 	G_formation_array[1,1] = -1304.7*(1/1000) 	# units: kJ/mmol G6P
 	G_formation_array[2,1] = -1302.1*(1/1000) 	# units: kJ/mmol F6P
@@ -211,14 +213,16 @@ begin
 	min_G_ind = argmin(gibbs_energy_array)
 	min_ϵ_value = epsilon_range[min_G_ind]
 	min_G_value = gibbs_energy_array[min_G_ind]
-	
-	# show -
-	@show "Min extent (G,ϵ) = ($(min_G_value),$(min_ϵ_value))"
+
+	with_terminal() do
+		# show -
+		println("Min extent (G,ϵ) = ($(min_G_value) AU, $(min_ϵ_value) AU)")
+	end
 end
 
 # ╔═╡ a94fe5bb-7804-4621-a2f2-9207e04cfa76
 begin
-	plot(epsilon_range, gibbs_energy_array,lw=3,legend=:topleft, label="Gibbs energy")
+	plot(epsilon_range, gibbs_energy_array,lw=3,legend=:topleft, label="Scaled Gibbs energy")
 	xlabel!("Scaled extent of reaction ϵ [AU]",fontsize=18)
 	ylabel!("Scaled Gibbs Energy [AU]",fontsize=18)
 end
@@ -249,7 +253,9 @@ end
 # ╔═╡ ce55c19c-1137-4801-81c1-bf2ff07c0480
 begin
 	bgfs_soln = Optim.minimizer(opt_result)[1]
-	@show "Optim found ϵ = $(bgfs_soln)"
+	with_terminal() do
+		println("Optim found ϵ (scaled) = $(bgfs_soln) AU")
+	end
 end
 
 # ╔═╡ 67e69515-6d22-4693-85e0-c3767e5b9a06
@@ -273,6 +279,22 @@ begin
 		println("Estimated Keq = $(K_eq)")
 	end
 end
+
+# ╔═╡ 40eff115-6527-4fb9-8640-216ba104fd37
+md"""
+##### Rule of thumd for reversibility
+The reversibility parameter can be computed in one of several possible ways. For example, one method in the literature is to use the sign of Gibbs reaction energy:
+
+* if $sgn\left(\Delta{G}^{\circ}\right)<0$ then $\delta = 0$ (irreversible)
+* if $sgn\left(\Delta{G}^{\circ}\right)>0$ then $\delta = 1$ (reversible)
+
+Alternatively, the value of $\delta$ can be assigned based upon a cutoff on the equilibrium constant:
+
+* if $K_{eq}>\star$ then $\delta = 0$ (irreversible)
+* if $K_{eq}\leq\star$ then $\delta = 1$ (reversible)
+
+where the metabolic engineer specifies the value $\star$.
+"""
 
 # ╔═╡ be13e99b-fc7c-4d80-9a19-5a0536eae108
 md"""
@@ -1402,9 +1424,9 @@ version = "0.9.1+5"
 # ╟─84cd8fcb-f0f7-480b-abe6-58686d6bd7e2
 # ╟─db68d9a1-7b50-466d-985a-13bc8a2c3a03
 # ╟─ac28ae43-3d94-4c34-91a4-f002f13044cc
-# ╠═39c87c90-348e-444b-9375-02b81dc254aa
+# ╟─39c87c90-348e-444b-9375-02b81dc254aa
 # ╟─3dfa9f6c-224f-4a1f-8d1f-683992c1b82e
-# ╠═c659d217-9ba9-47f4-9f6f-7f96dcdbbea3
+# ╟─c659d217-9ba9-47f4-9f6f-7f96dcdbbea3
 # ╠═af832bd3-316b-4c78-bd00-d626cae50dff
 # ╠═5be16f22-24da-41a2-8e36-4d0a464b41cd
 # ╠═e64cf4ae-0808-4b91-bf83-ed7cabb1be77
@@ -1417,12 +1439,13 @@ version = "0.9.1+5"
 # ╠═a4a028a8-6ffb-4849-8b4a-e41abd6290f7
 # ╠═ce55c19c-1137-4801-81c1-bf2ff07c0480
 # ╠═67e69515-6d22-4693-85e0-c3767e5b9a06
+# ╟─40eff115-6527-4fb9-8640-216ba104fd37
 # ╟─be13e99b-fc7c-4d80-9a19-5a0536eae108
 # ╟─66eb0580-706c-4321-a02c-c4f3733af494
 # ╟─71ccee21-d68a-40c3-bac2-b5b9e102acde
 # ╠═d29d1328-0993-4118-95da-ac0525dd2610
 # ╠═5e179f89-2302-4342-987f-ff341fa824b1
-# ╠═97eff132-84de-11ec-2343-513ada272849
+# ╟─97eff132-84de-11ec-2343-513ada272849
 # ╠═0bfd4739-2c80-496e-a627-be06f68d950b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

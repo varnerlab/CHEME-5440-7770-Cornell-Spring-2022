@@ -136,6 +136,47 @@ end
 # ╔═╡ 6d422479-9788-42e3-a6fb-acc4fe369e20
 R = 8.314*(1/1000)*(1/ΔG_sf); # units: kJ/nmol-K
 
+# ╔═╡ 38a645d9-688e-4794-9c8f-98e8ec5b6516
+md"""
+### Discussion problem
+"""
+
+# ╔═╡ 77c6925b-6588-4702-8d1d-5de05316d722
+md"""
+##### Theory
+The problem asks us to use the Direct Gibbs Energy Minimization (DGEM) approach to estimate metabolic flux in an `open system`. For multiple reactions in an `open problem`, the Gibbs expression is now given by:
+
+$$\dot{G} = \sum_{i=1}^{\mathcal{M}}\bar{G}_{i}\dot{n}_{i,s^{\star}}$$
+
+where $\dot{n}_{i}$ denotes the $\star$mol flow rate into/from the logical control volume (units: $\star$mol/time),
+$\bar{G}_{i}$ denotes the partial molar Gibbs energy for component $i$ (units: energy/$\star$mol), and
+$\dot{G}$ denotes the Gibbs energy in the logical control volume (units: energy/time).
+The `open` mol balance around species $i$ inside the _logical_ control volume (assuming a single input s=1 and output steam s=2): 
+
+$$\dot{n}_{i,2} = \dot{n}_{i,1} + \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\dot{\epsilon}_{j}\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+These balances can be used as constraints to find the optimal open extent of reaction with the lowest 
+total Gibbs energy for a particular stream. In particular, the total Gibbs energy for an open system in which we minimize the energy of the __exit stream__ is given by:
+
+$$\dot{G} = \sum_{i=1}^{\mathcal{M}}\bar{G}_{i}\dot{n}_{i,2}$$
+
+where the partial molar Gibbs energy (assuming an ideal solution) is given by: 
+
+$$\bar{G}_{i} = G_{i}^{\circ} + RT\ln{x}_{i}\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+and:
+
+$$x_{i}=\frac{\dot{n}_{i}}{\sum_{j=1}^{\mathcal{M}}\dot{n}_{j}}\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+To estimate the open extent _vector_ we minimize the open Gibbs energy expression, subject to constraints. Our decision variables (what we are looking for) are the open extents of reaction $\dot{\epsilon}_{i},i=1,\dots,\mathcal{R}$. In this case the constraints are bounds on each extent $\dot{\epsilon}_{i}\in\left[0,\star\right],\forall{i}$ and $n_{i,\star}\geq{0},\forall{i}$.
+
+"""
+
+# ╔═╡ 68be4ebd-54b5-4f86-b467-1e06c681aaa2
+md"""
+##### Implementation
+"""
+
 # ╔═╡ b4ed3db1-fa2a-4b3a-a44a-7366345979b2
 md"""
 ### Summary and Conclusions
@@ -152,7 +193,7 @@ md"""
 """
 
 # ╔═╡ 4e93ffc7-a323-4349-9022-899ee7274e9d
-function objective_function(ϵ,parameters)
+function objective_function_closed(ϵ,parameters)
 
 	# get data from the parameters -
 	G_formation_array = parameters["G_formation_array"]
@@ -189,23 +230,22 @@ begin
 	# setup bounds -
 	L = zeros(ℛ)
 	U = maximum(n_initial_array)*ones(ℛ)
-	#U = 1000.0*ones(ℛ)
 
 	# set the initial -
 	xinitial = 0.001*ones(ℛ)
 	xinitial[1] = 0.5*maximum(U)
 	
 	# setup the objective function -
-	OF(p) = objective_function(p, parameters_dict)
+	OF_closed(p) = objective_function_closed(p, parameters_dict)
     
     # call the optimizer -
-    opt_result = optimize(OF, L, U, xinitial, Fminbox(BFGS()))
+    opt_result_closed = optimize(OF_closed, L, U, xinitial, Fminbox(BFGS()))
 end
 
 # ╔═╡ d1178ff2-ef25-4f0f-9f58-e69bb8908f9a
 with_terminal() do
 	
-	ϵ = Optim.minimizer(opt_result)
+	ϵ = Optim.minimizer(opt_result_closed)
 	reaction_string_array = [
 		"glc + atp = g6p + adp" 	;
 		"g6p = f6p" 				;
@@ -219,16 +259,18 @@ with_terminal() do
 	ΔG_rxn = transpose(S)*G_formation_array
 
 	# make the data table array -
-	data_table_array = Array{Any,2}(undef,ℛ,3)
+	data_table_array = Array{Any,2}(undef,ℛ,5)
 	for reaction_index = 1:ℛ
 		data_table_array[reaction_index,1] = reaction_string_array[reaction_index]
 		data_table_array[reaction_index,2] = ΔG_rxn[reaction_index]*(ΔG_sf)
 		data_table_array[reaction_index,3] = ϵ[reaction_index]
+		data_table_array[reaction_index,4] = exp(-ΔG_rxn[reaction_index]/(R*T))
+		data_table_array[reaction_index,5] = sign(ΔG_rxn[reaction_index]/(R*T)) == 1 ? true : false
 	end
 
 	# setup pretty table -
 	# header row -
-	path_table_header_row = (["Reaction","ΔG_rxn","ϵ"],["","kJ/mol-K","nmol"]);
+	path_table_header_row = (["Reaction","ΔG_rxn","ϵ", "Keq", "reversible"],["","kJ/mol-K","nmol", "", "Bool"]);
 
 	# write the table -
 	pretty_table(data_table_array; header=path_table_header_row)
@@ -237,7 +279,7 @@ end
 # ╔═╡ 02f2c64c-9e93-4d79-966d-e7de429317d8
 with_terminal() do
 	
-	ϵ = Optim.minimizer(opt_result)
+	ϵ = Optim.minimizer(opt_result_closed)
 	S = parameters_dict["S"]
 	n_initial_array = parameters_dict["n_initial_array"]
 	n = n_initial_array + S*ϵ
@@ -1361,8 +1403,8 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╟─a0aca432-86ce-11ec-3668-679d09123b86
 # ╟─552ffec5-d763-467f-a29d-eadf1bad6437
-# ╟─767ac9c4-3452-4f85-8de2-5b49001abc92
-# ╠═384f1569-b77e-4b7c-b559-01bc70b0ed89
+# ╠═767ac9c4-3452-4f85-8de2-5b49001abc92
+# ╟─384f1569-b77e-4b7c-b559-01bc70b0ed89
 # ╠═e391a136-dbc2-4b56-b758-a1449db46693
 # ╠═02d20bb5-d7d6-4435-9091-be6b65b10d5c
 # ╠═6d422479-9788-42e3-a6fb-acc4fe369e20
@@ -1370,6 +1412,9 @@ version = "0.9.1+5"
 # ╠═2777bfbf-122a-4344-a15c-30ac7dd3fcfb
 # ╠═d1178ff2-ef25-4f0f-9f58-e69bb8908f9a
 # ╠═02f2c64c-9e93-4d79-966d-e7de429317d8
+# ╟─38a645d9-688e-4794-9c8f-98e8ec5b6516
+# ╟─77c6925b-6588-4702-8d1d-5de05316d722
+# ╠═68be4ebd-54b5-4f86-b467-1e06c681aaa2
 # ╠═b4ed3db1-fa2a-4b3a-a44a-7366345979b2
 # ╠═d4ce7976-85f2-47e0-8845-64c0b6d9249a
 # ╟─72dddb17-3e97-4214-ae44-28e908febbba

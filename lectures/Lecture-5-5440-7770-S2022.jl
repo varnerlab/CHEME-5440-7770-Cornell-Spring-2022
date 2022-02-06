@@ -177,6 +177,21 @@ md"""
 ##### Implementation
 """
 
+# ╔═╡ c7c4218a-4c6f-48f4-9cca-76a2db9cd1d9
+begin
+
+	# problem setup -
+	open_parameters_dict = Dict{String,Any}()
+	open_parameters_dict["G_formation_array"] = parameters_dict["G_formation_array"];
+	open_parameters_dict["S"] = parameters_dict["S"];
+
+	# what are my initial condtions?
+	n_dot_in_array = 0.0*ones(ℳ)
+	n_dot_in_array[1] = 35.9*(V)*(1e9/1e3) 		# 1 gluc nmol/time
+	n_dot_in_array[3] = 2000.0 					# 3 atp nmol/time
+	parameters_dict["n_dot_in_array"] = n_dot_in_array
+end
+
 # ╔═╡ b4ed3db1-fa2a-4b3a-a44a-7366345979b2
 md"""
 ### Summary and Conclusions
@@ -191,6 +206,32 @@ md"""
 md"""
 ### Julia function library
 """
+
+# ╔═╡ b71d2bc5-0393-4ec8-97a6-bbfddae00b06
+function objective_function_open(ϵ,parameters)
+
+	# get data from the parameters -
+	G_formation_array = parameters["G_formation_array"]
+	S = parameters["S"]
+	n_dot_in = parameters["n_dot_in_array"]
+	RT = R*T
+
+	# compute the n_dot_out and mol fraction -
+	tmp = n_dot_in + S*ϵ
+	n_dot_out = max.(0.0, tmp) # hack: if we have a mol count less than 0, correct -
+	n_total = sum(n_dot_out)
+	x_array = (1/n_total)*n_dot_out	
+	activity_terms = log.(x_array)
+	
+	# compute the partial molar Gibbs energy --
+	G_bar = G_formation_array .+ RT*(activity_terms)
+
+	# compute the objective value -
+	𝒪 = sum(n_dot_out.*G_bar)
+
+	# return -
+	return 𝒪;
+end
 
 # ╔═╡ 4e93ffc7-a323-4349-9022-899ee7274e9d
 function objective_function_closed(ϵ,parameters)
@@ -303,6 +344,64 @@ with_terminal() do
 	pretty_table(table_data_array; header=path_table_header_row)
 end
 
+
+# ╔═╡ 7b1df4fa-51eb-4558-b808-f4a8e7433af8
+begin
+
+	# setup bounds -
+	Lₒ = zeros(ℛ)
+	Uₒ = maximum(n_initial_array)*ones(ℛ)
+
+	# set the initial -
+	ϵₒ = 0.001*ones(ℛ)
+	ϵₒ[1] = 0.5*maximum(U)
+	
+	# setup the objective function -
+	OF_open(p) = objective_function_closed(p, parameters_dict)
+    
+    # call the optimizer -
+    opt_result_open = optimize(OF_open, Lₒ, Uₒ, ϵₒ, Fminbox(BFGS()))
+end
+
+# ╔═╡ c85c529a-a113-4b19-97ec-4dd778191fec
+ϵ = Optim.minimizer(opt_result_open)
+
+# ╔═╡ bf142287-3893-4848-9a78-59b266298e10
+n_dot_out = n_dot_in_array .+ S*ϵ
+
+# ╔═╡ 2625b050-e961-483f-8e67-1748a981d2e8
+with_terminal() do
+	
+	ϵ = Optim.minimizer(opt_result_open)
+	reaction_string_array = [
+		"glc + atp = g6p + adp" 	;
+		"g6p = f6p" 				;
+		"f6p + atp = f16bp + adp" 	;
+		"f16bp = dhap + ga3p" 		;
+		"ga3p = dhap" 				;
+	]
+	
+	# compute the dG_reaction -
+	G_formation_array = parameters_dict["G_formation_array"]
+	ΔG_rxn = transpose(S)*G_formation_array
+
+	# make the data table array -
+	data_table_array = Array{Any,2}(undef,ℛ,5)
+	for reaction_index = 1:ℛ
+		data_table_array[reaction_index,1] = reaction_string_array[reaction_index]
+		data_table_array[reaction_index,2] = ΔG_rxn[reaction_index]*(ΔG_sf)
+		data_table_array[reaction_index,3] = ϵ[reaction_index]
+		data_table_array[reaction_index,4] = exp(-ΔG_rxn[reaction_index]/(R*T))
+		data_table_array[reaction_index,5] = sign(ΔG_rxn[reaction_index]/(R*T)) == 1 ? true : false
+	end
+
+	# setup pretty table -
+	# header row -
+	path_table_header_row = (["Reaction","ΔG_rxn","ϵ", "Keq", "reversible"],["","kJ/mol-K","nmol", "", "Bool"]);
+
+	# write the table -
+	pretty_table(data_table_array; header=path_table_header_row)
+end
 
 # ╔═╡ d7b59095-9c08-4a5e-b89d-c83063acd86b
 TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true)
@@ -1414,10 +1513,16 @@ version = "0.9.1+5"
 # ╠═02f2c64c-9e93-4d79-966d-e7de429317d8
 # ╟─38a645d9-688e-4794-9c8f-98e8ec5b6516
 # ╟─77c6925b-6588-4702-8d1d-5de05316d722
-# ╠═68be4ebd-54b5-4f86-b467-1e06c681aaa2
+# ╟─68be4ebd-54b5-4f86-b467-1e06c681aaa2
+# ╠═c7c4218a-4c6f-48f4-9cca-76a2db9cd1d9
+# ╠═7b1df4fa-51eb-4558-b808-f4a8e7433af8
+# ╠═c85c529a-a113-4b19-97ec-4dd778191fec
+# ╠═bf142287-3893-4848-9a78-59b266298e10
+# ╠═2625b050-e961-483f-8e67-1748a981d2e8
 # ╠═b4ed3db1-fa2a-4b3a-a44a-7366345979b2
 # ╠═d4ce7976-85f2-47e0-8845-64c0b6d9249a
 # ╟─72dddb17-3e97-4214-ae44-28e908febbba
+# ╠═b71d2bc5-0393-4ec8-97a6-bbfddae00b06
 # ╠═4e93ffc7-a323-4349-9022-899ee7274e9d
 # ╠═207e1a73-7cb3-4030-9db8-fd100d681759
 # ╠═d7b59095-9c08-4a5e-b89d-c83063acd86b

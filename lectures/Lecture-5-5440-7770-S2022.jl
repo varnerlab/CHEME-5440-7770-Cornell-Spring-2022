@@ -183,13 +183,36 @@ begin
 	# problem setup -
 	open_parameters_dict = Dict{String,Any}()
 	open_parameters_dict["G_formation_array"] = parameters_dict["G_formation_array"];
-	open_parameters_dict["S"] = parameters_dict["S"];
 
+	# setup the reaction to pull ga3p -
+	Sₒ = [
+
+		# ϵ₁ ϵ₂  ϵ₃  ϵ₄  ϵ₅ 
+		-1.0 0.0 0.0 0.0 0.0 	; # 1 gluc
+		1.0 -1.0 0.0 0.0 0.0 	; # 2 gluc-6-p
+		-1.0 0.0 -1.0 0.0 0.0 	; # 3 atp
+		1.0 0.0 1.0 0.0 0.0		; # 4 adp
+		0.0 1.0 -1.0 0.0 0.0 	; # 5 fruc-6-p
+		0.0 0.0 1.0 -1.0 0.0 	; # 6 fruc-1,6-bis-p
+		0.0 0.0 0.0 1.0 1.0 	; # 7 dhap
+		0.0 0.0 0.0 1.0 -1.0	; # 8 ga3p
+	];
+	open_parameters_dict["S"] = Sₒ
+	(ℳₒ,ℛₒ) = size(Sₒ)
+	
 	# what are my initial condtions?
-	n_dot_in_array = 0.0*ones(ℳ)
+	n_dot_in_array = ones(ℳₒ)
 	n_dot_in_array[1] = 35.9*(V)*(1e9/1e3) 		# 1 gluc nmol/time
 	n_dot_in_array[3] = 2000.0 					# 3 atp nmol/time
-	parameters_dict["n_dot_in_array"] = n_dot_in_array
+	open_parameters_dict["n_dot_in_array"] = n_dot_in_array
+
+	# what are the outflow terms -
+	n_dot_out_upper_bound_array = 100000.0*ones(ℳₒ)
+	n_dot_out_upper_bound_array[7] = 5.0
+	open_parameters_dict["n_dot_out_upper_bound_array"] = n_dot_out_upper_bound_array
+
+	# show -
+	nothing
 end
 
 # ╔═╡ b4ed3db1-fa2a-4b3a-a44a-7366345979b2
@@ -208,12 +231,13 @@ md"""
 """
 
 # ╔═╡ b71d2bc5-0393-4ec8-97a6-bbfddae00b06
-function objective_function_open(ϵ,parameters)
+function objective_function_open(ϵ, parameters)
 
 	# get data from the parameters -
 	G_formation_array = parameters["G_formation_array"]
 	S = parameters["S"]
 	n_dot_in = parameters["n_dot_in_array"]
+	UB_ndot_out = parameters["n_dot_out_upper_bound_array"]
 	RT = R*T
 
 	# compute the n_dot_out and mol fraction -
@@ -229,8 +253,98 @@ function objective_function_open(ϵ,parameters)
 	# compute the objective value -
 	𝒪 = sum(n_dot_out.*G_bar)
 
+	# setup penality term array -
+	penalty_terms_array = Array{Float64,1}()
+	for species_index = 1:ℳ
+
+		# compute the tmp term -
+		tmp_term = (n_dot_out[species_index] - UB_ndot_out[species_index])		
+		penalty_term = max(0,tmp_term)^2
+		push!(penalty_terms_array, penalty_term)
+	end
+	𝒫 = sum(penalty_terms_array);
+
+	
+	
 	# return -
-	return 𝒪;
+	return 𝒪 + 10*𝒫
+end
+
+# ╔═╡ 7b1df4fa-51eb-4558-b808-f4a8e7433af8
+begin
+
+	# setup bounds -
+	Lₒ = zeros(ℛₒ)
+	Uₒ = 100*ones(ℛₒ)
+
+	# set the initial -
+	ϵₒ = 0.001*ones(ℛₒ)
+	# ϵₒ[1] = 0.5*maximum(U)
+	
+	# setup the objective function -
+	OF_open(p) = objective_function_open(p, open_parameters_dict)
+    
+    # call the optimizer -
+    opt_result_open = optimize(OF_open, Lₒ, Uₒ, ϵₒ, Fminbox(BFGS()))
+end
+
+# ╔═╡ c85c529a-a113-4b19-97ec-4dd778191fec
+ϵ_dot = Optim.minimizer(opt_result_open)
+
+# ╔═╡ bf142287-3893-4848-9a78-59b266298e10
+n_dot_out = n_dot_in_array .+ Sₒ*ϵ_dot
+
+# ╔═╡ 2625b050-e961-483f-8e67-1748a981d2e8
+with_terminal() do
+	
+	ϵ = Optim.minimizer(opt_result_open)
+	reaction_string_array = [
+		"glc + atp = g6p + adp" 	;
+		"g6p = f6p" 				;
+		"f6p + atp = f16bp + adp" 	;
+		"f16bp = dhap + ga3p" 		;
+		"ga3p = dhap" 				;
+	]
+	
+
+	# make the data table array -
+	data_table_array = Array{Any,2}(undef,ℛₒ,2)
+	for reaction_index = 1:ℛₒ
+		data_table_array[reaction_index,1] = reaction_string_array[reaction_index]
+		data_table_array[reaction_index,2] = ϵ[reaction_index]
+	end
+
+	# setup pretty table -
+	# header row -
+	path_table_header_row = (["Reaction","ϵdot"],["","mol/time"]);
+
+	# write the table -
+	pretty_table(data_table_array; header=path_table_header_row)
+end
+
+# ╔═╡ ac441583-be2d-4d58-8bce-885d2c1e6529
+with_terminal() do
+	
+	ϵ = Optim.minimizer(opt_result_open)
+	S = open_parameters_dict["S"]
+	n_initial_array = open_parameters_dict["n_dot_in_array"]
+	n = n_initial_array + S*ϵ
+
+	# setp table_data_array -
+	table_data_array = Array{Any,2}(undef,ℳ,3)
+	species_array = ["glucose","g6p","atp","adp","f6p","f16bp","dhap","ga3p"]
+	for species_index = 1:ℳ
+		table_data_array[species_index,1] = species_array[species_index]
+		table_data_array[species_index,2] = n_initial_array[species_index]
+		table_data_array[species_index,3] = n[species_index]
+	end
+	
+	# setup pretty table -
+	# header row -
+	path_table_header_row = (["Species","n_dot_in","n_dot_out"],["","nmol/time","nmol/time"]);
+
+	# write the table -
+	pretty_table(table_data_array; header=path_table_header_row)
 end
 
 # ╔═╡ 4e93ffc7-a323-4349-9022-899ee7274e9d
@@ -254,13 +368,6 @@ function objective_function_closed(ϵ,parameters)
 	activity_terms = log.(x_array)
 	term_2 = sum(n_array.*activity_terms)
 
-	# penalty terms -
-	penalty_terms_array = Array{Float64,1}()
-	for species_index = 1:ℳ
-		penalty_term = max(0,-1*tmp[species_index])^2
-		push!(penalty_terms_array, penalty_term)
-	end
-	
 	# return -
 	return (term_1 + term_2)
 end
@@ -344,64 +451,6 @@ with_terminal() do
 	pretty_table(table_data_array; header=path_table_header_row)
 end
 
-
-# ╔═╡ 7b1df4fa-51eb-4558-b808-f4a8e7433af8
-begin
-
-	# setup bounds -
-	Lₒ = zeros(ℛ)
-	Uₒ = maximum(n_initial_array)*ones(ℛ)
-
-	# set the initial -
-	ϵₒ = 0.001*ones(ℛ)
-	ϵₒ[1] = 0.5*maximum(U)
-	
-	# setup the objective function -
-	OF_open(p) = objective_function_closed(p, parameters_dict)
-    
-    # call the optimizer -
-    opt_result_open = optimize(OF_open, Lₒ, Uₒ, ϵₒ, Fminbox(BFGS()))
-end
-
-# ╔═╡ c85c529a-a113-4b19-97ec-4dd778191fec
-ϵ = Optim.minimizer(opt_result_open)
-
-# ╔═╡ bf142287-3893-4848-9a78-59b266298e10
-n_dot_out = n_dot_in_array .+ S*ϵ
-
-# ╔═╡ 2625b050-e961-483f-8e67-1748a981d2e8
-with_terminal() do
-	
-	ϵ = Optim.minimizer(opt_result_open)
-	reaction_string_array = [
-		"glc + atp = g6p + adp" 	;
-		"g6p = f6p" 				;
-		"f6p + atp = f16bp + adp" 	;
-		"f16bp = dhap + ga3p" 		;
-		"ga3p = dhap" 				;
-	]
-	
-	# compute the dG_reaction -
-	G_formation_array = parameters_dict["G_formation_array"]
-	ΔG_rxn = transpose(S)*G_formation_array
-
-	# make the data table array -
-	data_table_array = Array{Any,2}(undef,ℛ,5)
-	for reaction_index = 1:ℛ
-		data_table_array[reaction_index,1] = reaction_string_array[reaction_index]
-		data_table_array[reaction_index,2] = ΔG_rxn[reaction_index]*(ΔG_sf)
-		data_table_array[reaction_index,3] = ϵ[reaction_index]
-		data_table_array[reaction_index,4] = exp(-ΔG_rxn[reaction_index]/(R*T))
-		data_table_array[reaction_index,5] = sign(ΔG_rxn[reaction_index]/(R*T)) == 1 ? true : false
-	end
-
-	# setup pretty table -
-	# header row -
-	path_table_header_row = (["Reaction","ΔG_rxn","ϵ", "Keq", "reversible"],["","kJ/mol-K","nmol", "", "Bool"]);
-
-	# write the table -
-	pretty_table(data_table_array; header=path_table_header_row)
-end
 
 # ╔═╡ d7b59095-9c08-4a5e-b89d-c83063acd86b
 TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true)
@@ -1519,6 +1568,7 @@ version = "0.9.1+5"
 # ╠═c85c529a-a113-4b19-97ec-4dd778191fec
 # ╠═bf142287-3893-4848-9a78-59b266298e10
 # ╠═2625b050-e961-483f-8e67-1748a981d2e8
+# ╠═ac441583-be2d-4d58-8bce-885d2c1e6529
 # ╠═b4ed3db1-fa2a-4b3a-a44a-7366345979b2
 # ╠═d4ce7976-85f2-47e0-8845-64c0b6d9249a
 # ╟─72dddb17-3e97-4214-ae44-28e908febbba

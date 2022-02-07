@@ -34,7 +34,8 @@ This repository holds lecture notes and example problems discussed in lecture. T
 1. From Pluto, open one of the `.jl` lecture notebook files located in the `CHEME-5440-7770-Cornell-Spring-2022/lectures` directory—enjoy!
 
 ### IDE
-We use Visual Studio Code and GitHub desktop becuase they are awesome
+
+We use [Visual Studio Code](https://code.visualstudio.com) and GitHub desktop because they are awesome!
 
 ### Lectures
 

@@ -139,6 +139,21 @@ R = 8.314*(1/1000)*(1/ΔG_sf); # units: kJ/nmol-K
 # ╔═╡ 38a645d9-688e-4794-9c8f-98e8ec5b6516
 md"""
 ### Discussion problem
+
+Compute the metabolic flux distribution for upper glycolysis using Direct Gibbs Energy Minimization (DGEM) 
+for the first five reactions of glycolysis. The reactions operate in an open logical control volume with a single input (s=1) and a single output (s=2). Let the rate of glucose input into the logical control volume be $\dot{n}_{1,1}=1077$ nmol/time and the rate of ATP input $\dot{n}_{3,1} = 2000$ nmol/time. All other components
+enter the logical control volume at 0.1 nmol/time. All components can exit the logical control volume. 
+
+__Compute__
+* The open extent of reaction $\dot{\epsilon}_{i}~\forall{i}$ using a DGEM approach for an _unbounded_ exit stream and unbounded extent ($\dot{\epsilon}_{i}\geq{0}~\forall{i}$).
+* The open extent of reaction $\dot{\epsilon}_{i}~\forall{i}$ using a DGEM approach for a _bounded_ exit stream and unbounded extent ($\dot{\epsilon}_{i}\geq{0}~\forall{i}$). In particular, let's simulate the logical exit condition for DHAP $\dot{n_{7,2}}\leq{10}$.
+
+__Assumptions__
+* The cell-free extract has a constant V = 30.0μL
+* The cell-free extract acts like an _ideal_ liquid solution
+* The cell-free reaction is at a constant T, P
+* The cell-free extract is well mixed
+* The _default_ metabolic settings used by [eQuilibrator](https://equilibrator.weizmann.ac.il) are valid for this system
 """
 
 # ╔═╡ 77c6925b-6588-4702-8d1d-5de05316d722
@@ -201,14 +216,16 @@ begin
 	(ℳₒ,ℛₒ) = size(Sₒ)
 	
 	# what are my initial condtions?
-	n_dot_in_array = ones(ℳₒ)
-	n_dot_in_array[1] = 35.9*(V)*(1e9/1e3) 		# 1 gluc nmol/time
+	n_dot_in_array = 0.1*ones(ℳₒ)
+	n_dot_in_array[1] = 1077.0 					# 1 gluc nmol/time
 	n_dot_in_array[3] = 2000.0 					# 3 atp nmol/time
 	open_parameters_dict["n_dot_in_array"] = n_dot_in_array
 
 	# what are the outflow terms -
 	n_dot_out_upper_bound_array = 100000.0*ones(ℳₒ)
-	n_dot_out_upper_bound_array[7] = 5.0
+	
+	# uncomment me to impose upper bound for DHAP -
+	# n_dot_out_upper_bound_array[7] = 5.0
 	open_parameters_dict["n_dot_out_upper_bound_array"] = n_dot_out_upper_bound_array
 
 	# show -
@@ -218,11 +235,24 @@ end
 # ╔═╡ b4ed3db1-fa2a-4b3a-a44a-7366345979b2
 md"""
 ### Summary and Conclusions
+
+In this lecture we:
+
+1. Introduced Gibbs energy minimization and partial molar Gibbs energy
+2. Computed the reversibility of multiple coupled enzyme-catalyzed reactions
+3. Used the Direct Gibbs Energy Minimization (DGEM) approach to estimate metabolic flux in an `open logical system`
+
 """
 
 # ╔═╡ d4ce7976-85f2-47e0-8845-64c0b6d9249a
 md"""
-### Next Time
+### Next time:
+
+We'll discuss enzyme kinetics and the origin of the bounds conditions. In particular, we'll look at:
+
+* The assumptions that underly [Michaelis-Menten kinetics](https://en.wikipedia.org/wiki/Michaelis–Menten_kinetics) (and the derivation)
+* The [MWC kinetics](https://en.wikipedia.org/wiki/Monod-Wyman-Changeux_model) model for allosteric enzymes
+* Developing our approach to modeling enzyme kinetics (it's going to be crazy awesome!)
 """
 
 # ╔═╡ 72dddb17-3e97-4214-ae44-28e908febbba
@@ -264,8 +294,6 @@ function objective_function_open(ϵ, parameters)
 	end
 	𝒫 = sum(penalty_terms_array);
 
-	
-	
 	# return -
 	return 𝒪 + 10*𝒫
 end
@@ -275,24 +303,19 @@ begin
 
 	# setup bounds -
 	Lₒ = zeros(ℛₒ)
-	Uₒ = 100*ones(ℛₒ)
 
-	# set the initial -
+	# uncomment me:
+	Uₒ = 1000000.0*ones(ℛₒ)
+
+	# set the initial extent -
 	ϵₒ = 0.001*ones(ℛₒ)
-	# ϵₒ[1] = 0.5*maximum(U)
 	
 	# setup the objective function -
 	OF_open(p) = objective_function_open(p, open_parameters_dict)
-    
-    # call the optimizer -
+
+    # uncomment me: call the optimizer -
     opt_result_open = optimize(OF_open, Lₒ, Uₒ, ϵₒ, Fminbox(BFGS()))
 end
-
-# ╔═╡ c85c529a-a113-4b19-97ec-4dd778191fec
-ϵ_dot = Optim.minimizer(opt_result_open)
-
-# ╔═╡ bf142287-3893-4848-9a78-59b266298e10
-n_dot_out = n_dot_in_array .+ Sₒ*ϵ_dot
 
 # ╔═╡ 2625b050-e961-483f-8e67-1748a981d2e8
 with_terminal() do
@@ -1549,8 +1572,8 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╟─a0aca432-86ce-11ec-3668-679d09123b86
-# ╟─552ffec5-d763-467f-a29d-eadf1bad6437
+# ╠═a0aca432-86ce-11ec-3668-679d09123b86
+# ╠═552ffec5-d763-467f-a29d-eadf1bad6437
 # ╠═767ac9c4-3452-4f85-8de2-5b49001abc92
 # ╟─384f1569-b77e-4b7c-b559-01bc70b0ed89
 # ╠═e391a136-dbc2-4b56-b758-a1449db46693
@@ -1561,16 +1584,14 @@ version = "0.9.1+5"
 # ╠═d1178ff2-ef25-4f0f-9f58-e69bb8908f9a
 # ╠═02f2c64c-9e93-4d79-966d-e7de429317d8
 # ╟─38a645d9-688e-4794-9c8f-98e8ec5b6516
-# ╟─77c6925b-6588-4702-8d1d-5de05316d722
+# ╠═77c6925b-6588-4702-8d1d-5de05316d722
 # ╟─68be4ebd-54b5-4f86-b467-1e06c681aaa2
 # ╠═c7c4218a-4c6f-48f4-9cca-76a2db9cd1d9
 # ╠═7b1df4fa-51eb-4558-b808-f4a8e7433af8
-# ╠═c85c529a-a113-4b19-97ec-4dd778191fec
-# ╠═bf142287-3893-4848-9a78-59b266298e10
 # ╠═2625b050-e961-483f-8e67-1748a981d2e8
 # ╠═ac441583-be2d-4d58-8bce-885d2c1e6529
-# ╠═b4ed3db1-fa2a-4b3a-a44a-7366345979b2
-# ╠═d4ce7976-85f2-47e0-8845-64c0b6d9249a
+# ╟─b4ed3db1-fa2a-4b3a-a44a-7366345979b2
+# ╟─d4ce7976-85f2-47e0-8845-64c0b6d9249a
 # ╟─72dddb17-3e97-4214-ae44-28e908febbba
 # ╠═b71d2bc5-0393-4ec8-97a6-bbfddae00b06
 # ╠═4e93ffc7-a323-4349-9022-899ee7274e9d

@@ -33,6 +33,9 @@ This repository holds lecture notes and example problems discussed in lecture. T
 
 1. From Pluto, open one of the `.jl` lecture notebook files located in the `CHEME-5440-7770-Cornell-Spring-2022/lectures` directory—enjoy!
 
+### IDE
+We use Visual Studio Code and GitHub desktop becuase they are awesome
+
 ### Lectures
 
 * [Lecture 1: Introduction to Metabolic Engineering](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-1-5440-7770-S2022.jl.html)

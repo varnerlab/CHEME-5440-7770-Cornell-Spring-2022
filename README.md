@@ -43,3 +43,4 @@ We use [Visual Studio Code](https://code.visualstudio.com) and GitHub desktop be
 * [Lecture 2: Constraint-Based Perspective and Tools](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-2-5440-7770-S2022.jl.html)
 * [Lecture 3: Our first metabolic flux calculation](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-3-5440-7770-S2022.jl.html)
 * [Lecture 4: Computing the reversibility of a metabolic reaction](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-4-5440-7770-S2022.jl.html)
+* [Lecture 5: Minimum Energy Metabolic Flux Distributions](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-5-5440-7770-S2022.jl.html)

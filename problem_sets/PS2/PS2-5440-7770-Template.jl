@@ -6,7 +6,7 @@ using InteractiveUtils
 
 # ╔═╡ 6b1ad54f-61e4-490d-9032-7a557e8dc82f
 md"""
-## CHEME 5440/7770: Structural Analysis of the Urea Cycle Network (PS2)
+## CHEME 5440/7770: Structural Analysis of the Urea Cycle (PS2)
 """
 
 # ╔═╡ 7057c8e4-9e94-4a28-a885-07f5c96ebe39
@@ -22,23 +22,17 @@ md"""
 
 # ╔═╡ 5338451e-3c4b-4030-bbbb-42eaf4209a89
 begin
-
-	# fill me in
-	# ...
-	
+	# fill me in ...
 end
 
 # ╔═╡ 6970dab5-16bd-4898-b88d-723cb1b3d89e
 md"""
-#### Convex analysis: extreme pathways
+#### Convex analysis: compute the extreme pathways
 """
 
 # ╔═╡ 97b0763d-dcab-4afa-b660-52e18b3d523f
 begin
-
-	# fill me in
-	# ...
-	
+	# fill me in ...
 end
 
 # ╔═╡ b473b17e-3bf5-4b6c-af24-fe57b5a7e7e9
@@ -47,7 +41,9 @@ md"""
 """
 
 # ╔═╡ 999ae1fd-5341-4f66-9db2-dec53fa0cd49
-
+begin
+	# fill me in ...
+end
 
 # ╔═╡ b7e5d1a6-57ed-4d09-a039-a4bd12386367
 md"""
@@ -56,7 +52,6 @@ md"""
 
 # ╔═╡ 4520fc6e-7305-487e-924d-af22406e6d45
 begin
-
 	# fill me in ...
 end
 
@@ -99,7 +94,7 @@ html"""
 <style>
 main {
     max-width: 900px;
-    width: 75%;
+    width: 70%;
     margin: auto;
     font-family: "Roboto, monospace";
 }
@@ -126,7 +121,7 @@ PrettyTables = "~1.3.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.7.1"
+julia_version = "1.7.2"
 manifest_format = "2.0"
 
 [[deps.AbstractPlutoDingetjes]]
@@ -377,7 +372,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─7057c8e4-9e94-4a28-a885-07f5c96ebe39
 # ╟─87a183bc-3857-4189-8103-18c46ff3245d
 # ╠═5338451e-3c4b-4030-bbbb-42eaf4209a89
-# ╠═6970dab5-16bd-4898-b88d-723cb1b3d89e
+# ╟─6970dab5-16bd-4898-b88d-723cb1b3d89e
 # ╠═97b0763d-dcab-4afa-b660-52e18b3d523f
 # ╟─b473b17e-3bf5-4b6c-af24-fe57b5a7e7e9
 # ╠═999ae1fd-5341-4f66-9db2-dec53fa0cd49
@@ -385,6 +380,6 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═4520fc6e-7305-487e-924d-af22406e6d45
 # ╠═67f5db98-88d0-11ec-27ac-b57538a166f4
 # ╠═267865de-1b5c-4579-861b-c6c46beb4739
-# ╟─ab2bcfd5-3ba7-4388-8a3c-2cb95fba989a
+# ╠═ab2bcfd5-3ba7-4388-8a3c-2cb95fba989a
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

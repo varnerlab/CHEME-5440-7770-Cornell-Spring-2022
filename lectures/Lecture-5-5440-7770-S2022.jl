@@ -426,7 +426,7 @@ begin
 
 	# set the initial -
 	xinitial = 0.001*ones(ℛ)
-	xinitial[1] = 0.5*maximum(U)
+	xinitial[1] = 0.1*maximum(U)
 	
 	# setup the objective function -
 	OF_closed(p) = objective_function_closed(p, parameters_dict)
@@ -517,8 +517,8 @@ TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true
 html"""
 <style>
 main {
-    max-width: 960px;
-    width: 75%;
+    max-width: 860px;
+    width: 70%;
     margin: auto;
     font-family: "Roboto, monospace";
 }

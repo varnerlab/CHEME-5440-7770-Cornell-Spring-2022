@@ -26,3 +26,7 @@ Manifest.toml
 # JV:
 .DS_Store
 .DS_Store
+
+# PS2 solution -
+problem_sets/PS2/PS2-5440-7770-Soln.jl
+problem_sets/PS2/config

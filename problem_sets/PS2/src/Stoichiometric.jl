@@ -88,7 +88,7 @@ function extract_species_dictionary(reaction_phrase::String;
 			species_symbol = String(tmp_array[2])
 
 			# don't cache the ∅ -
-			if (species_symbols != "∅")
+			if (species_symbols != "∅" || species_symbols != "[]")
 				species_symbol_dictionary[species_symbol] = st_coeff
 			end
 		else 
@@ -97,7 +97,7 @@ function extract_species_dictionary(reaction_phrase::String;
 			species_symbol = component |> lstrip |> rstrip
 
 			# don't cache the ∅ -
-			if (species_symbol != "∅")
+			if (species_symbol != "∅" || species_symbols != "[]")
 				species_symbol_dictionary[species_symbol] = direction*1.0
 			end
 		end

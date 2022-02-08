@@ -1,3 +1,5 @@
+import Base.+
+
 function +(buffer::Array{String,1}, line::String)
     push!(buffer, line)
 end
@@ -11,7 +13,7 @@ function read_reaction_file(path_to_file::String)::Array{String,1}
     # Read in the file -
     open("$(path_to_file)", "r") do file
         for line in eachline(file)
-            +(buffer,line)
+            +(vff_file_buffer,line)
         end
     end
 

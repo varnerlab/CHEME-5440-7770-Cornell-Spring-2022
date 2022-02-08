@@ -42,10 +42,14 @@ function expa(stoichiometric_matrix::Array{Float64,2})
         end
     
 		# ok, so we have a new set of possible pathways, check for independent pathways -
-        P = transpose(hcat(TMP_ARR...))		
-		if (isempty(P) == false)
+        P = transpose(hcat(TMP_ARR...))	
+		
+		# ok, check for indepedent pathways -
+		rows_to_keep_set = compute_convex_independent_rows(P)
+		P_IND = P[(rows_to_keep_set |> collect),:]
+		if (isempty(P_IND) == false)
 			# Update T -
-			T = vcat(TNEW,P);
+			T = vcat(TNEW,P_IND);
 		end
     end # main -
 

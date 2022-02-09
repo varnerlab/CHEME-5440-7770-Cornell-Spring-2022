@@ -169,11 +169,18 @@ md"""
 md"""
 ### Medium: Effective discrete state kinetic models
 
-Let the model take the form $\hat{r}_{j} = r_{j}v\left(...\right)_{j}$
-where $\hat{r}_{j}$, the overall rate of the PFK reaction ($\mu$M h$^{-1}$), 
-is the product of a kinetic limit $r_{j}$ ($\mu$M h$^{-1}$), i.e., the maximum rate of conversion, 
-and a control variable $0\leq v\left(...\right)_{j}\leq 1$ (dimensionless) that describes the influence
-of effector molecules. Since we have only a single enzyme let j = 1. 
+Michaelis–Menten kinetics are easy to understand, but they neglect many factors e.g., the influence of allosteric regulators. On the other hand, MWC/sequential models are detailed but case-specific (and too hard). It would be great if we could correct Michaelis–Menten kinetics to capture the influence of allosteric factors. 
+
+Suppose we model the rate $v_{j}$ as the product of a kinetic limit (a simple model of the rate) and a correction term that accounts for the missing regulation:
+
+$$v_{j} = r_{j}\theta\left(...\right)_{j}$$
+
+where $v_{j}$ denotes the overall rate (units: $\mu$M/time), $r_{j}$ denotes the kinetic limit i.e., the maximum rate of conversion (units: $\mu$M/time) and 
+$0\leq \theta\left(...\right)_{j}\leq 1$ (units: dimensionless) is a control function that describes the influence of effector molecules. 
+
+
+
+
 
 The model for the kinetic limit was given in the problem:
 
@@ -192,6 +199,41 @@ where $W_{i}$ denotes the weight of state i (dimensionless), and $f_{2}$ denote 
  - The probability of state 1 is $p_{1}$ = $W_{1}/Z$ where $Z$=$1+W_{1}+W_{2}f_{2}$.
  - The probability of state 2 is $p_{2}$ = $W_{2}f_{2}/Z$ where $Z$=$1+W_{1}+W_{2}f_{2}$.
 
+"""
+
+# ╔═╡ c392c8a9-361d-47e4-933e-2e51b793e069
+md"""
+##### Control function models
+There is a wide variety of different possible ways we can build the $\theta\left(...\right)_{j}$ control functions. Ultimately, it doesn't matter what we choose, as long as it gives a good performance. However, let's introduce an idea that we will revisit later, namely a discrete probabilistic approach.
+
+###### Theory
+Suppose an enzyme $E$ can exits in one of $s=1,2\dots,\mathcal{S}$ possible microstates, where each microstate $s$ has some pseudo energy $\epsilon_{s}$. Some microstates will lead to activity (the ability to carry out the chemical reactions, while others will not). For each microstate $s$, let's assign a pseudo energy $\epsilon_{s}$, where by definition $\epsilon_{1}=0$; we assume the base state has the lowest energy. Next, suppose the probability that enzyme $E$ is in microstate $s$ follows a [Boltzmann distribution](https://en.wikipedia.org/wiki/Boltzmann_distribution) which says:
+
+$$p_{i} = \frac{1}{Z} \times f_{i}\exp\left(-\beta\epsilon_{i}\right)\qquad{i=1,2,\dots,\mathcal{S}}$$
+
+where $p_{i}$ denotes the probability that enzyme $E$ is in microstate $i=1,2,\dots,\mathcal{S}$, $f_{i}$ denotes a state-specific factor $f_{i}\in\left[0,1\right]$, $\beta$ denotes the [thermodynamic beta](https://en.wikipedia.org/wiki/Thermodynamic_beta) and $Z$ denotes a normalization factor (called the [Partiton function](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)) in the statistical physics community). We can find $Z$ using the summation law of discrete probolity e.g.,  $\sum_{s}p_{s} = 1$ which gives:
+
+$$Z = \sum_{s=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)$$
+
+which gives:
+
+$$p_{i} = \frac{f_{i}\exp\left(-\beta\epsilon_{i}\right)}{\displaystyle \sum_{s=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)}\qquad{i=1,2,\dots,\mathcal{S}}$$.
+
+We relate the probability that enzyme $E$ is in microstate $s$ back to the $\theta$ function by computing the overall probability that the desired event happens, e.g., enzyme $E$ catalyzes the reaction of interests. For example, we know that $\Omega = \left\{1,2,\dots,\mathcal{S}\right\}$. 
+We can then find the subset $\mathcal{A}\subseteq\Omega$ in which the desired event happens. Then, the $\theta$ function becomes:
+
+$$\theta=\sum_{s\in{\mathcal{A}}}p_{s}$$
+
+###### Conceptual example
+To illustrate this idea, consider an enzyme inhibited by a downstream product (this is a common allosteric motif known as [feedback inhibition](Pedreño S, Pisco JP, Larrouy-Maumus G, Kelly G, de Carvalho LP. Mechanism of feedback allosteric inhibition of ATP phosphoribosyltransferase. Biochemistry. 2012;51(40):8027-8038. doi:10.1021/bi300808b)). In this case, suppose enzyme $E$, which is inhibited by compound $I$ can exist in one of three possible microstates:
+
+* __State s = 1__: No substrate $S$ is bound, $E$ is floating around in solution minding its own business (base state, no reaction)
+* __State s = 2__: Substrate $S$ is bound to enzyme $E$, but inhibitor $I$ is not bound (reaction possible)
+* __State s = 3__: Both the substrate $S$ and inhibitor $I$ are bound to enzyme $E$ (no reaction possible)
+
+Given these microstates (and their functional assignment) we know that enzyme $E$ can only catalyze its reaction in microstate $s=2$, thus:
+
+$$\theta = \frac{f_{2}\exp\left(-\beta\epsilon_{i}\right)}{\displaystyle \sum_{s=1}^{\mathcal{3}}f_{s}\exp\left(-\beta\epsilon_{s}\right)}$$
 """
 
 # ╔═╡ d3568c5d-16bf-4698-9891-0be65d62b36c
@@ -1251,11 +1293,12 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╟─8ba6a00a-7a53-4dcc-af4d-cb85aa9b4d68
-# ╟─17724757-604e-4c77-a42b-238ba121e88f
+# ╠═17724757-604e-4c77-a42b-238ba121e88f
 # ╟─431ccdf0-93a9-4b3c-9576-8854ba2f1fad
 # ╟─7efaf27c-8e0a-40f9-ac28-af90357450a3
 # ╟─55ea8324-f36d-40bd-99e3-92e7fcbafca9
-# ╟─3502da52-7d2b-4c79-82ce-7424d756cd9b
+# ╠═3502da52-7d2b-4c79-82ce-7424d756cd9b
+# ╟─c392c8a9-361d-47e4-933e-2e51b793e069
 # ╟─d3568c5d-16bf-4698-9891-0be65d62b36c
 # ╠═55d4ab48-9589-4fd9-ac06-3338fdb418c4
 # ╠═451ae3a0-8068-4747-95a7-d31955808f29

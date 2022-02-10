@@ -199,7 +199,7 @@ where $W_{i}$ denotes the weight of state i (dimensionless), and $f_{2}$ denote 
 
 # ╔═╡ c392c8a9-361d-47e4-933e-2e51b793e069
 md"""
-##### Control function models
+##### Discrete state control function model
 There is a wide variety of different possible ways we can build the $\theta\left(...\right)_{j}$ control functions. Ultimately, it doesn't matter what we choose, as long as it gives a good performance. However, let's introduce an idea that we will revisit later, namely a discrete probabilistic approach.
 
 ###### Theory
@@ -230,18 +230,105 @@ Given these microstates (and their functional assignment) we know that enzyme $E
 
 $$\theta = \frac{f_{2}\exp\left(-\beta\epsilon_{i}\right)}{\displaystyle \sum_{s=1}^{\mathcal{3}}f_{s}\exp\left(-\beta\epsilon_{s}\right)}$$
 
-###### What are the state-specific factor?
-The state-specific factors $f_{i}\in\left[0,1\right]$ can be set to a specific value by definition (depending upon the state) or can be used to describe events associated with state $i$, e.g., binding events. For example, suppose state $i$ involved binding an effector molecule $x$ to the enzyme $E$. In this case, we could model the state-specific factor $f_{i}$ as:
+###### What are the state-specific factors?
+The state-specific factors $f_{i}\in\left[0,1\right]$ control the reachability of a microstate:
+
+* if $f_{\star} = 0$, then microstate $\star$ can __never__ be obtained
+* if $f_{\star} = 1$, then microstate $\star$ can __always__ be obtained
+
+As a modeler, you can choose the form (or value) that $f_{\star}$ takes. These factors can
+be set to a specific value by definition (depending upon the state) or can be used to describe events associated with state $i$, e.g., such as binding events. For example, suppose state $i$ involved binding an effector molecule $x$ to the enzyme $E$. In this case, we could model the state-specific factor $f_{i}$ as:
 
 $$f_{i} = (x/K_{i})^{n_{i}}/(1+(x/K_{i})^{n_{i}})$$
 
-###### Numerical example: 
-
+where $x\geq{0}$ denotes effector abundance, $K_{i}\geq{0}$ denotes a binding constant and $n_{i}\geq{0}$ denotes a binding order parameter. 
 """
 
-# ╔═╡ bd79729d-9407-4ef1-aea8-676cbaa6e011
-md"""
-"""
+# ╔═╡ 91345d04-f502-4e90-935e-a4dc250244db
+@bind DSM_parameters PlutoUI.combine() do Child
+	
+	md"""
+	\[I\] $(
+		Child(Slider(0:100))
+	) (μM) and K (bind) $(
+		Child(Slider(5:100))
+	) (mM)
+	"""
+end
+
+# ╔═╡ 719784fe-3ef6-4e53-ad52-82140e3d0b5e
+begin
+
+	# get I -
+	Iₒ = DSM_parameters[1]
+	Kd = DSM_parameters[2]
+	
+	# setup system -
+	R = 8.314 			# units: J/mol-K
+	T = 273.15 + 25.0 	# units: K
+	β = 1/R*T
+
+	# setup binding parameters for state 3 -
+	n = 2.0
+	
+	# setup energy array -
+	ϵ_array = [
+		0.0 	; # state 1 (just E)
+		-0.1 	; # state 2 (E bound to S, but no I)
+		-0.1 	; # state 3 (E bound to I)
+	];
+
+	# compute W -
+	W_array = exp.(-β*ϵ_array)
+
+	# let's compute the state-specific factor array -
+	f_array = [
+		1.0 ; # state 1 
+		1.0 ; # state 2
+		((Iₒ/Kd)^(n))/(1+(Iₒ/Kd)^(n))
+	];
+
+	# compute the θ variable -
+	microstate_array = f_array.*W_array;
+	Z = sum(microstate_array)
+	p_array = (1/Z)*microstate_array
+	θ = p_array[2]
+
+	# show -
+	nothing
+end
+
+# ╔═╡ 949da864-7307-4b74-a8ec-4e9d7846835d
+f_array
+
+# ╔═╡ d46ced14-a5d3-45a9-9d43-38dc7879b0c7
+let
+
+	# get MM parameter values -
+	E = 1.0 # units: μM
+	Kₘ = 5 	# units: mM
+	kcat = 13.7 # units: s^-1
+	number_of_steps = 1000
+
+	# substrate range -
+	S_array = range(0.0,stop=100.0,length=number_of_steps) |> collect;
+
+	# initialize space -
+	v_array = Array{Float64,1}(undef,number_of_steps)
+
+	# compute the rate -
+	for (i,S) ∈ enumerate(S_array)
+
+		# compute the rate -
+		v_array[i] = (kcat*E)*(S/(S+Kₘ))*θ
+	end
+
+	# plot -
+	plot(S_array,v_array,xlims=(0.0,100.0),ylims=(0.0,14), label="v: I = $(Iₒ) mM and Kd = $(Kd) (mM)")
+	xlabel!("Substrate S (mM)",fontsize=18)
+	ylabel!("Rate v (μM/s)",fontsize=18)
+	
+end
 
 # ╔═╡ d3568c5d-16bf-4698-9891-0be65d62b36c
 md"""
@@ -1301,12 +1388,15 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╟─8ba6a00a-7a53-4dcc-af4d-cb85aa9b4d68
 # ╟─17724757-604e-4c77-a42b-238ba121e88f
-# ╟─431ccdf0-93a9-4b3c-9576-8854ba2f1fad
-# ╟─7efaf27c-8e0a-40f9-ac28-af90357450a3
+# ╠═431ccdf0-93a9-4b3c-9576-8854ba2f1fad
+# ╠═7efaf27c-8e0a-40f9-ac28-af90357450a3
 # ╟─55ea8324-f36d-40bd-99e3-92e7fcbafca9
 # ╠═3502da52-7d2b-4c79-82ce-7424d756cd9b
 # ╟─c392c8a9-361d-47e4-933e-2e51b793e069
-# ╠═bd79729d-9407-4ef1-aea8-676cbaa6e011
+# ╟─91345d04-f502-4e90-935e-a4dc250244db
+# ╟─719784fe-3ef6-4e53-ad52-82140e3d0b5e
+# ╠═949da864-7307-4b74-a8ec-4e9d7846835d
+# ╠═d46ced14-a5d3-45a9-9d43-38dc7879b0c7
 # ╟─d3568c5d-16bf-4698-9891-0be65d62b36c
 # ╠═55d4ab48-9589-4fd9-ac06-3338fdb418c4
 # ╠═451ae3a0-8068-4747-95a7-d31955808f29

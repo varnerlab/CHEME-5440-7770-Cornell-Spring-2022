@@ -20,6 +20,13 @@ md"""
 # ╔═╡ 967500aa-664a-4bca-81b6-1ee95bec595a
 md"""
 ### Kinetics of multiple substrate reactions
+
+##### Ping–pong mechanism
+Enzymes with ping–pong mechanisms include [oxidoreductases](https://en.wikipedia.org/wiki/Oxidoreductase), [transferases](https://en.wikipedia.org/wiki/Transferase), and [serine proteases](https://en.wikipedia.org/wiki/Serine_protease) such as [trypsin](https://en.wikipedia.org/wiki/Trypsin), [chymotrypsin](https://en.wikipedia.org/wiki/Chymotrypsin) and several enzymes of the blood clotting cascade. 
+
+##### Power-law kinetics
+
+##### General multisubstrate model
 """
 
 # ╔═╡ 7c136883-cff7-4104-a952-ffc5929b871f
@@ -333,7 +340,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 """
 
 # ╔═╡ Cell order:
-# ╠═83a9dd26-8ab0-11ec-05a7-97fba528df76
+# ╟─83a9dd26-8ab0-11ec-05a7-97fba528df76
 # ╟─967500aa-664a-4bca-81b6-1ee95bec595a
 # ╟─7c136883-cff7-4104-a952-ffc5929b871f
 # ╟─b722071c-4256-4fea-84c2-3a209822a1c1

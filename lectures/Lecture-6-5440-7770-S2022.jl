@@ -216,7 +216,7 @@ which gives:
 
 $$p_{i} = \frac{f_{i}\exp\left(-\beta\epsilon_{i}\right)}{\displaystyle \sum_{s=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)}\qquad{i=1,2,\dots,\mathcal{S}}$$.
 
-Finally, we relate the probability that enzyme $E$ is in microstate $s$ back to the $\theta$ control function by computing the overall probability that the desired event happens, e.g., enzyme $E$ catalyzes the reaction of interests. We know if $\Omega = \left\{1,2,\dots,\mathcal{S}\right\}$, then we can define the subset $\mathcal{A}\subseteq\Omega$ in which the desired event happens. Given $\mathcal{A}, the $\theta$ function becomes:
+Finally, we relate the probability that enzyme $E$ is in microstate $s$ back to the $\theta$ control function by computing the overall probability that the desired event happens, e.g., enzyme $E$ catalyzes the reaction of interests. We know if $\Omega = \left\{1,2,\dots,\mathcal{S}\right\}$, then we can define the subset $\mathcal{A}\subseteq\Omega$ in which the desired event happens. Given $\mathcal{A}$, the $\theta$ function becomes:
 
 $$\theta=\sum_{s\in{\mathcal{A}}}p_{s}$$
 

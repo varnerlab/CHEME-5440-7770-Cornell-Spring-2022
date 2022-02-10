@@ -178,10 +178,6 @@ $$v_{j} = r_{j}\theta\left(...\right)_{j}$$
 where $v_{j}$ denotes the overall rate (units: $\mu$M/time), $r_{j}$ denotes the kinetic limit i.e., the maximum rate of conversion (units: $\mu$M/time) and 
 $0\leq \theta\left(...\right)_{j}\leq 1$ (units: dimensionless) is a control function that describes the influence of effector molecules. 
 
-
-
-
-
 The model for the kinetic limit was given in the problem:
 
 $r_{1} = k_{cat}E_{1}\left(\frac{F6P}{K_{F6P}+F6P}\right)\left(\frac{ATP}{K_{ATP}+ATP}\right)$
@@ -219,8 +215,7 @@ which gives:
 
 $$p_{i} = \frac{f_{i}\exp\left(-\beta\epsilon_{i}\right)}{\displaystyle \sum_{s=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)}\qquad{i=1,2,\dots,\mathcal{S}}$$.
 
-We relate the probability that enzyme $E$ is in microstate $s$ back to the $\theta$ function by computing the overall probability that the desired event happens, e.g., enzyme $E$ catalyzes the reaction of interests. For example, we know that $\Omega = \left\{1,2,\dots,\mathcal{S}\right\}$. 
-We can then find the subset $\mathcal{A}\subseteq\Omega$ in which the desired event happens. Then, the $\theta$ function becomes:
+Finally, we relate the probability that enzyme $E$ is in microstate $s$ back to the $\theta$ control function by computing the overall probability that the desired event happens, e.g., enzyme $E$ catalyzes the reaction of interests. We know if $\Omega = \left\{1,2,\dots,\mathcal{S}\right\}$, then we can define the subset $\mathcal{A}\subseteq\Omega$ in which the desired event happens. Given $\mathcal{A}, the $\theta$ function becomes:
 
 $$\theta=\sum_{s\in{\mathcal{A}}}p_{s}$$
 
@@ -234,6 +229,18 @@ To illustrate this idea, consider an enzyme inhibited by a downstream product (t
 Given these microstates (and their functional assignment) we know that enzyme $E$ can only catalyze its reaction in microstate $s=2$, thus:
 
 $$\theta = \frac{f_{2}\exp\left(-\beta\epsilon_{i}\right)}{\displaystyle \sum_{s=1}^{\mathcal{3}}f_{s}\exp\left(-\beta\epsilon_{s}\right)}$$
+
+###### What are the state-specific factor?
+The state-specific factors $f_{i}\in\left[0,1\right]$ can be set to a specific value by definition (depending upon the state) or can be used to describe events associated with state $i$, e.g., binding events. For example, suppose state $i$ involved binding an effector molecule $x$ to the enzyme $E$. In this case, we could model the state-specific factor $f_{i}$ as:
+
+$$f_{i} = (x/K_{i})^{n_{i}}/(1+(x/K_{i})^{n_{i}})$$
+
+###### Numerical example: 
+
+"""
+
+# ╔═╡ bd79729d-9407-4ef1-aea8-676cbaa6e011
+md"""
 """
 
 # ╔═╡ d3568c5d-16bf-4698-9891-0be65d62b36c
@@ -1293,12 +1300,13 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╟─8ba6a00a-7a53-4dcc-af4d-cb85aa9b4d68
-# ╠═17724757-604e-4c77-a42b-238ba121e88f
+# ╟─17724757-604e-4c77-a42b-238ba121e88f
 # ╟─431ccdf0-93a9-4b3c-9576-8854ba2f1fad
 # ╟─7efaf27c-8e0a-40f9-ac28-af90357450a3
 # ╟─55ea8324-f36d-40bd-99e3-92e7fcbafca9
 # ╠═3502da52-7d2b-4c79-82ce-7424d756cd9b
 # ╟─c392c8a9-361d-47e4-933e-2e51b793e069
+# ╠═bd79729d-9407-4ef1-aea8-676cbaa6e011
 # ╟─d3568c5d-16bf-4698-9891-0be65d62b36c
 # ╠═55d4ab48-9589-4fd9-ac06-3338fdb418c4
 # ╠═451ae3a0-8068-4747-95a7-d31955808f29

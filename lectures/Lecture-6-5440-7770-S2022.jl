@@ -20,6 +20,7 @@ begin
 	# external packages -
 	using PlutoUI
 	using Plots
+	using PrettyTables
 end
 
 # ╔═╡ 8ba6a00a-7a53-4dcc-af4d-cb85aa9b4d68
@@ -36,13 +37,22 @@ where $V_{max,j}^{\circ}$ denotes the maximum reaction velocity (units: flux) co
 * If reaction $j$ is __reversible__ $\delta_{j}=1$ or,
 * If reaction $j$ is __irreversible__ $\delta_{j}=0$
 
-Today, let's focus on approaches for computing the value of these bounds, i.e., the form and value of the terms on the brackets. 
-
-In this lecture, we will:
+Today, let's focus on approaches for computing the value of these bounds, i.e., the form and value of the terms in the brackets. In this lecture, we will:
 
 1. Develop simple models of enzyme kinetics using the Michaelis–Menten approach
 1. Introduce the fundamental concepts underlying more complex models of allosteric regulation (the fast control mechanisms that we mentioned previously)
 1. Introduce effective discrete regulation models to capture allosteric regulation
+"""
+
+# ╔═╡ 8869f117-1fc6-4cc5-9803-b8ec72a109a6
+md"""
+### What is allosteric regulation?
+Allosteric regulation modulates enzyme activity by binding effector molecules to sites other than the enzyme's active site. These events can activate (enhances rate) and inhibit (decreases rate). Allosteric regulation operates on a fast time scale compared to gene expression (synthesis of the enzyme). 
+
+Allosteric mechanisms in Central Carbon Metabolism:
+
+* [Reznik E, Christodoulou D, Goldford JE, Briars E, Sauer U, Segrè D, Noor E. Genome-Scale Architecture of Small Molecule Regulatory Networks and the Fundamental Trade-Off between Regulation and Enzymatic Activity. Cell Rep. 2017 Sep 12;20(11):2666-2677. doi: 10.1016/j.celrep.2017.08.066. PMID: 28903046; PMCID: PMC5600504.](https://pubmed.ncbi.nlm.nih.gov/28903046/)
+
 """
 
 # ╔═╡ 17724757-604e-4c77-a42b-238ba121e88f
@@ -162,14 +172,23 @@ end
 # ╔═╡ 55ea8324-f36d-40bd-99e3-92e7fcbafca9
 md"""
 ### Complex: MWC and Sequential kinetic models
+The Monod-Wyman-Changeux model (MWC model, also known as the symmetry model) describes allosteric transitions of proteins made up of identical subunits. Effector binding modulates the state of the entire protein.
 
+* [MONOD J, WYMAN J, CHANGEUX JP. ON THE NATURE OF ALLOSTERIC TRANSITIONS: A PLAUSIBLE MODEL. J Mol Biol. 1965 May;12:88-118. doi: 10.1016/s0022-2836(65)80285-6. PMID: 14343300.](https://pubmed.ncbi.nlm.nih.gov/14343300/)
+
+The sequential model (KNF model) of allosteric regulation posits that enzyme subunits are independent.
+Thus, binding substrate (or effector) to a subunit results in only slight conformational changes to adjacent subunits. KNF model can do describe both positive and negative cooperativity: 
+
+* [Koshland D Jr, Némethy G, Filmer D. Comparison of experimental binding data and theoretical models in proteins containing subunits. Biochemistry. 1966 Jan;5(1):365-85. doi: 10.1021/bi00865a047. PMID: 5938952.](https://pubmed.ncbi.nlm.nih.gov/5938952/)
+
+  
 """
 
 # ╔═╡ 3502da52-7d2b-4c79-82ce-7424d756cd9b
 md"""
-### Medium: Effective discrete state kinetic models
+### Effective discrete state kinetic models
 
-Michaelis–Menten kinetics are easy to understand, but they neglect many factors e.g., the influence of allosteric regulators. On the other hand, MWC/sequential models are detailed but case-specific (and too hard). It would be great if we could correct Michaelis–Menten kinetics to capture the influence of allosteric factors. 
+Michaelis–Menten kinetics are easy to understand, but they neglect many factors, e.g., the influence of allosteric regulators. On the other hand, MWC/sequential models are detailed but case-specific (and too complex). It would be great if we could correct Michaelis–Menten kinetics to capture the influence of allosteric factors. 
 
 Suppose we model the rate $v_{j}$ as the product of a kinetic limit (a simple model of the rate) and a correction term that accounts for the missing regulation:
 
@@ -177,24 +196,6 @@ $$v_{j} = r_{j}\theta\left(...\right)_{j}$$
 
 where $v_{j}$ denotes the overall rate (units: $\mu$M/time), $r_{j}$ denotes the kinetic limit i.e., the maximum rate of conversion (units: $\mu$M/time) and 
 $0\leq \theta\left(...\right)_{j}\leq 1$ (units: dimensionless) is a control function that describes the influence of effector molecules. 
-
-The model for the kinetic limit was given in the problem:
-
-$r_{1} = k_{cat}E_{1}\left(\frac{F6P}{K_{F6P}+F6P}\right)\left(\frac{ATP}{K_{ATP}+ATP}\right)$
-
-along with all the parameters associated with this model and the concentration of enzyme ($E_{1}$), F6P, and ATP. Thus, we can calculate the kinetic limit. However, we need to postulate a form for the v-variable and estimate the parameters in the v-variable expression. We'll do this from the data.
-
-###### v-model
-In the problem we proposed a three state model for $v\left(...\right)_{j}$: State 0: no effector+no substrate, State 1: no effector+substrate and State 2: effector+substrate. Following the procedure discussed in class, given this three state model, the v-variable takes the form:
-
-$v_{1} = \frac{W_{1}+W_{2}f_{2}}{1+W_{1}+W_{2}f_{2}}$
-
-where $W_{i}$ denotes the weight of state i (dimensionless), and $f_{2}$ denote the fraction of bound effector given by: $f_{2} = (x/K_{2})^{n_{2}}/(1+(x/K_{2})^{n_{2}})$. The quanity x denotes the concentration of the effector 3$^{\prime}$-5$^{\prime}$-AMP, $K_{2}$ denotes a binding constant (units of concentration) and $n_{2}$ denotes a binding cooperativity parameter (dimensionless). State 0 has no activity, while State 1 (with weight $W_{1}$) has basal enzyme activity, and State 2 describes the enhanced activity following from effector binding (with weight $W_{2}f_{2}$). 
-
- - The probability of state 0 is $p_{0}$ = $1/Z$ where $Z$=$1+W_{1}+W_{2}f_{2}$.
- - The probability of state 1 is $p_{1}$ = $W_{1}/Z$ where $Z$=$1+W_{1}+W_{2}f_{2}$.
- - The probability of state 2 is $p_{2}$ = $W_{2}f_{2}/Z$ where $Z$=$1+W_{1}+W_{2}f_{2}$.
-
 """
 
 # ╔═╡ c392c8a9-361d-47e4-933e-2e51b793e069
@@ -220,7 +221,7 @@ Finally, we relate the probability that enzyme $E$ is in microstate $s$ back to 
 $$\theta=\sum_{s\in{\mathcal{A}}}p_{s}$$
 
 ###### Conceptual example
-To illustrate this idea, consider an enzyme inhibited by a downstream product (this is a common allosteric motif known as [feedback inhibition](Pedreño S, Pisco JP, Larrouy-Maumus G, Kelly G, de Carvalho LP. Mechanism of feedback allosteric inhibition of ATP phosphoribosyltransferase. Biochemistry. 2012;51(40):8027-8038. doi:10.1021/bi300808b)). In this case, suppose enzyme $E$, which is inhibited by compound $I$ can exist in one of three possible microstates:
+To illustrate this idea, consider an enzyme inhibited by a downstream product (this is a common allosteric motif known as [feedback inhibition](Pedreño S, Pisco JP, Larrouy-Maumus G, Kelly G, de Carvalho LP. Mechanism of feedback allosteric inhibition of ATP phosphoribosyltransferase. Biochemistry. 2012;51(40):8027-8038. doi:10.1021/bi300808b)). In this case, suppose enzyme $E$, which is inhibited by compound $I$, can exist in one of three possible microstates:
 
 * __State s = 1__: No substrate $S$ is bound, $E$ is floating around in solution minding its own business (base state, no reaction)
 * __State s = 2__: Substrate $S$ is bound to enzyme $E$, but inhibitor $I$ is not bound (reaction possible)
@@ -250,9 +251,13 @@ where $x\geq{0}$ denotes effector abundance, $K_{i}\geq{0}$ denotes a binding co
 	md"""
 	\[I\] $(
 		Child(Slider(0:100))
-	) (μM) and K (bind) $(
-		Child(Slider(5:100))
-	) (mM)
+	) (μM)  K $(
+		Child(Slider(1:1:100))
+	) (mM)  ϵ₂ $(
+		Child(Slider(0.001:0.1:100))
+	) (J/mol) ϵ₃ $(
+		Child(Slider(0.001:0.1:100))
+	) (J/mol) 
 	"""
 end
 
@@ -262,6 +267,8 @@ begin
 	# get I -
 	Iₒ = DSM_parameters[1]
 	Kd = DSM_parameters[2]
+	ϵ₂ = (DSM_parameters[3])/100
+	ϵ₃ = (DSM_parameters[4])/100
 	
 	# setup system -
 	R = 8.314 			# units: J/mol-K
@@ -274,8 +281,8 @@ begin
 	# setup energy array -
 	ϵ_array = [
 		0.0 	; # state 1 (just E)
-		-0.1 	; # state 2 (E bound to S, but no I)
-		-0.1 	; # state 3 (E bound to I)
+		-ϵ₂ 	; # state 2 (E bound to S, but no I)
+		-ϵ₃ 	; # state 3 (E bound to I)
 	];
 
 	# compute W -
@@ -295,11 +302,32 @@ begin
 	θ = p_array[2]
 
 	# show -
-	nothing
+	with_terminal() do
+		println("θ = $(θ)")
+	end
 end
 
-# ╔═╡ 949da864-7307-4b74-a8ec-4e9d7846835d
-f_array
+# ╔═╡ 1d4d6059-5b79-43cd-ac17-ef2aa057ecad
+with_terminal() do
+
+	# initialize -
+	𝒮 = 3
+	state_table = Array{Any,2}(undef,𝒮,4)
+	
+	# populate the state array -
+	for s ∈ 1:𝒮
+
+		state_table[s,1] = s
+		state_table[s,2] = f_array[s]
+		state_table[s,3] = W_array[s]
+		state_table[s,4] = p_array[s]
+	end
+
+	# header -
+	header_row = (["s","fₛ","Wₛ","pₛ"])
+	pretty_table(state_table;header=header_row)
+	
+end
 
 # ╔═╡ d46ced14-a5d3-45a9-9d43-38dc7879b0c7
 let
@@ -346,7 +374,13 @@ In this lecture we:
 md"""
 ### Next Time
 
+* Experimental test of the discrete state model
+* How do we implement these bounds models in a flux balance analysis calculation?
+
 """
+
+# ╔═╡ 54370424-3add-4f93-91b0-e136166842ae
+TableOfContents(title="📚 Lecture Outline", indent=true, depth=5, aside=true)
 
 # ╔═╡ 06a90381-b4cb-4d32-af0d-2f084364129c
 html"""
@@ -415,10 +449,12 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
 
 [compat]
 Plots = "~1.25.8"
 PlutoUI = "~0.7.34"
+PrettyTables = "~1.3.1"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -512,6 +548,11 @@ deps = ["StaticArrays"]
 git-tree-sha1 = "9f02045d934dc030edad45944ea80dbd1f0ebea7"
 uuid = "d38c429a-6771-53c6-b99e-75d170b6e991"
 version = "0.5.7"
+
+[[deps.Crayons]]
+git-tree-sha1 = "249fe38abf76d48563e2f4556bebd215aa317e15"
+uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
+version = "4.1.1"
 
 [[deps.DataAPI]]
 git-tree-sha1 = "cc70b17275652eb47bc9e5f81635981f13cea5c8"
@@ -999,6 +1040,12 @@ git-tree-sha1 = "2cf929d64681236a2e074ffafb8d568733d2e6af"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
 version = "1.2.3"
 
+[[deps.PrettyTables]]
+deps = ["Crayons", "Formatting", "Markdown", "Reexport", "Tables"]
+git-tree-sha1 = "dfb54c4e414caa595a1f2ed759b160f5a3ddcba5"
+uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
+version = "1.3.1"
+
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
@@ -1387,18 +1434,20 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╟─8ba6a00a-7a53-4dcc-af4d-cb85aa9b4d68
+# ╟─8869f117-1fc6-4cc5-9803-b8ec72a109a6
 # ╟─17724757-604e-4c77-a42b-238ba121e88f
-# ╠═431ccdf0-93a9-4b3c-9576-8854ba2f1fad
-# ╠═7efaf27c-8e0a-40f9-ac28-af90357450a3
+# ╟─431ccdf0-93a9-4b3c-9576-8854ba2f1fad
+# ╟─7efaf27c-8e0a-40f9-ac28-af90357450a3
 # ╟─55ea8324-f36d-40bd-99e3-92e7fcbafca9
-# ╠═3502da52-7d2b-4c79-82ce-7424d756cd9b
+# ╟─3502da52-7d2b-4c79-82ce-7424d756cd9b
 # ╟─c392c8a9-361d-47e4-933e-2e51b793e069
 # ╟─91345d04-f502-4e90-935e-a4dc250244db
 # ╟─719784fe-3ef6-4e53-ad52-82140e3d0b5e
-# ╠═949da864-7307-4b74-a8ec-4e9d7846835d
-# ╠═d46ced14-a5d3-45a9-9d43-38dc7879b0c7
+# ╟─1d4d6059-5b79-43cd-ac17-ef2aa057ecad
+# ╟─d46ced14-a5d3-45a9-9d43-38dc7879b0c7
 # ╟─d3568c5d-16bf-4698-9891-0be65d62b36c
-# ╠═55d4ab48-9589-4fd9-ac06-3338fdb418c4
+# ╟─55d4ab48-9589-4fd9-ac06-3338fdb418c4
+# ╟─54370424-3add-4f93-91b0-e136166842ae
 # ╠═451ae3a0-8068-4747-95a7-d31955808f29
 # ╠═06a90381-b4cb-4d32-af0d-2f084364129c
 # ╠═b6890de0-8923-11ec-3552-3113bdd53f86

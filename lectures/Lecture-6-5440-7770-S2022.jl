@@ -374,7 +374,8 @@ In this lecture we:
 md"""
 ### Next Time
 
-* Experimental test of the discrete state model
+* What about multiple substrates?
+* Does the discrete state model work?
 * How do we implement these bounds models in a flux balance analysis calculation?
 
 """

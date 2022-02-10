@@ -47,4 +47,3 @@ We use [Visual Studio Code](https://code.visualstudio.com) and GitHub desktop be
 * [Lecture 6: Introduction to Enzyme Kinetics](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-6-5440-7770-S2022.jl.html)
 
 
-Test test test

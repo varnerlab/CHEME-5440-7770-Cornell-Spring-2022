@@ -115,14 +115,14 @@ begin
 	ϵ_array = [
 		0.0 		; # 1 s₁ units: J/mol
 		-1000.0 	; # 2 s₂ units: J/mol
-		-500.0 	; # 3 s₃ units: J/mol
+		-10.0 	; # 3 s₃ units: J/mol
 	];
 
 	# compute the W_array -
 	W_array = exp.(-β*ϵ_array)
 
 	# set the inhibitor concentration, and initialize some space -
-	Iₒ = 10.0
+	Iₒ = 1000.0
 	S_array = range(0.0,step = 0.01,stop = 50.0) |> collect
 	Nₛ = length(S_array);
 	δ = 1 - sign(Iₒ)

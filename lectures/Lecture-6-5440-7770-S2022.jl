@@ -220,12 +220,12 @@ Finally, we relate the probability that enzyme $E$ is in microstate $s$ back to 
 
 $$\theta=\sum_{s\in{\mathcal{A}}}p_{s}$$
 
-###### Conceptual example
-To illustrate this idea, consider an enzyme inhibited by a downstream product (this is a common allosteric motif known as [feedback inhibition](Pedreño S, Pisco JP, Larrouy-Maumus G, Kelly G, de Carvalho LP. Mechanism of feedback allosteric inhibition of ATP phosphoribosyltransferase. Biochemistry. 2012;51(40):8027-8038. doi:10.1021/bi300808b)). In this case, suppose enzyme $E$, which is inhibited by compound $I$, can exist in one of three possible microstates:
+###### Conceptual exampleTo illustrate this idea, consider an enzyme inhibited by a downstream product (this is a common allosteric motif known as [feedback inhibition](Pedreño S, Pisco JP, Larrouy-Maumus G, Kelly G, de Carvalho LP. Mechanism of feedback allosteric inhibition of ATP phosphoribosyltransferase. Biochemistry. 2012;51(40):8027-8038. doi:10.1021/bi300808b)). In this case, suppose enzyme $E$, which is inhibited by compound $I$, can exist in one of three possible microstates:
 
 * __State s = 1__: No substrate $S$ is bound, $E$ is floating around in solution minding its own business (base state, no reaction)
 * __State s = 2__: Substrate $S$ is bound to enzyme $E$, but inhibitor $I$ is not bound (reaction possible)
 * __State s = 3__: Both the substrate $S$ and inhibitor $I$ are bound to enzyme $E$ (no reaction possible)
+
 
 Given these microstates (and their functional assignment) we know that enzyme $E$ can only catalyze its reaction in microstate $s=2$, thus:
 

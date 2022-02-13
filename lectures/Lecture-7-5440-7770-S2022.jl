@@ -128,13 +128,13 @@ begin
 	δ = 1 - sign(Iₒ)
 	
 	# initialize -
-	θ_array = Array{Float64,2}(undef, Nₛ, 2)
+	θ_array = Array{Float64,2}(undef, Nₛ, 3)
 
 	# main loop -
 	for (i,S) ∈ enumerate(S_array)
 
 		# compute fᵢ -
-		f₃ = (1-δ)*(1 - K₃/(K₃ + Iₒ))*(((S/K₂)^(n₃))/(1 + (S/K₂)^(n₃)))
+		f₃ = (1 - K₃/(K₃ + Iₒ))*(((S/K₂)^(n₃))/(1 + (S/K₂)^(n₃)))
 		f₂ = (((S/K₂)^(n₂))/(1 + (S/K₂)^(n₂)))
 		f₁ = 1
 
@@ -145,15 +145,18 @@ begin
 		D = dot(f_array,W_array)
 		N₁ = f₂*W_array[2]+f₃*W_array[3]
 		N₂ = f₂*W_array[2]
+		N₃ = f₃*W_array[3]
 		θ_array[i,1] = N₁/D
 		θ_array[i,2] = N₂/D
+		θ_array[i,3] = N₃/D
 	end
 end
 
 # ╔═╡ fdb06f65-da97-4033-be83-3823748cb8d2
 begin
-	plot(S_array,θ_array[:,2], c=:blue, label="N₁/D",lw=2)
-	plot!(S_array,θ_array[:,1], c=:red, label="N₂/D",lw=2)
+	plot(S_array,θ_array[:,1], c=:blue, label="N₁/D (both 2 + 3)",lw=2)
+	plot!(S_array,θ_array[:,2], c=:red, label="N₂/D (just 2)",lw=2)
+	plot!(S_array,θ_array[:,3], c=:green, label="N₃/D (just 3)",lw=2)
 	xlabel!("Substrate S (mM)", fontsize=18)
 	ylabel!("θ (dimensionless)", fontsize=18)
 end

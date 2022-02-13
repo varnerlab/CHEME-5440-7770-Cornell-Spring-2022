@@ -21,17 +21,60 @@ md"""
 md"""
 ### Kinetics of multiple substrate reactions
 
-##### Ping–pong mechanism
+##### Ping–pong mechanisms
 Enzymes with ping–pong mechanisms include [oxidoreductases](https://en.wikipedia.org/wiki/Oxidoreductase), [transferases](https://en.wikipedia.org/wiki/Transferase), and [serine proteases](https://en.wikipedia.org/wiki/Serine_protease) such as [trypsin](https://en.wikipedia.org/wiki/Trypsin), [chymotrypsin](https://en.wikipedia.org/wiki/Chymotrypsin) and several enzymes of the blood clotting cascade. 
 
-##### Power-law kinetics
+##### Random-order mechanisms
 
-##### General multisubstrate model
+##### Power-law kinetics and biochemical systems theory (BST)
+Power-law kinetics are a flexible tool to describe multiple substrate kinetics. Suppose reaction $v_{i}$ depends upon $j=1,2,\dots,\mathcal{F}$ factors. These factors can be concentration e.g., substrates or products well as other type of data e.g., cate:
+
+$$v_{i} = \alpha_{i}\prod_{j=1}^{\mathcal{F}}X_{j}^{f_{ij}}\qquad{i=1,2,\dots,\mathcal{R}}$$
+
+where $\alpha_{j}$ denotes the rate constant for reaction $j$, $X_{j}$ denotes the abundance of
+factor $j$ and $f_{ij}$ denotes the kinetic order of factor $j$ in reaction $j$. Power-law kinetics are a prominent feature of Biochemical Systems Theory (BST). Biochemical systems theory has been developed since the 1960s by Michael Savageau, Eberhard Voit, and others for the systems analysis of biochemical processes:
+
+* [Atkinson MR, Savageau MA, Myers JT, Ninfa AJ. Development of genetic circuitry exhibiting toggle switch or oscillatory behavior in Escherichia coli. Cell. 2003 May 30;113(5):597-607. doi: 10.1016/s0092-8674(03)00346-5. PMID: 12787501.](https://pubmed.ncbi.nlm.nih.gov/12787501/)
+* [Alvarez-Vasquez F, Sims KJ, Cowart LA, Okamoto Y, Voit EO, Hannun YA. Simulation and validation of modeled sphingolipid metabolism in Saccharomyces cerevisiae. Nature. 2005 Jan 27;433(7024):425-30. doi: 10.1038/nature03232. PMID: 15674294.](https://pubmed.ncbi.nlm.nih.gov/15674294/)
+* [Goel G, Chou IC, Voit EO. Biological systems modeling and analysis: a biomolecular technique of the twenty-first century. J Biomol Tech. 2006;17(4):252-269.](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC2291792/?report=classic)
+
+##### General multisubstrate kinetics
+Suppose the irreversible rate $v_{i}$ is dependent upon susbtrates $S_{j},j=1,2,\dots,\mathcal{S}$, then the multiple saturation kinetic form is given by:
+
+$$v_{i} = V_{max,i}\left[\frac{\prod_{j}\frac{S_{j}}{K_{j}}}{\prod_{j}\left(1+\frac{S_{j}}{K_{j}}\right) - 1}\right]\qquad{i=1,2,\dots,\mathcal{R}}$$
+
+where $V_{max,i}$ denote the maximum reaction rate (units: concentration/time), $S_{j}$ denotes the
+substrate concentration (units: concentration) and $K_{j}$ denotes the saturation constant for substrate $j$.
+
+* [Liebermeister W, Klipp E. Bringing metabolic networks to life: convenience rate law and thermodynamic constraints. Theor Biol Med Model. 2006;3:41. Published 2006 Dec 15. doi:10.1186/1742-4682-3-41](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC1781438/)
+
 """
 
 # ╔═╡ 7c136883-cff7-4104-a952-ffc5929b871f
 md"""
 ### Discrete State Model (DSM) Enzyme Regulation model
+Suppose we model the rate $v_{j}$ as the product of a kinetic limit (a simple model of the rate) and a correction term that accounts for the missing regulation:
+
+$$v_{j} = r_{j}\theta\left(...\right)_{j}$$
+
+where $v_{j}$ denotes the overall rate (units: $\mu$M/time), $r_{j}$ denotes the kinetic limit i.e., the maximum rate of conversion (units: $\mu$M/time) and 
+$0\leq \theta\left(...\right)_{j}\leq 1$ (units: dimensionless) is a control function that describes the influence of effector molecules. 
+
+Suppose an enzyme $E$ can exits in one of $s=1,2\dots,\mathcal{S}$ possible microstates, where each microstate $s$ has some pseudo energy $\epsilon_{s}$. Some microstates will lead to activity (the ability to carry out the chemical reactions, while others will not). For each microstate $s$, let's assign a pseudo energy $\epsilon_{s}$, where by definition $\epsilon_{1}=0$; we assume the base state has the lowest energy. Next, suppose the probability that enzyme $E$ is in microstate $s$ follows a [Boltzmann distribution](https://en.wikipedia.org/wiki/Boltzmann_distribution) which says:
+
+$$p_{i} = \frac{1}{Z} \times f_{i}\exp\left(-\beta\epsilon_{i}\right)\qquad{i=1,2,\dots,\mathcal{S}}$$
+
+where $p_{i}$ denotes the probability that enzyme $E$ is in microstate $i=1,2,\dots,\mathcal{S}$, $f_{i}$ denotes a state-specific factor $f_{i}\in\left[0,1\right]$, $\beta$ denotes the [thermodynamic beta](https://en.wikipedia.org/wiki/Thermodynamic_beta) and $Z$ denotes a normalization factor (called the [Partiton function](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)) in the statistical physics community). We can find $Z$ using the summation law of discrete probolity e.g.,  $\sum_{s}p_{s} = 1$ which gives:
+
+$$Z = \sum_{s=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)$$
+
+which gives:
+
+$$p_{i} = \frac{f_{i}\exp\left(-\beta\epsilon_{i}\right)}{\displaystyle \sum_{s=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)}\qquad{i=1,2,\dots,\mathcal{S}}$$.
+
+Finally, we relate the probability that enzyme $E$ is in microstate $s$ back to the $\theta$ control function by computing the overall probability that the desired event happens, e.g., enzyme $E$ catalyzes the reaction of interests. We know if $\Omega = \left\{1,2,\dots,\mathcal{S}\right\}$, then we can define the subset $\mathcal{A}\subseteq\Omega$ in which the desired event happens. Given $\mathcal{A}$, the $\theta$ function becomes:
+
+$$\theta=\sum_{s\in{\mathcal{A}}}p_{s}$$
 """
 
 # ╔═╡ b722071c-4256-4fea-84c2-3a209822a1c1

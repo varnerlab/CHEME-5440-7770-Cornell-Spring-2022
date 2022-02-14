@@ -89,27 +89,221 @@ $$\theta=\sum_{s\in{\mathcal{A}}}p_{s}$$
 
 # ╔═╡ b722071c-4256-4fea-84c2-3a209822a1c1
 md"""
-##### DSM model redux
-Let's revisit the previous example. Again, let's consider an enzyme inhibited by a downstream product (this is a common allosteric motif known as [feedback inhibition](Pedreño S, Pisco JP, Larrouy-Maumus G, Kelly G, de Carvalho LP. Mechanism of feedback allosteric inhibition of ATP phosphoribosyltransferase. Biochemistry. 2012;51(40):8027-8038. doi:10.1021/bi300808b)). 
-Suppose enzyme $E$, inhibited by compound $I$, can exist in one of three possible microstates:
+##### DSM models: Competitive and Non-competitive inhibitors
+Let's revisit the previous feedback inhibition example but get more granular about the type of inhibition (and inhibitor) involved. There are two types of inhibitors: 
+
+* __Non-competitive inhibition__: A non-competitive inhibitor reduces the enzyme's activity and binds equally well to the enzyme whether or not it has already bound the substrate. This type of inhibition reduces the maximum rate of a chemical reaction without changing the apparent binding affinity of the catalyst for the substrate. No chemistry is possible for the E:I or E:S:I complexes.
+* __Competitive inhibition__: A competitive inhibitor prevents the binding of the substrate to the enzyme. In competitive inhibition, the maximum reaction velocity $V_{max}$ is unchanged, while the apparent affinity of the substrate to the binding site is decreased (increased $K_{m}$).
+"""
+
+# ╔═╡ 681d0325-c997-49bd-ad5a-da2e62a4fade
+md"""
+__Example__: Non-competitive inhibition
+"""
+
+# ╔═╡ 3e0457b7-9d6a-488a-9ff6-06cb90bde738
+let
+
+	# setup some parameters -
+	kcat = 13.7 # units s^-1
+	Eₒ = 2.0 	# units: *mol/L
+	Km = 5.0 	# units: *mol/L
+	KI = 20.0 	# units: *mol/L
+	
+	# set the substrate and inhibitor concentration, and initialize some space -
+	I_array = range(0.0,step = 10,stop = 50.0) |> collect
+	S_array = range(0.0,step = 0.01,stop = 100.0) |> collect
+	Nₛ = length(S_array);
+	Nᵢ = length(I_array)
+
+	# initialize -
+	v_array = Array{Float64, 2}(undef, Nₛ, Nᵢ)
+
+	# main loop -
+	for (i,S) ∈ enumerate(S_array)
+		for (j,Iₒ) ∈ enumerate(I_array)
+
+			# compute the apparent Vmax -
+			Vmax_app = (kcat*Eₒ)/(1 + Iₒ/KI)
+			sat_term = (S/(Km+S))
+			v_array[i,j] = Vmax_app*sat_term
+		end
+	end
+
+	# plots -
+	for (j,Iₒ) ∈ enumerate(I_array)
+		if (j == 1)
+			plot(S_array,v_array[:,j], c=:blue,lw=2, label="I = $(Iₒ) mmol/L")
+		else
+			plot!(S_array,v_array[:,j], c=:red,lw=2, label="I = $(Iₒ) mmol/L")
+		end
+	end
+	
+	xlabel!("Substrate S (mM)", fontsize=18)
+	ylabel!("v (*mol/s)", fontsize=18)
+end
+
+# ╔═╡ 8375496a-c9fb-43a3-84b9-138edf08b92c
+md"""
+__Example__: Competitive inhibition
+"""
+
+# ╔═╡ 80202c43-6dae-4e53-8161-516fbe36a094
+let
+
+	# setup some parameters -
+	kcat = 13.7 # units s^-1
+	Eₒ = 2.0 	# units: *mol/L
+	Km = 5.0 	# units: *mol/L
+	KI = 20.0 	# units: *mol/L
+	
+	# set the substrate and inhibitor concentration, and initialize some space -
+	I_array = range(0.0,step = 10,stop = 50.0) |> collect
+	S_array = range(0.0,step = 0.01,stop = 100.0) |> collect
+	Nₛ = length(S_array);
+	Nᵢ = length(I_array)
+
+	# initialize -
+	v_array = Array{Float64, 2}(undef, Nₛ, Nᵢ)
+
+	# main loop -
+	for (i,S) ∈ enumerate(S_array)
+		for (j,Iₒ) ∈ enumerate(I_array)
+
+			# compute the apparent Vmax -
+			Vmax_app = (kcat*Eₒ)
+			Km_app = Km*(1+Iₒ/KI)
+			sat_term = (S/(Km_app+S))
+			v_array[i,j] = Vmax_app*sat_term
+		end
+	end
+
+	# plots -
+	for (j,Iₒ) ∈ enumerate(I_array)
+		if (j == 1)
+			plot(S_array,v_array[:,j], c=:blue,lw=2, label="I = $(Iₒ) mmol/L")
+		else
+			plot!(S_array,v_array[:,j], c=:red,lw=2, label="I = $(Iₒ) mmol/L")
+		end
+	end
+	
+	xlabel!("Substrate S (mM)", fontsize=18)
+	ylabel!("v (*mol/s)", fontsize=18)
+end
+
+# ╔═╡ ad1609c2-b63e-410b-b119-2c4b327cd87a
+md"""
+###### A DSM model for non-competitive inhibition
+
+Enzyme $E$, inhibited by a non-competitive inhibitor $I$, can exist in one of four possible microstates:
 
 * __s = 1__: No substrate $S$ is bound. No chemical reaction is possible.
 * __s = 2__: Substrate $S$ is bound to enzyme $E$, but inhibitor $I$ is not bound. A chemical reaction is possible.
-* __s = 3__: Both the substrate $S$ and inhibitor $I$ are bound to enzyme $E$.  A chemical reaction is _still_ possible (but at a decreased rate). Does this make sense?
+* __s = 3__: Both the substrate $S$ and inhibitor $I$ are bound to enzyme $E$. No chemical reaction is possible
+* __s = 4__: Inhibitor $I$ is bound to enzyme $E$. No chemical reaction is possible
 
-There are three possible states $\Omega=\left\{1,2,3\right\}$, while the subset of states resulting in reaction $\mathcal{A}\subseteq\Omega$ is given by $\mathcal{A}=\left\{2,3\right\}$. Thus, the $\theta$ funtion is given by:
+There are four possible states $\Omega=\left\{1,2,3,4\right\}$, while the subset of states resulting in a chemical reaction $\mathcal{A}\subseteq\Omega$ is given by $\mathcal{A}=\left\{2\right\}$. Thus, the $\theta$ funtion is given by:
 
-$$\theta = p_{2}+p_{3}$$ 
+$$\theta = p_{2}$$ 
 
 or:
 
-$$\theta = \frac{f_{2}\exp\left(-\beta\epsilon_{2}\right)+f_{3}\exp\left(-\beta\epsilon_{3}\right)}
+$$\theta = \frac{f_{2}\exp\left(-\beta\epsilon_{2}\right)}
 {\displaystyle \sum_{i=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)}$$
 
 """
 
 # ╔═╡ 4acfa066-8422-462d-966f-d025abf8d5b2
-begin
+let
+
+	# setup constants -
+	kcat = 13.7 			# units: sec^-1
+	Eₒ = 2.0 				# units: *mol/L
+	R = 8.314 				# units: J/mol-K
+	T = (273.15 + 25.0) 	# units: K
+	β = (1/(R*T))			# units: mol/J
+	K₂ = 25.0 				# units: mmol/L
+	K₃ = 10.0 				# units: mmol/L
+	K₄ = 20.0 				# units: mmol/L
+	n₂ = 1.0 				# units: dimensionless
+	n₃ = n₂					# units: dimensionless
+	n₄ = 1.0 	 			# units: dimensionless
+	
+	# setup ϵ array -
+	ϵ_array = [
+		0.0 		; # 1 s₁ units: J/mol
+		-5000.0 	; # 2 s₂ units: J/mol
+		-100.0 		; # 3 s₃ units: J/mol
+		-1000.0 		; # 4 s₄ units: J/mol
+	];
+
+	# compute the W_array -
+	W_array = exp.(-β*ϵ_array)
+
+	# set the inhibitor concentration, and initialize some space -
+	I_array = range(0.0,step = 10,stop = 50.0) |> collect
+	S_array = range(0.0,step = 0.01,stop = 100.0) |> collect
+	Nₛ = length(S_array);
+	Nᵢ = length(I_array)
+	
+	# initialize -
+	θ_array = Array{Float64, 2}(undef, Nₛ, Nᵢ)
+
+	# main loop -
+	for (i,S) ∈ enumerate(S_array)
+		for (j,Iₒ) ∈ enumerate(I_array)
+
+			# compute fᵢ -
+			f₄ = ((Iₒ/K₄)^(n₄))/(1 + (Iₒ/K₄)^(n₄))
+			f₃ = (1 - K₃/(K₃ + Iₒ))*(((S/K₂)^(n₃))/(1 + (S/K₂)^(n₃)))
+			f₂ = (((S/K₂)^(n₂))/(1 + (S/K₂)^(n₂)))
+			f₁ = 1
+	
+			# populate the f array -
+			f_array = [f₁,f₂,f₃,f₄];
+	
+			# compute θ -
+			D = dot(f_array,W_array)
+			N = f₂*W_array[2]
+			θ_array[i,j] = kcat*Eₒ*(N/D)
+		end
+	end
+
+	# plots -
+	for (j,Iₒ) ∈ enumerate(I_array)
+		if (j == 1)
+			plot(S_array,θ_array[:,j], c=:blue,lw=2, label="I = $(Iₒ) mmol/L")
+		else
+			plot!(S_array,θ_array[:,j], c=:red,lw=2, label="I = $(Iₒ) mmol/L")
+		end
+	end
+	
+	xlabel!("Substrate S (mM)", fontsize=18)
+	ylabel!("v (*mol/s)", fontsize=18)
+end
+
+# ╔═╡ 7ffdd795-395e-449f-9b4c-cc88208f56f3
+md"""
+###### A DSM model for competitive inhibition
+
+Enzyme $E$, inhibited by a competitive inhibitor $I$, can exist in one of three possible microstates:
+
+* __s = 1__: No substrate $S$ is bound. No chemical reaction is possible.
+* __s = 2__: Substrate $S$ is bound to enzyme $E$, but inhibitor $I$ is not bound. A chemical reaction is possible.
+* __s = 3__: Inhibitor $I$ is bound to enzyme $E$. No chemical reaction is possible
+
+There are three possible states $\Omega=\left\{1,2,3\right\}$, while the subset of states resulting in reaction $\mathcal{A}\subseteq\Omega$ is given by $\mathcal{A}=\left\{2\right\}$. Thus, the $\theta$ funtion is given by:
+
+$$\theta = p_{2}$$ 
+
+or:
+
+$$\theta = \frac{f_{2}\exp\left(-\beta\epsilon_{2}\right)}
+{\displaystyle \sum_{i=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)}$$
+"""
+
+# ╔═╡ 0dbe24c4-224b-4fd8-9f9c-37f6223bd030
+let
 
 	# setup constants -
 	R = 8.314 				# units: J/mol-K
@@ -117,55 +311,56 @@ begin
 	β = (1/(R*T))			# units: mol/J
 	K₂ = 10.0 				# units: mmol/L
 	K₃ = 5.0 				# units: mmol/L
-	n₂ = 10.0 				# units: dimensionless
-	n₃ = n₂					# units: dimensionless 
-	
+	n₂ = 1.0 				# units: dimensionless
+	n₃ = 1.0				# units: dimensionless
+
 	# setup ϵ array -
 	ϵ_array = [
 		0.0 		; # 1 s₁ units: J/mol
 		-1000.0 	; # 2 s₂ units: J/mol
-		-10.0 	; # 3 s₃ units: J/mol
+		-100.0 		; # 3 s₃ units: J/mol
 	];
 
 	# compute the W_array -
 	W_array = exp.(-β*ϵ_array)
 
 	# set the inhibitor concentration, and initialize some space -
-	Iₒ = 1000.0
-	S_array = range(0.0,step = 0.01,stop = 50.0) |> collect
+	I_array = range(0.0,step = 10,stop = 50.0) |> collect
+	S_array = range(0.0,step = 0.01,stop = 100.0) |> collect
 	Nₛ = length(S_array);
-	δ = 1 - sign(Iₒ)
+	Nᵢ = length(I_array)
 	
 	# initialize -
-	θ_array = Array{Float64,2}(undef, Nₛ, 3)
+	θ_array = Array{Float64, 2}(undef, Nₛ, Nᵢ)
 
 	# main loop -
 	for (i,S) ∈ enumerate(S_array)
+		for (j,Iₒ) ∈ enumerate(I_array)
 
-		# compute fᵢ -
-		f₃ = (1 - K₃/(K₃ + Iₒ))*(((S/K₂)^(n₃))/(1 + (S/K₂)^(n₃)))
-		f₂ = (((S/K₂)^(n₂))/(1 + (S/K₂)^(n₂)))
-		f₁ = 1
-
-		# populate the f array -
-		f_array = [f₁,f₂,f₃];
-
-		# compute θ -
-		D = dot(f_array,W_array)
-		N₁ = f₂*W_array[2]+f₃*W_array[3]
-		N₂ = f₂*W_array[2]
-		N₃ = f₃*W_array[3]
-		θ_array[i,1] = N₁/D
-		θ_array[i,2] = N₂/D
-		θ_array[i,3] = N₃/D
+			# compute fᵢ -
+			f₃ = ((Iₒ/K₃)^(n₃))/(1 + (Iₒ/K₃)^(n₃))
+			f₂ = (((S/K₂)^(n₂))/(1 + (S/K₂)^(n₂)))
+			f₁ = 1
+	
+			# populate the f array -
+			f_array = [f₁,f₂,f₃];
+	
+			# compute θ -
+			D = dot(f_array,W_array)
+			N = f₂*W_array[2]
+			θ_array[i,j] = (N/D)
+		end
 	end
-end
 
-# ╔═╡ fdb06f65-da97-4033-be83-3823748cb8d2
-begin
-	plot(S_array,θ_array[:,1], c=:blue, label="N₁/D (both 2 + 3)",lw=2)
-	plot!(S_array,θ_array[:,2], c=:red, label="N₂/D (just 2)",lw=2)
-	plot!(S_array,θ_array[:,3], c=:green, label="N₃/D (just 3)",lw=2)
+	# plots -
+	for (j,Iₒ) ∈ enumerate(I_array)
+		if (j == 1)
+			plot(S_array,θ_array[:,j], c=:blue,lw=2, label="I = $(Iₒ) mmol/L")
+		else
+			plot!(S_array,θ_array[:,j], c=:red,lw=2, label="I = $(Iₒ) mmol/L")
+		end
+	end
+	
 	xlabel!("Substrate S (mM)", fontsize=18)
 	ylabel!("θ (dimensionless)", fontsize=18)
 end
@@ -1259,8 +1454,14 @@ version = "0.9.1+5"
 # ╟─967500aa-664a-4bca-81b6-1ee95bec595a
 # ╟─7c136883-cff7-4104-a952-ffc5929b871f
 # ╟─b722071c-4256-4fea-84c2-3a209822a1c1
+# ╟─681d0325-c997-49bd-ad5a-da2e62a4fade
+# ╟─3e0457b7-9d6a-488a-9ff6-06cb90bde738
+# ╟─8375496a-c9fb-43a3-84b9-138edf08b92c
+# ╟─80202c43-6dae-4e53-8161-516fbe36a094
+# ╟─ad1609c2-b63e-410b-b119-2c4b327cd87a
 # ╠═4acfa066-8422-462d-966f-d025abf8d5b2
-# ╠═fdb06f65-da97-4033-be83-3823748cb8d2
+# ╟─7ffdd795-395e-449f-9b4c-cc88208f56f3
+# ╠═0dbe24c4-224b-4fd8-9f9c-37f6223bd030
 # ╟─aaa1cfb4-3ba2-43dc-9ed7-214664cb8029
 # ╠═ed387ff6-d675-41ec-b806-f0b09a9b5414
 # ╟─3f4ae7c0-f425-49c9-9df7-7424eaca7aa2

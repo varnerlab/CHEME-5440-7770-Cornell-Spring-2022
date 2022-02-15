@@ -45,5 +45,5 @@ We use [Visual Studio Code](https://code.visualstudio.com) and GitHub desktop be
 * [Lecture 4: Computing the reversibility of a metabolic reaction](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-4-5440-7770-S2022.jl.html)
 * [Lecture 5: Minimum Energy Metabolic Flux Distributions](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-5-5440-7770-S2022.jl.html)
 * [Lecture 6: Introduction to Enzyme Kinetics](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-6-5440-7770-S2022.jl.html)
-
+* [Lecture 7: Multisubstrate enzyme kinetics and inhibitors](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-7-5440-7770-S2022.jl.html)
 

@@ -24,43 +24,26 @@ end
 
 # ╔═╡ 83a9dd26-8ab0-11ec-05a7-97fba528df76
 md"""
-### Models of Enzyme Kinetics with Multiple Substrates and Inhibitors
-"""
+### Multiple Substrates and Inhibitors Models
 
-# ╔═╡ 7c136883-cff7-4104-a952-ffc5929b871f
-md"""
-### Inhibitors and the Discrete State Enzyme Regulation model
-Suppose we model the rate $v_{j}$ as the product of a kinetic limit (a simple model of the rate) and a correction term that accounts for the missing regulation:
+In this lecture we continue our disucssion of enzyme kinetics. Today we we will:
 
-$$v_{j} = r_{j}\theta\left(...\right)_{j}$$
-
-where $v_{j}$ denotes the overall rate (units: $\mu$M/time), $r_{j}$ denotes the kinetic limit i.e., the maximum rate of conversion (units: $\mu$M/time) and 
-$0\leq \theta\left(...\right)_{j}\leq 1$ (units: dimensionless) is a control function that describes the influence of effector molecules. 
-
-Suppose an enzyme $E$ can exits in one of $s=1,2\dots,\mathcal{S}$ possible microstates, where each microstate $s$ has some pseudo energy $\epsilon_{s}$. Some microstates will lead to activity (the ability to carry out the chemical reactions, while others will not). For each microstate $s$, let's assign a pseudo energy $\epsilon_{s}$, where by definition $\epsilon_{1}=0$; we assume the base state has the lowest energy. Next, suppose the probability that enzyme $E$ is in microstate $s$ follows a [Boltzmann distribution](https://en.wikipedia.org/wiki/Boltzmann_distribution) which says:
-
-$$p_{i} = \frac{1}{Z} \times f_{i}\exp\left(-\beta\epsilon_{i}\right)\qquad{i=1,2,\dots,\mathcal{S}}$$
-
-where $p_{i}$ denotes the probability that enzyme $E$ is in microstate $i=1,2,\dots,\mathcal{S}$, $f_{i}$ denotes a state-specific factor $f_{i}\in\left[0,1\right]$, $\beta$ denotes the [thermodynamic beta](https://en.wikipedia.org/wiki/Thermodynamic_beta) and $Z$ denotes a normalization factor (called the [Partiton function](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)) in the statistical physics community). We can find $Z$ using the summation law of discrete probolity e.g.,  $\sum_{s}p_{s} = 1$ which gives:
-
-$$Z = \sum_{s=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)$$
-
-which gives:
-
-$$p_{i} = \frac{f_{i}\exp\left(-\beta\epsilon_{i}\right)}{\displaystyle \sum_{s=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)}\qquad{i=1,2,\dots,\mathcal{S}}$$.
-
-Finally, we relate the probability that enzyme $E$ is in microstate $s$ back to the $\theta$ control function by computing the overall probability that the desired event happens, e.g., enzyme $E$ catalyzes the reaction of interests. We know if $\Omega = \left\{1,2,\dots,\mathcal{S}\right\}$, then we can define the subset $\mathcal{A}\subseteq\Omega$ in which the desired event happens. Given $\mathcal{A}$, the $\theta$ function becomes:
-
-$$\theta=\sum_{s\in{\mathcal{A}}}p_{s}$$
+* Discuss competitive and non-competitive inhibitor models
+* Introduce phenomenological and mechanistic multi-substrate enzyme kinetics models 
+* Incorporating different levels of information into the bounds constraints
 """
 
 # ╔═╡ b722071c-4256-4fea-84c2-3a209822a1c1
 md"""
-##### Competitive and Non-competitive inhibitors
-Let's revisit the previous feedback inhibition example but get more granular about the type of inhibition (and inhibitor) involved. There are two types of inhibitors: 
+### Competitive and Non-competitive inhibitors
+Inhibitors are critical research and therapuetic tools; they are often a go to strategy for manipulating biological function (and widely used in the allosteric regulation context as well). 
+
+* [Clinical application: Literature search on small-molecule checkpoint inhibitors](https://pubmed.ncbi.nlm.nih.gov/?term=small-molecule%20checkpoint%20inhibitors)
+
+Let's revisit the previous feedback inhibition examples, getting more granular about the type of inhibition (and inhibitor) involved. There are two types of inhibitors: 
 
 * __Non-competitive inhibition__: A non-competitive inhibitor reduces the enzyme's activity and binds equally well to the enzyme whether or not it has already bound the substrate. This type of inhibition reduces the maximum rate of a chemical reaction without changing the apparent binding affinity of the catalyst for the substrate. No chemistry is possible for the E:I or E:S:I complexes.
-* __Competitive inhibition__: A competitive inhibitor prevents the binding of the substrate to the enzyme. In competitive inhibition, the maximum reaction velocity $V_{max}$ is unchanged, while the apparent affinity of the substrate to the binding site is decreased (increased $K_{m}$).
+* __Competitive inhibition__: A competitive inhibitor prevents the binding of the substrate to the enzyme. In competitive inhibition, the maximum reaction velocity $V_{max}$ is unchanged, while the apparent affinity of the substrate to the binding site is decreased (decreasing affinity leads to increased $K_{m}$). 
 """
 
 # ╔═╡ 681d0325-c997-49bd-ad5a-da2e62a4fade
@@ -177,6 +160,35 @@ let
 	xlabel!("Substrate S (mM)", fontsize=18)
 	ylabel!("Rate (*mol/L-time)", fontsize=18)
 end
+
+# ╔═╡ b92c2a56-018f-4e27-acd0-bf2488545cba
+md"""
+##### Discrete state models of inhbitors
+
+###### Theory
+Suppose we model the rate $v_{j}$ as the product of a kinetic limit (a simple model of the rate) and a correction term that accounts for the missing regulation:
+
+$$v_{j} = r_{j}\theta\left(...\right)_{j}$$
+
+where $v_{j}$ denotes the overall rate (units: $\mu$M/time), $r_{j}$ denotes the kinetic limit i.e., the maximum rate of conversion (units: $\mu$M/time) and 
+$0\leq \theta\left(...\right)_{j}\leq 1$ (units: dimensionless) is a control function that describes the influence of effector molecules. 
+
+Suppose an enzyme $E$ can exits in one of $s=1,2\dots,\mathcal{S}$ possible microstates, where each microstate $s$ has some pseudo energy $\epsilon_{s}$. Some microstates will lead to activity (the ability to carry out the chemical reactions, while others will not). For each microstate $s$, let's assign a pseudo energy $\epsilon_{s}$, where by definition $\epsilon_{1}=0$; we assume the base state has the lowest energy. Next, suppose the probability that enzyme $E$ is in microstate $s$ follows a [Boltzmann distribution](https://en.wikipedia.org/wiki/Boltzmann_distribution) which says:
+
+$$p_{i} = \frac{1}{Z} \times f_{i}\exp\left(-\beta\epsilon_{i}\right)\qquad{i=1,2,\dots,\mathcal{S}}$$
+
+where $p_{i}$ denotes the probability that enzyme $E$ is in microstate $i=1,2,\dots,\mathcal{S}$, $f_{i}$ denotes a state-specific factor $f_{i}\in\left[0,1\right]$, $\beta$ denotes the [thermodynamic beta](https://en.wikipedia.org/wiki/Thermodynamic_beta) and $Z$ denotes a normalization factor (called the [Partiton function](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)) in the statistical physics community). We can find $Z$ using the summation law of discrete probolity e.g.,  $\sum_{s}p_{s} = 1$ which gives:
+
+$$Z = \sum_{s=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)$$
+
+which gives:
+
+$$p_{i} = \frac{f_{i}\exp\left(-\beta\epsilon_{i}\right)}{\displaystyle \sum_{s=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)}\qquad{i=1,2,\dots,\mathcal{S}}$$.
+
+Finally, we relate the probability that enzyme $E$ is in microstate $s$ back to the $\theta$ control function by computing the overall probability that the desired event happens, e.g., enzyme $E$ catalyzes the reaction of interests. We know if $\Omega = \left\{1,2,\dots,\mathcal{S}\right\}$, then we can define the subset $\mathcal{A}\subseteq\Omega$ in which the desired event happens. Given $\mathcal{A}$, the $\theta$ function becomes:
+
+$$\theta=\sum_{s\in{\mathcal{A}}}p_{s}$$
+"""
 
 # ╔═╡ ad1609c2-b63e-410b-b119-2c4b327cd87a
 md"""
@@ -308,7 +320,7 @@ let
 	ϵ_array = [
 		0.0 		; # 1 s₁ units: J/mol
 		-4000.0 	; # 2 s₂ units: J/mol
-		-500.0 		; # 3 s₃ units: J/mol
+		-100.0 		; # 3 s₃ units: J/mol
 	];
 
 	# compute the W_array -
@@ -329,7 +341,7 @@ let
 
 			# compute fᵢ -
 			f₃ = ((Iₒ/K₃)^(n₃))/(1 + (Iₒ/K₃)^(n₃))
-			f₂ = (S)/(K₂*(1+Iₒ/K₃)+S)
+			f₂ = ((S^(n₂))/((K₂*(1+Iₒ/K₃))^(n₂) + S^(n₂)))
 			f₁ = 1
 	
 			# populate the f array -
@@ -356,31 +368,12 @@ let
 	ylabel!("Rate (*mol/L-time)", fontsize=18)
 end
 
-# ╔═╡ aaa1cfb4-3ba2-43dc-9ed7-214664cb8029
-md"""
-##### Does the DSM describe experimental data?
-"""
-
-# ╔═╡ ed387ff6-d675-41ec-b806-f0b09a9b5414
-begin
-
-	# Load the experimental data -
-	data = CSV.read(joinpath(_PATH_TO_DATA,"Fig-2-Bottom-Biochem-2012-51-8027−8038.csv"), 
-		DataFrame);
-	
-end
-
 # ╔═╡ 967500aa-664a-4bca-81b6-1ee95bec595a
 md"""
 ### Kinetics of multiple substrate reactions
 
-##### Ping–pong mechanisms
-Enzymes with ping–pong mechanisms include [oxidoreductases](https://en.wikipedia.org/wiki/Oxidoreductase), [transferases](https://en.wikipedia.org/wiki/Transferase), and [serine proteases](https://en.wikipedia.org/wiki/Serine_protease) such as [trypsin](https://en.wikipedia.org/wiki/Trypsin), [chymotrypsin](https://en.wikipedia.org/wiki/Chymotrypsin) and several enzymes of the blood clotting cascade. 
-
-##### Random-order mechanisms
-
 ##### Power-law kinetics and biochemical systems theory (BST)
-Power-law kinetics are a flexible tool to describe multiple substrate kinetics. Suppose reaction $v_{i}$ depends upon $j=1,2,\dots,\mathcal{F}$ factors. These factors can be concentration e.g., substrates or products well as other type of data e.g., cate:
+Power-law kinetics are a flexible tool to describe multiple substrate kinetics. Suppose reaction $v_{i}$ depends upon $j=1,2,\dots,\mathcal{F}$ factors. These factors can be concentration e.g., substrates or products well as other type of data e.g., categorical data:
 
 $$v_{i} = \alpha_{i}\prod_{j=1}^{\mathcal{F}}X_{j}^{f_{ij}}\qquad{i=1,2,\dots,\mathcal{R}}$$
 
@@ -401,21 +394,66 @@ substrate concentration (units: concentration) and $K_{j}$ denotes the saturatio
 
 * [Liebermeister W, Klipp E. Bringing metabolic networks to life: convenience rate law and thermodynamic constraints. Theor Biol Med Model. 2006;3:41. Published 2006 Dec 15. doi:10.1186/1742-4682-3-41](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC1781438/)
 
+##### Ping–pong, sequential- and random-order mechanistic models
+Multisubstrate enzyme kinetics models can be broadly broken down into to classes:
+
+* __Ping-pong mechanisms__: In a [ping-pong mechanism](https://chem.libretexts.org/Courses/University_of_Arkansas_Little_Rock/CHEM_4320_5320%3A_Biochemistry_1/05%3A_Michaelis-Menten_Enzyme_Kinetics/5.6%3A_Multi-Substrate_Sequential_Mechanisms), also called a double-displacement reaction, the enzyme is transformed into an intermediate state where the first substrate to product reaction occurs, followed by a second reaction. Enzymes with ping–pong mechanisms include [oxidoreductases](https://en.wikipedia.org/wiki/Oxidoreductase), [transferases](https://en.wikipedia.org/wiki/Transferase), and [serine proteases](https://en.wikipedia.org/wiki/Serine_protease) such as [trypsin](https://en.wikipedia.org/wiki/Trypsin), [chymotrypsin](https://en.wikipedia.org/wiki/Chymotrypsin) and several enzymes of the blood clotting cascade.
+* __Random and sequential order mechanisms__: In a [random or sequential order model](https://chem.libretexts.org/Courses/University_of_Arkansas_Little_Rock/CHEM_4320_5320%3A_Biochemistry_1/05%3A_Michaelis-Menten_Enzyme_Kinetics/5.6%3A_Multi-Substrate_Sequential_Mechanisms) both substrates bind to the enzyme before the chemistry can occur. Products can be released in a random or sequential order.
 """
 
 # ╔═╡ 3f4ae7c0-f425-49c9-9df7-7424eaca7aa2
 md"""
 ### Kinetics and flux balance analysis calculations
+
+Kinetic rate equations (and the associated regulation of enzyme activity, enzyme state, and overall biochemical state) are included in the flux balance analysis calculation through the flux bounds equation. There are different levels of information included in the bounds. These levels are partitioned (broadly) into metabolite and metabolite-free groups.
+
+##### General bounds model
+Flux bounds constrain the values that each reaction in a metabolic network can take. A general model for these bounds is given by:
+
+$$-\delta_{j}\left[{V_{max,j}^{\circ}}\left(\frac{e_{j}}{e^{\circ}}\right)\theta_{j}\left(\dots\right){f_{j}\left(\dots\right)}\right]\leq{v_{j}}\leq\left[{V_{max,j}^{\circ}}\left(\frac{e_{j}}{e^{\circ}}\right)\theta_{j}\left(\dots\right){f_{j}\left(\dots\right)}\right]$$
+
+where $V_{max,j}^{\circ}$ denotes the maximum reaction velocity (units: flux) computed at some characteristic enzyme abundance (units: concentration), the ratio $e/e^{\circ}$ is a correction for enzyme abundance (units: dimensioness), $\theta_{j}\left(\dots\right)\in\left[0,1\right]$ is the fraction of maximial enzyme activity (a function or measurement producing units: dimensionless), and $f_{j}\left(\dots\right)$ is a function describing the substrate dependence of the reaction rate $j$ (units: dimensionless). Both $\theta_{j}\left(\dots\right)$ and $f_{j}\left(\dots\right)$ could have associated parameters, e.g., saturation or binding constants, etc.  Finally, the quanity $\delta_{j}\in\left\{0,1\right\}$ is a _binary_ variable: 
+* If reaction $j$ is __reversible__ $\delta_{j}=1$ or,
+* If reaction $j$ is __irreversible__ $\delta_{j}=0$
+
+##### Metabolite free bounds models
+In metabolite-free models, we, as the simulation engineer, do not have access to any information about the concentrations of the substrates that appear in the various form of the kinetics. In these cases, $f_{j}\left(\dots\right)=1,\forall{j}$ and $\theta_{j}=1,\forall{j}$ which gives bounds of the form:
+
+$$-\delta_{j}\left[{V_{max,j}^{\circ}}\left(\frac{e_{j}}{e^{\circ}}\right)\right]\leq{v_{j}}\leq\left[{V_{max,j}^{\circ}}\left(\frac{e_{j}}{e^{\circ}}\right)\right]$$
+
+Finally, if we do not have access to enzyme abundance data, then $\left(e/e^{\circ}\right)=1$ and $V_{max,j}^{\circ}$ is calculated using a _characteristic_ enzyme abundance.  
+
+##### Metabolite-dependent bounds models
+In this class of bounds, we assume that we have some (or full) information about the concentrations of the metabolites. Assuming general multi-substrate kinetics, the bounds would take the form (shown for irreversible):
+
+$$0\leq{v_{j}}\leq{V_{max,i}^{\circ}\left(\frac{e_{j}}{e^{\circ}}\right)\theta_{j}\left(\cdots\right)\left[\frac{\prod_{k}\frac{S_{j}}{K_{j}}}{\prod_{k}\left(1+\frac{S_{j}}{K_{j}}\right) - 1}\right]}$$
+
+where the products are carried out over the reactants of the reaction $j$. Note: we could have chosen a different form for the kinetics e.g., a power-law formulation and the choice of enzyme activity model is up to the simulation designer. 
+
+##### Sources of data for bounds models
+
+* [Chang A, Jeske L, Ulbrich S, Hofmann J, Koblitz J, Schomburg I, Neumann-Schaal M, Jahn D, Schomburg D. BRENDA, the ELIXIR core data resource in 2021: new developments and updates. Nucleic Acids Res. 2021 Jan 8;49(D1):D498-D508. doi: 10.1093/nar/gkaa1025. PMID: 33211880; PMCID: PMC7779020.](https://pubmed.ncbi.nlm.nih.gov/33211880/)
+* [Milo R, Jorgensen P, Moran U, Weber G, Springer M. BioNumbers--the database of key numbers in molecular and cell biology. Nucleic Acids Res. 2010 Jan;38(Database issue):D750-3. doi: 10.1093/nar/gkp889. Epub 2009 Oct 23. PMID: 19854939; PMCID: PMC2808940.](https://pubmed.ncbi.nlm.nih.gov/19854939/)
+* [Park JO, Rubin SA, Xu YF, Amador-Noguez D, Fan J, Shlomi T, Rabinowitz JD. Metabolite concentrations, fluxes and free energies imply efficient enzyme usage. Nat Chem Biol. 2016 Jul;12(7):482-9. doi: 10.1038/nchembio.2077. Epub 2016 May 2. PMID: 27159581; PMCID: PMC4912430.](https://pubmed.ncbi.nlm.nih.gov/27159581/)
+
 """
 
 # ╔═╡ f7a88d98-7149-485f-ade1-b1d39f28daaa
 md"""
 ### Summary and Conclusions
+
+In this lecture we:
+
+* Discussed competitive and non-competitive inhibitor models
+* Introduced phenomenological and mechanistic multi-substrate enzyme kinetics models 
+* Incorporated different levels of information into the bounds constraints
 """
 
 # ╔═╡ 5391cecc-bbd5-44e4-9a92-2184b4252f20
 md"""
 ### Next Time
+
+In-class problem set in which we estimate the flux through the Urea cycle with different types of bounds constraints. 
 """
 
 # ╔═╡ 518e00f4-16a2-4ca1-a365-d9ef17437d97
@@ -1475,21 +1513,19 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╟─83a9dd26-8ab0-11ec-05a7-97fba528df76
-# ╠═7c136883-cff7-4104-a952-ffc5929b871f
 # ╟─b722071c-4256-4fea-84c2-3a209822a1c1
 # ╟─681d0325-c997-49bd-ad5a-da2e62a4fade
 # ╟─3e0457b7-9d6a-488a-9ff6-06cb90bde738
 # ╟─8375496a-c9fb-43a3-84b9-138edf08b92c
 # ╟─80202c43-6dae-4e53-8161-516fbe36a094
+# ╟─b92c2a56-018f-4e27-acd0-bf2488545cba
 # ╟─ad1609c2-b63e-410b-b119-2c4b327cd87a
 # ╟─4acfa066-8422-462d-966f-d025abf8d5b2
 # ╟─7ffdd795-395e-449f-9b4c-cc88208f56f3
-# ╠═0dbe24c4-224b-4fd8-9f9c-37f6223bd030
-# ╟─aaa1cfb4-3ba2-43dc-9ed7-214664cb8029
-# ╠═ed387ff6-d675-41ec-b806-f0b09a9b5414
-# ╟─967500aa-664a-4bca-81b6-1ee95bec595a
-# ╟─3f4ae7c0-f425-49c9-9df7-7424eaca7aa2
-# ╟─f7a88d98-7149-485f-ade1-b1d39f28daaa
+# ╟─0dbe24c4-224b-4fd8-9f9c-37f6223bd030
+# ╠═967500aa-664a-4bca-81b6-1ee95bec595a
+# ╠═3f4ae7c0-f425-49c9-9df7-7424eaca7aa2
+# ╠═f7a88d98-7149-485f-ade1-b1d39f28daaa
 # ╟─5391cecc-bbd5-44e4-9a92-2184b4252f20
 # ╠═518e00f4-16a2-4ca1-a365-d9ef17437d97
 # ╠═219d899e-8e54-437e-b20b-840e923ed0c7

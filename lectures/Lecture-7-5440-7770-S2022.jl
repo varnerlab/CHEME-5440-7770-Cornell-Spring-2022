@@ -24,9 +24,9 @@ end
 
 # ╔═╡ 83a9dd26-8ab0-11ec-05a7-97fba528df76
 md"""
-### Multiple Substrates and Inhibitors Models
+### Multiple Substrates and Inhibitor Models
 
-In this lecture we continue our disucssion of enzyme kinetics. Today we we will:
+In this lecture, we continue our discussion of enzyme kinetics. Today we will:
 
 * Discuss competitive and non-competitive inhibitor models
 * Introduce phenomenological and mechanistic multi-substrate enzyme kinetics models 
@@ -36,14 +36,15 @@ In this lecture we continue our disucssion of enzyme kinetics. Today we we will:
 # ╔═╡ b722071c-4256-4fea-84c2-3a209822a1c1
 md"""
 ### Competitive and Non-competitive inhibitors
-Inhibitors are critical research and therapuetic tools; they are often a go to strategy for manipulating biological function (and widely used in the allosteric regulation context as well). 
+Inhibitors are critical research and therapeutic tools; they are often a go-to strategy for manipulating biological function (and are widely used in the allosteric regulation context). 
 
 * [Clinical application: Literature search on small-molecule checkpoint inhibitors](https://pubmed.ncbi.nlm.nih.gov/?term=small-molecule%20checkpoint%20inhibitors)
 
-Let's revisit the previous feedback inhibition examples, getting more granular about the type of inhibition (and inhibitor) involved. There are two types of inhibitors: 
+Let's revisit the previous feedback inhibition examples, getting more granular about the type of inhibition (and inhibitor) involved. There are three types of inhibitors: 
 
-* __Non-competitive inhibition__: A non-competitive inhibitor reduces the enzyme's activity and binds equally well to the enzyme whether or not it has already bound the substrate. This type of inhibition reduces the maximum rate of a chemical reaction without changing the apparent binding affinity of the catalyst for the substrate. No chemistry is possible for the E:I or E:S:I complexes.
-* __Competitive inhibition__: A competitive inhibitor prevents the binding of the substrate to the enzyme. In competitive inhibition, the maximum reaction velocity $V_{max}$ is unchanged, while the apparent affinity of the substrate to the binding site is decreased (decreasing affinity leads to increased $K_{m}$). 
+* __Non-competitive inhibition__: A non-competitive inhibitor reduces the enzyme's activity and binds equally well to the enzyme whether or not it has already bound the substrate. This type of inhibition reduces the maximum rate of a chemical reaction without changing the apparent binding affinity of the catalyst for the substrate. No chemistry is possible for the E:I or E:S:I complexes. [Derivation for non-competitive inhibition here can be found here.](https://www.youtube.com/watch?v=pq5TtzVoZdM)
+* __Competitive inhibition__: A competitive inhibitor prevents the binding of the substrate to the enzyme. In competitive inhibition, the maximum reaction velocity $V_{max}$ is unchanged. At the same time, the apparent affinity of the substrate to the binding site is decreased (decreasing affinity leads to increased $K_{m}$). [Derivation for competitive inhibition can be found here.](https://www.youtube.com/watch?v=3-mj0Cx0JbA)
+* __Uncompetitive inhibition__: An uncompetitive inhibitor binds only to the enzyme-substrate complex. Uncompetitive inhibition typically occurs in reactions with two or more substrates or products. Both $V_{max}$ and $K_{m}$ decreased by the inhibitor. [Derivation for uncompetitive inhibition can be found here.](https://www.youtube.com/watch?v=EyAln4sDxmg)
 """
 
 # ╔═╡ 681d0325-c997-49bd-ad5a-da2e62a4fade
@@ -395,10 +396,10 @@ substrate concentration (units: concentration) and $K_{j}$ denotes the saturatio
 * [Liebermeister W, Klipp E. Bringing metabolic networks to life: convenience rate law and thermodynamic constraints. Theor Biol Med Model. 2006;3:41. Published 2006 Dec 15. doi:10.1186/1742-4682-3-41](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC1781438/)
 
 ##### Ping–pong, sequential- and random-order mechanistic models
-Multisubstrate enzyme kinetics models can be broadly broken down into to classes:
+Multi substrate enzyme kinetics models can be broadly broken down into classes:
 
 * __Ping-pong mechanisms__: In a [ping-pong mechanism](https://chem.libretexts.org/Courses/University_of_Arkansas_Little_Rock/CHEM_4320_5320%3A_Biochemistry_1/05%3A_Michaelis-Menten_Enzyme_Kinetics/5.6%3A_Multi-Substrate_Sequential_Mechanisms), also called a double-displacement reaction, the enzyme is transformed into an intermediate state where the first substrate to product reaction occurs, followed by a second reaction. Enzymes with ping–pong mechanisms include [oxidoreductases](https://en.wikipedia.org/wiki/Oxidoreductase), [transferases](https://en.wikipedia.org/wiki/Transferase), and [serine proteases](https://en.wikipedia.org/wiki/Serine_protease) such as [trypsin](https://en.wikipedia.org/wiki/Trypsin), [chymotrypsin](https://en.wikipedia.org/wiki/Chymotrypsin) and several enzymes of the blood clotting cascade.
-* __Random and sequential order mechanisms__: In a [random or sequential order model](https://chem.libretexts.org/Courses/University_of_Arkansas_Little_Rock/CHEM_4320_5320%3A_Biochemistry_1/05%3A_Michaelis-Menten_Enzyme_Kinetics/5.6%3A_Multi-Substrate_Sequential_Mechanisms) both substrates bind to the enzyme before the chemistry can occur. Products can be released in a random or sequential order.
+* __Random and sequential order mechanisms__: In a [random or sequential order model](https://chem.libretexts.org/Courses/University_of_Arkansas_Little_Rock/CHEM_4320_5320%3A_Biochemistry_1/05%3A_Michaelis-Menten_Enzyme_Kinetics/5.6%3A_Multi-Substrate_Sequential_Mechanisms) both substrates bind to the enzyme before the chemistry can occur. Products can be released in random or sequential order.
 """
 
 # ╔═╡ 3f4ae7c0-f425-49c9-9df7-7424eaca7aa2
@@ -428,12 +429,12 @@ In this class of bounds, we assume that we have some (or full) information about
 
 $$0\leq{v_{j}}\leq{V_{max,i}^{\circ}\left(\frac{e_{j}}{e^{\circ}}\right)\theta_{j}\left(\cdots\right)\left[\frac{\prod_{k}\frac{S_{j}}{K_{j}}}{\prod_{k}\left(1+\frac{S_{j}}{K_{j}}\right) - 1}\right]}$$
 
-where the products are carried out over the reactants of the reaction $j$. Note: we could have chosen a different form for the kinetics e.g., a power-law formulation and the choice of enzyme activity model is up to the simulation designer. 
+where the products are carried out over the reactants of the reaction $j$. Note: we could have chosen a different form for the kinetics, e.g., a power-law formulation, and the choice of enzyme activity model is up to the simulation designer. 
 
 ##### Sources of data for bounds models
 
-* [Chang A, Jeske L, Ulbrich S, Hofmann J, Koblitz J, Schomburg I, Neumann-Schaal M, Jahn D, Schomburg D. BRENDA, the ELIXIR core data resource in 2021: new developments and updates. Nucleic Acids Res. 2021 Jan 8;49(D1):D498-D508. doi: 10.1093/nar/gkaa1025. PMID: 33211880; PMCID: PMC7779020.](https://pubmed.ncbi.nlm.nih.gov/33211880/)
-* [Milo R, Jorgensen P, Moran U, Weber G, Springer M. BioNumbers--the database of key numbers in molecular and cell biology. Nucleic Acids Res. 2010 Jan;38(Database issue):D750-3. doi: 10.1093/nar/gkp889. Epub 2009 Oct 23. PMID: 19854939; PMCID: PMC2808940.](https://pubmed.ncbi.nlm.nih.gov/19854939/)
+* [Chang A, Jeske L, Ulbrich S, Hofmann J, Koblitz J, Schomburg I, Neumann-Schaal M, Jahn D, Schomburg D. BRENDA, the ELIXIR core data resource in 2021: new developments and updates. Nucleic Acids Res. 2021 Jan 8;49(D1): D498-D508. doi: 10.1093/nar/gkaa1025. PMID: 33211880; PMCID: PMC7779020.](https://pubmed.ncbi.nlm.nih.gov/33211880/)
+* [Milo R, Jorgensen P, Moran U, Weber G, Springer M. BioNumbers--the database of key numbers in molecular and cell biology. Nucleic Acids Res. 2010 Jan;38(Database issue): D750-3. doi: 10.1093/nar/gkp889. Epub 2009 Oct 23. PMID: 19854939; PMCID: PMC2808940.](https://pubmed.ncbi.nlm.nih.gov/19854939/)
 * [Park JO, Rubin SA, Xu YF, Amador-Noguez D, Fan J, Shlomi T, Rabinowitz JD. Metabolite concentrations, fluxes and free energies imply efficient enzyme usage. Nat Chem Biol. 2016 Jul;12(7):482-9. doi: 10.1038/nchembio.2077. Epub 2016 May 2. PMID: 27159581; PMCID: PMC4912430.](https://pubmed.ncbi.nlm.nih.gov/27159581/)
 
 """
@@ -1523,13 +1524,13 @@ version = "0.9.1+5"
 # ╟─4acfa066-8422-462d-966f-d025abf8d5b2
 # ╟─7ffdd795-395e-449f-9b4c-cc88208f56f3
 # ╟─0dbe24c4-224b-4fd8-9f9c-37f6223bd030
-# ╠═967500aa-664a-4bca-81b6-1ee95bec595a
-# ╠═3f4ae7c0-f425-49c9-9df7-7424eaca7aa2
-# ╠═f7a88d98-7149-485f-ade1-b1d39f28daaa
+# ╟─967500aa-664a-4bca-81b6-1ee95bec595a
+# ╟─3f4ae7c0-f425-49c9-9df7-7424eaca7aa2
+# ╟─f7a88d98-7149-485f-ade1-b1d39f28daaa
 # ╟─5391cecc-bbd5-44e4-9a92-2184b4252f20
 # ╠═518e00f4-16a2-4ca1-a365-d9ef17437d97
 # ╠═219d899e-8e54-437e-b20b-840e923ed0c7
-# ╠═c375b63a-c383-4476-84fc-4b3078de8c64
-# ╠═9780c35f-f044-410c-a16d-a38378c6feed
+# ╟─c375b63a-c383-4476-84fc-4b3078de8c64
+# ╟─9780c35f-f044-410c-a16d-a38378c6feed
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

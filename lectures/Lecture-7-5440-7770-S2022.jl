@@ -24,45 +24,12 @@ end
 
 # ╔═╡ 83a9dd26-8ab0-11ec-05a7-97fba528df76
 md"""
-### Simple and Complex Models of Enzyme Kinetics (Part 2)
-"""
-
-# ╔═╡ 967500aa-664a-4bca-81b6-1ee95bec595a
-md"""
-### Kinetics of multiple substrate reactions
-
-##### Ping–pong mechanisms
-Enzymes with ping–pong mechanisms include [oxidoreductases](https://en.wikipedia.org/wiki/Oxidoreductase), [transferases](https://en.wikipedia.org/wiki/Transferase), and [serine proteases](https://en.wikipedia.org/wiki/Serine_protease) such as [trypsin](https://en.wikipedia.org/wiki/Trypsin), [chymotrypsin](https://en.wikipedia.org/wiki/Chymotrypsin) and several enzymes of the blood clotting cascade. 
-
-##### Random-order mechanisms
-
-##### Power-law kinetics and biochemical systems theory (BST)
-Power-law kinetics are a flexible tool to describe multiple substrate kinetics. Suppose reaction $v_{i}$ depends upon $j=1,2,\dots,\mathcal{F}$ factors. These factors can be concentration e.g., substrates or products well as other type of data e.g., cate:
-
-$$v_{i} = \alpha_{i}\prod_{j=1}^{\mathcal{F}}X_{j}^{f_{ij}}\qquad{i=1,2,\dots,\mathcal{R}}$$
-
-where $\alpha_{j}$ denotes the rate constant for reaction $j$, $X_{j}$ denotes the abundance of
-factor $j$ and $f_{ij}$ denotes the kinetic order of factor $j$ in reaction $j$. Power-law kinetics are a prominent feature of Biochemical Systems Theory (BST). Biochemical systems theory has been developed since the 1960s by Michael Savageau, Eberhard Voit, and others for the systems analysis of biochemical processes:
-
-* [Atkinson MR, Savageau MA, Myers JT, Ninfa AJ. Development of genetic circuitry exhibiting toggle switch or oscillatory behavior in Escherichia coli. Cell. 2003 May 30;113(5):597-607. doi: 10.1016/s0092-8674(03)00346-5. PMID: 12787501.](https://pubmed.ncbi.nlm.nih.gov/12787501/)
-* [Alvarez-Vasquez F, Sims KJ, Cowart LA, Okamoto Y, Voit EO, Hannun YA. Simulation and validation of modeled sphingolipid metabolism in Saccharomyces cerevisiae. Nature. 2005 Jan 27;433(7024):425-30. doi: 10.1038/nature03232. PMID: 15674294.](https://pubmed.ncbi.nlm.nih.gov/15674294/)
-* [Goel G, Chou IC, Voit EO. Biological systems modeling and analysis: a biomolecular technique of the twenty-first century. J Biomol Tech. 2006;17(4):252-269.](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC2291792/?report=classic)
-
-##### General multisubstrate kinetics
-Suppose the irreversible rate $v_{i}$ is dependent upon susbtrates $S_{j},j=1,2,\dots,\mathcal{S}$, then the multiple saturation kinetic form is given by:
-
-$$v_{i} = V_{max,i}\left[\frac{\prod_{j}\frac{S_{j}}{K_{j}}}{\prod_{j}\left(1+\frac{S_{j}}{K_{j}}\right) - 1}\right]\qquad{i=1,2,\dots,\mathcal{R}}$$
-
-where $V_{max,i}$ denote the maximum reaction rate (units: concentration/time), $S_{j}$ denotes the
-substrate concentration (units: concentration) and $K_{j}$ denotes the saturation constant for substrate $j$.
-
-* [Liebermeister W, Klipp E. Bringing metabolic networks to life: convenience rate law and thermodynamic constraints. Theor Biol Med Model. 2006;3:41. Published 2006 Dec 15. doi:10.1186/1742-4682-3-41](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC1781438/)
-
+### Models of Enzyme Kinetics with Multiple Substrates and Inhibitors
 """
 
 # ╔═╡ 7c136883-cff7-4104-a952-ffc5929b871f
 md"""
-### Discrete State Model (DSM) Enzyme Regulation model
+### Inhibitors and the Discrete State Enzyme Regulation model
 Suppose we model the rate $v_{j}$ as the product of a kinetic limit (a simple model of the rate) and a correction term that accounts for the missing regulation:
 
 $$v_{j} = r_{j}\theta\left(...\right)_{j}$$
@@ -89,7 +56,7 @@ $$\theta=\sum_{s\in{\mathcal{A}}}p_{s}$$
 
 # ╔═╡ b722071c-4256-4fea-84c2-3a209822a1c1
 md"""
-##### DSM models: Competitive and Non-competitive inhibitors
+##### Competitive and Non-competitive inhibitors
 Let's revisit the previous feedback inhibition example but get more granular about the type of inhibition (and inhibitor) involved. There are two types of inhibitors: 
 
 * __Non-competitive inhibition__: A non-competitive inhibitor reduces the enzyme's activity and binds equally well to the enzyme whether or not it has already bound the substrate. This type of inhibition reduces the maximum rate of a chemical reaction without changing the apparent binding affinity of the catalyst for the substrate. No chemistry is possible for the E:I or E:S:I complexes.
@@ -98,7 +65,16 @@ Let's revisit the previous feedback inhibition example but get more granular abo
 
 # ╔═╡ 681d0325-c997-49bd-ad5a-da2e62a4fade
 md"""
-__Example__: Non-competitive inhibition
+__Example__: Non-competitive inhibition.
+The form for an enzyme catalyzed reaction of a single substrate $S$ to product $P$ by enzyme $E$ in the presense of a non-compeitive inhibitor $I$ is given by:
+
+$$v=V_{max}^{app}\left(\frac{S}{K_{m}+S}\right)$$
+
+where the _appearant_ maximum reaction velocity is given by:
+
+$$V_{max}^{app} = \frac{k_{cat}E}{1+I/K_{I}}$$
+
+where $K_{I}$ denotes an inhibition constant (units: Inhibitor concentration), and $k_{cat}$ denotes the turnover number for the enzyme of interest (units: 1/time).
 """
 
 # ╔═╡ 3e0457b7-9d6a-488a-9ff6-06cb90bde738
@@ -146,6 +122,16 @@ end
 # ╔═╡ 8375496a-c9fb-43a3-84b9-138edf08b92c
 md"""
 __Example__: Competitive inhibition
+The form for an enzyme-catalyzed reaction of a single substrate $S$ to a product $P$ by enzyme $E$ in the presence of a competitive inhibitor $I$ is given by:
+
+$$v=V_{max}\left(\frac{S}{K_{m}^{app}+S}\right)$$
+
+where the _appearant_ saturation constant is given by:
+
+$$K_{m}^{app} = K_{m}\left(1+I/K_{I}\right)$$
+
+where $K_{I}$ denotes an inhibition constant (units: Inhibitor concentration).
+
 """
 
 # ╔═╡ 80202c43-6dae-4e53-8161-516fbe36a094
@@ -171,24 +157,25 @@ let
 		for (j,Iₒ) ∈ enumerate(I_array)
 
 			# compute the apparent Vmax -
-			Vmax_app = (kcat*Eₒ)
+			Vmax = (kcat*Eₒ)
 			Km_app = Km*(1+Iₒ/KI)
 			sat_term = (S/(Km_app+S))
-			v_array[i,j] = Vmax_app*sat_term
+			v_array[i,j] = Vmax*sat_term
 		end
 	end
 
 	# plots -
 	for (j,Iₒ) ∈ enumerate(I_array)
 		if (j == 1)
-			plot(S_array,v_array[:,j], c=:blue,lw=2, label="I = $(Iₒ) mmol/L")
+			plot(S_array,v_array[:,j], c=:blue,lw=2, label="I = $(Iₒ) mmol/L",
+				legend=:bottomright)
 		else
 			plot!(S_array,v_array[:,j], c=:red,lw=2, label="I = $(Iₒ) mmol/L")
 		end
 	end
 	
 	xlabel!("Substrate S (mM)", fontsize=18)
-	ylabel!("v (*mol/s)", fontsize=18)
+	ylabel!("Rate (*mol/L-time)", fontsize=18)
 end
 
 # ╔═╡ ad1609c2-b63e-410b-b119-2c4b327cd87a
@@ -233,8 +220,8 @@ let
 	ϵ_array = [
 		0.0 		; # 1 s₁ units: J/mol
 		-5000.0 	; # 2 s₂ units: J/mol
-		-100.0 		; # 3 s₃ units: J/mol
-		-1000.0 		; # 4 s₄ units: J/mol
+		-1000.0 	; # 3 s₃ units: J/mol
+		-1000.0 	; # 4 s₄ units: J/mol
 	];
 
 	# compute the W_array -
@@ -255,7 +242,7 @@ let
 
 			# compute fᵢ -
 			f₄ = ((Iₒ/K₄)^(n₄))/(1 + (Iₒ/K₄)^(n₄))
-			f₃ = (1 - K₃/(K₃ + Iₒ))*(((S/K₂)^(n₃))/(1 + (S/K₂)^(n₃)))
+			f₃ = (Iₒ/K₄)*(((S/K₂)^(n₃))/(1 + (S/K₂)^(n₃)))
 			f₂ = (((S/K₂)^(n₂))/(1 + (S/K₂)^(n₂)))
 			f₁ = 1
 	
@@ -272,14 +259,15 @@ let
 	# plots -
 	for (j,Iₒ) ∈ enumerate(I_array)
 		if (j == 1)
-			plot(S_array,θ_array[:,j], c=:blue,lw=2, label="I = $(Iₒ) mmol/L")
+			plot(S_array,θ_array[:,j], c=:blue,lw=2, label="I = $(Iₒ) mmol/L",
+				legend=:bottomright)
 		else
 			plot!(S_array,θ_array[:,j], c=:red,lw=2, label="I = $(Iₒ) mmol/L")
 		end
 	end
 	
 	xlabel!("Substrate S (mM)", fontsize=18)
-	ylabel!("v (*mol/s)", fontsize=18)
+	ylabel!("Rate (*mol/L-time)", fontsize=18)
 end
 
 # ╔═╡ 7ffdd795-395e-449f-9b4c-cc88208f56f3
@@ -306,6 +294,8 @@ $$\theta = \frac{f_{2}\exp\left(-\beta\epsilon_{2}\right)}
 let
 
 	# setup constants -
+	kcat = 13.7 			# units: sec^-1
+	Eₒ = 2.0 				# units: *mol/L
 	R = 8.314 				# units: J/mol-K
 	T = (273.15 + 25.0) 	# units: K
 	β = (1/(R*T))			# units: mol/J
@@ -317,8 +307,8 @@ let
 	# setup ϵ array -
 	ϵ_array = [
 		0.0 		; # 1 s₁ units: J/mol
-		-1000.0 	; # 2 s₂ units: J/mol
-		-100.0 		; # 3 s₃ units: J/mol
+		-4000.0 	; # 2 s₂ units: J/mol
+		-500.0 		; # 3 s₃ units: J/mol
 	];
 
 	# compute the W_array -
@@ -339,7 +329,7 @@ let
 
 			# compute fᵢ -
 			f₃ = ((Iₒ/K₃)^(n₃))/(1 + (Iₒ/K₃)^(n₃))
-			f₂ = (((S/K₂)^(n₂))/(1 + (S/K₂)^(n₂)))
+			f₂ = (S)/(K₂*(1+Iₒ/K₃)+S)
 			f₁ = 1
 	
 			# populate the f array -
@@ -348,21 +338,22 @@ let
 			# compute θ -
 			D = dot(f_array,W_array)
 			N = f₂*W_array[2]
-			θ_array[i,j] = (N/D)
+			θ_array[i,j] = kcat*Eₒ*(N/D)
 		end
 	end
 
 	# plots -
 	for (j,Iₒ) ∈ enumerate(I_array)
 		if (j == 1)
-			plot(S_array,θ_array[:,j], c=:blue,lw=2, label="I = $(Iₒ) mmol/L")
+			plot(S_array,θ_array[:,j], c=:blue,lw=2, label="I = $(Iₒ) mmol/L", 
+				legend=:bottomright)
 		else
 			plot!(S_array,θ_array[:,j], c=:red,lw=2, label="I = $(Iₒ) mmol/L")
 		end
 	end
 	
 	xlabel!("Substrate S (mM)", fontsize=18)
-	ylabel!("θ (dimensionless)", fontsize=18)
+	ylabel!("Rate (*mol/L-time)", fontsize=18)
 end
 
 # ╔═╡ aaa1cfb4-3ba2-43dc-9ed7-214664cb8029
@@ -378,6 +369,39 @@ begin
 		DataFrame);
 	
 end
+
+# ╔═╡ 967500aa-664a-4bca-81b6-1ee95bec595a
+md"""
+### Kinetics of multiple substrate reactions
+
+##### Ping–pong mechanisms
+Enzymes with ping–pong mechanisms include [oxidoreductases](https://en.wikipedia.org/wiki/Oxidoreductase), [transferases](https://en.wikipedia.org/wiki/Transferase), and [serine proteases](https://en.wikipedia.org/wiki/Serine_protease) such as [trypsin](https://en.wikipedia.org/wiki/Trypsin), [chymotrypsin](https://en.wikipedia.org/wiki/Chymotrypsin) and several enzymes of the blood clotting cascade. 
+
+##### Random-order mechanisms
+
+##### Power-law kinetics and biochemical systems theory (BST)
+Power-law kinetics are a flexible tool to describe multiple substrate kinetics. Suppose reaction $v_{i}$ depends upon $j=1,2,\dots,\mathcal{F}$ factors. These factors can be concentration e.g., substrates or products well as other type of data e.g., cate:
+
+$$v_{i} = \alpha_{i}\prod_{j=1}^{\mathcal{F}}X_{j}^{f_{ij}}\qquad{i=1,2,\dots,\mathcal{R}}$$
+
+where $\alpha_{j}$ denotes the rate constant for reaction $j$, $X_{j}$ denotes the abundance of
+factor $j$ and $f_{ij}$ denotes the kinetic order of factor $j$ in reaction $j$. Power-law kinetics are a prominent feature of Biochemical Systems Theory (BST). Biochemical systems theory has been developed since the 1960s by Michael Savageau, Eberhard Voit, and others for the systems analysis of biochemical processes:
+
+* [Atkinson MR, Savageau MA, Myers JT, Ninfa AJ. Development of genetic circuitry exhibiting toggle switch or oscillatory behavior in Escherichia coli. Cell. 2003 May 30;113(5):597-607. doi: 10.1016/s0092-8674(03)00346-5. PMID: 12787501.](https://pubmed.ncbi.nlm.nih.gov/12787501/)
+* [Alvarez-Vasquez F, Sims KJ, Cowart LA, Okamoto Y, Voit EO, Hannun YA. Simulation and validation of modeled sphingolipid metabolism in Saccharomyces cerevisiae. Nature. 2005 Jan 27;433(7024):425-30. doi: 10.1038/nature03232. PMID: 15674294.](https://pubmed.ncbi.nlm.nih.gov/15674294/)
+* [Goel G, Chou IC, Voit EO. Biological systems modeling and analysis: a biomolecular technique of the twenty-first century. J Biomol Tech. 2006;17(4):252-269.](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC2291792/?report=classic)
+
+##### General multisubstrate kinetics
+Suppose the irreversible rate $v_{i}$ is dependent upon susbtrates $S_{j},j=1,2,\dots,\mathcal{S}$, then the multiple saturation kinetic form is given by:
+
+$$v_{i} = V_{max,i}\left[\frac{\prod_{j}\frac{S_{j}}{K_{j}}}{\prod_{j}\left(1+\frac{S_{j}}{K_{j}}\right) - 1}\right]\qquad{i=1,2,\dots,\mathcal{R}}$$
+
+where $V_{max,i}$ denote the maximum reaction rate (units: concentration/time), $S_{j}$ denotes the
+substrate concentration (units: concentration) and $K_{j}$ denotes the saturation constant for substrate $j$.
+
+* [Liebermeister W, Klipp E. Bringing metabolic networks to life: convenience rate law and thermodynamic constraints. Theor Biol Med Model. 2006;3:41. Published 2006 Dec 15. doi:10.1186/1742-4682-3-41](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC1781438/)
+
+"""
 
 # ╔═╡ 3f4ae7c0-f425-49c9-9df7-7424eaca7aa2
 md"""
@@ -1451,19 +1475,19 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╟─83a9dd26-8ab0-11ec-05a7-97fba528df76
-# ╟─967500aa-664a-4bca-81b6-1ee95bec595a
-# ╟─7c136883-cff7-4104-a952-ffc5929b871f
+# ╠═7c136883-cff7-4104-a952-ffc5929b871f
 # ╟─b722071c-4256-4fea-84c2-3a209822a1c1
 # ╟─681d0325-c997-49bd-ad5a-da2e62a4fade
 # ╟─3e0457b7-9d6a-488a-9ff6-06cb90bde738
 # ╟─8375496a-c9fb-43a3-84b9-138edf08b92c
 # ╟─80202c43-6dae-4e53-8161-516fbe36a094
 # ╟─ad1609c2-b63e-410b-b119-2c4b327cd87a
-# ╠═4acfa066-8422-462d-966f-d025abf8d5b2
+# ╟─4acfa066-8422-462d-966f-d025abf8d5b2
 # ╟─7ffdd795-395e-449f-9b4c-cc88208f56f3
 # ╠═0dbe24c4-224b-4fd8-9f9c-37f6223bd030
 # ╟─aaa1cfb4-3ba2-43dc-9ed7-214664cb8029
 # ╠═ed387ff6-d675-41ec-b806-f0b09a9b5414
+# ╟─967500aa-664a-4bca-81b6-1ee95bec595a
 # ╟─3f4ae7c0-f425-49c9-9df7-7424eaca7aa2
 # ╟─f7a88d98-7149-485f-ade1-b1d39f28daaa
 # ╟─5391cecc-bbd5-44e4-9a92-2184b4252f20

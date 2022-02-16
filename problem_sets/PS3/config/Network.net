@@ -1,0 +1,22 @@
+// Main -
+v1,M_ATP_c+M_L-Citrulline_c+M_L-Aspartate_c,M_AMP_c+M_Diphosphate_c+M_N-(L-Arginino)succinate_c,false
+v2,M_N-(L-Arginino)succinate_c,M_Fumarate_c+M_L-Arginine_c,false
+v3,M_L-Arginine_c+M_H2O_c,M_L-Ornithine_c+M_Urea_c,false
+v4,M_Carbamoyl_phosphate_c+M_L-Ornithine_c,M_Orthophosphate_c+M_L-Citrulline_c,false
+v5,2*M_L-Arginine_c+4*M_Oxygen_c+3*M_NADPH_c+3*M_H_c,2*M_Nitric_oxide_c+2*M_L-Citrulline_c+3*M_NADP_c+4*M_H2O_c,true
+
+// Exchange reactions -
+b1,[],M_Carbamoyl_phosphate_c,false
+b2,[],M_L-Aspartate_c,false
+b3,M_Fumarate_c,[],false
+b4,M_Urea_c,[],false
+b5,[],M_ATP_c,false
+b6,M_AMP_c,[],false
+b7,M_Diphosphate_c,[],false
+b8,M_Orthophosphate_c,[],false
+b9,[],M_Oxygen_c,0,false
+b10,[],M_NADPH_c,false
+b11,[],M_H_c,false
+b12,M_Nitric_oxide_c,[],false
+b13,M_NADP_c,[],false
+b14,M_H2O_c,[],true

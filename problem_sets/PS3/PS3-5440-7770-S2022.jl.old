@@ -1,0 +1,87 @@
+### A Pluto.jl notebook ###
+# v0.18.0
+
+using Markdown
+using InteractiveUtils
+
+# ╔═╡ 0e79c7a9-9205-4392-b9e4-9992a92248b4
+md"""
+### Analysis of metabolite and saturation constant data
+We will use metabolite concentration and $K_{m}$ data from:
+
+* [Park JO, Rubin SA, Xu YF, Amador-Noguez D, Fan J, Shlomi T, Rabinowitz JD. Metabolite concentrations, fluxes and free energies imply efficient enzyme usage. Nat Chem Biol. 2016 Jul;12(7):482-9. doi: 10.1038/nchembio.2077. Epub 2016 May 2. PMID: 27159581; PMCID: PMC4912430.](https://pubmed.ncbi.nlm.nih.gov/27159581/)
+
+However, these measurements are in units of M (mol/L) and we are operating in cell mass-specific units of mmol/gDW. Thus we need to convert.
+"""
+
+# ╔═╡ f54c27fd-596b-48e4-8d27-11d19ad47ba4
+function ingredients(path::String)
+
+    # this is from the Julia source code (evalfile in base/loading.jl)
+    # but with the modification that it returns the module instead of the last object
+    name = Symbol("lib")
+    m = Module(name)
+    Core.eval(m,
+        Expr(:toplevel,
+            :(eval(x) = $(Expr(:core, :eval))($name, x)),
+            :(include(x) = $(Expr(:top, :include))($name, x)),
+            :(include(mapexpr::Function, x) = $(Expr(:top, :include))(mapexpr, $name, x)),
+            :(include($path))))
+    m
+end
+
+# ╔═╡ 0021c188-2c08-4698-b7cd-0535d3250d2d
+begin
+
+    # import some packages -
+    using PlutoUI
+    using PrettyTables
+    using LinearAlgebra
+    using Plots
+    using GLPK
+    using DataFrames
+    using CSV
+
+    # setup paths -
+    const _PATH_TO_NOTEBOOK = pwd()
+    const _PATH_TO_SRC = joinpath(_PATH_TO_NOTEBOOK, "src")
+    const _PATH_TO_DATA = joinpath(_PATH_TO_NOTEBOOK, "data")
+
+    # load the PS3 code lib -
+    lib = ingredients(joinpath(_PATH_TO_SRC, "Include.jl"))
+
+    # return -
+    nothing
+end
+
+# ╔═╡ c752a7b8-074e-453c-9b29-19d804ac2acf
+begin
+
+    # load the metabolite data into a DataFrame -
+    path_to_data_file = joinpath(_PATH_TO_DATA, "Metabolite-NatChemBio-12-482-2016.csv")
+    metabolite_table = CSV.read(path_to_data_file, DataFrame)
+
+end
+
+# ╔═╡ 4b083076-8f4c-11ec-2c6f-1bffc353fb91
+html"""
+<style>
+main {
+    max-width: 900px;
+    width: 70%;
+    margin: auto;
+    font-family: "Roboto, monospace";
+}
+
+a {
+    color: blue;
+    text-decoration: none;
+}
+</style>"""
+
+# ╔═╡ Cell order:
+# ╟─0e79c7a9-9205-4392-b9e4-9992a92248b4
+# ╠═c752a7b8-074e-453c-9b29-19d804ac2acf
+# ╠═0021c188-2c08-4698-b7cd-0535d3250d2d
+# ╠═f54c27fd-596b-48e4-8d27-11d19ad47ba4
+# ╠═4b083076-8f4c-11ec-2c6f-1bffc353fb91

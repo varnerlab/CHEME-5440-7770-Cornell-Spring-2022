@@ -35,7 +35,7 @@ In this lecture, we continue our discussion of enzyme kinetics. Today we will:
 
 # ╔═╡ b722071c-4256-4fea-84c2-3a209822a1c1
 md"""
-### Competitive and Non-competitive inhibitors
+### Competitive, non- and uncompetitive inhibitors
 Inhibitors are critical research and therapeutic tools; they are often a go-to strategy for manipulating biological function (and are widely used in the allosteric regulation context). 
 
 * [Clinical application: Literature search on small-molecule checkpoint inhibitors](https://pubmed.ncbi.nlm.nih.gov/?term=small-molecule%20checkpoint%20inhibitors)
@@ -126,6 +126,7 @@ let
 	Eₒ = 2.0 	# units: *mol/L
 	Km = 5.0 	# units: *mol/L
 	KI = 20.0 	# units: *mol/L
+	n = 10.0
 	
 	# set the substrate and inhibitor concentration, and initialize some space -
 	I_array = range(0.0,step = 10,stop = 50.0) |> collect
@@ -143,7 +144,7 @@ let
 			# compute the apparent Vmax -
 			Vmax = (kcat*Eₒ)
 			Km_app = Km*(1+Iₒ/KI)
-			sat_term = (S/(Km_app+S))
+			sat_term = (S^n)/(Km_app^n+S^n)
 			v_array[i,j] = Vmax*sat_term
 		end
 	end
@@ -314,7 +315,7 @@ let
 	β = (1/(R*T))			# units: mol/J
 	K₂ = 10.0 				# units: mmol/L
 	K₃ = 5.0 				# units: mmol/L
-	n₂ = 1.0 				# units: dimensionless
+	n₂ = 10.0 				# units: dimensionless
 	n₃ = 1.0				# units: dimensionless
 
 	# setup ϵ array -
@@ -1518,12 +1519,12 @@ version = "0.9.1+5"
 # ╟─681d0325-c997-49bd-ad5a-da2e62a4fade
 # ╟─3e0457b7-9d6a-488a-9ff6-06cb90bde738
 # ╟─8375496a-c9fb-43a3-84b9-138edf08b92c
-# ╟─80202c43-6dae-4e53-8161-516fbe36a094
+# ╠═80202c43-6dae-4e53-8161-516fbe36a094
 # ╟─b92c2a56-018f-4e27-acd0-bf2488545cba
 # ╟─ad1609c2-b63e-410b-b119-2c4b327cd87a
-# ╟─4acfa066-8422-462d-966f-d025abf8d5b2
+# ╠═4acfa066-8422-462d-966f-d025abf8d5b2
 # ╟─7ffdd795-395e-449f-9b4c-cc88208f56f3
-# ╟─0dbe24c4-224b-4fd8-9f9c-37f6223bd030
+# ╠═0dbe24c4-224b-4fd8-9f9c-37f6223bd030
 # ╟─967500aa-664a-4bca-81b6-1ee95bec595a
 # ╟─3f4ae7c0-f425-49c9-9df7-7424eaca7aa2
 # ╟─f7a88d98-7149-485f-ade1-b1d39f28daaa

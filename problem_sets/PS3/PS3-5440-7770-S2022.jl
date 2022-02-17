@@ -6,8 +6,8 @@ using InteractiveUtils
 
 # ╔═╡ 2babb04c-7f14-4c30-a4f9-348ed31d4fbf
 md"""
-### Problem Set 3. Flux Balance Analysis of the Urea Cycle
-We are interested in the level of information required in a flux balance analysis calculation. In particular, does a flux calculation significantly improve when including different levels of information in the bounds and the dilution terms? To explore this question, calculate the flux distribution through the urea cycle in a population of human cells growing in batch culture with a doubling time of $\tau_{d}$ = 20 hr for four cases:
+### Flux Balance Analysis of the Urea Cycle
+We are interested in the level of information required for flux balance analysis calculations. In particular, does a flux calculation significantly improve when including different levels of information in the bounds and the dilution terms? To explore this question, calculate the flux distribution through the urea cycle in a population of [HL60 cells](https://www.atcc.org/products/ccl-240?matchtype=b&network=g&device=c&adposition=&keyword=hl60%20cells&gclid=EAIaIQobChMIyfXmmfiG9gIVlDY4Ch3MYQ-YEAAYAiAAEgLPfvD_BwE) growing in batch culture with a doubling time of $\tau_{d}$ = 20 hr for four cases:
 
 * __Case 1__: Ignore dilution and bounds metabolite effects
 * __Case 2__: Ignore dilution but include metabolite data in the bounds
@@ -23,20 +23,24 @@ __Assumptions__:
 * All enzymes are maximally active (ignore allosteric effects).
 """
 
-# ╔═╡ 6e778204-02cc-45a6-9845-3f1c0f1033ba
+# ╔═╡ 54d23ccb-211c-4716-a80c-2c087198232d
 md"""
-### Cases
-
+##### Load/build stoichiometric array
 """
 
 # ╔═╡ 47a3f3fe-425d-434c-be06-1cd36a56fe25
 md"""
-##### Case 1: Ignore dilution and bounds metabolite effects
+### C1: Ignore dilution and bounds metabolite effects
+"""
+
+# ╔═╡ deafe11f-9065-43f4-b500-c64ff41026bd
+md"""
+##### Computation C1
 """
 
 # ╔═╡ 12eef416-b3ab-4f03-8ac0-a9783dcca9bd
 md"""
-##### Case 2: Ignore dilution but include metabolite data in the bounds
+### C2: Ignore dilution but include metabolite data in the bounds
 
 Let's use general multisubstrate kinetics to compute flux bounds for the urea cycle problem.
 Suppose the irreversible rate $v_{i}$ is dependent upon susbtrates $S_{j},j=1,2,\dots,\mathcal{S}$, then the multiple saturation kinetic form is given by:
@@ -60,7 +64,7 @@ To answer this question, let's take advantage of the features of [DataFrames](ht
 
 # ╔═╡ 70239f9d-1ea8-4ad2-92a3-126cd99de4f0
 md"""
-##### Case 3: Include dilution but ignore metabolite data in the bounds
+### C3: Include dilution but ignore metabolite data in the bounds
 
 We have (up to now) ignored the dilution to growth terms (as often done in practice). Typically, we do not have access to intracellular metabolite concentration data; thus, including the dilution terms makes the problem more difficult. In particular, when including the dilution due to growth terms, the intracellular metabolite balances are given by (at steady state):
 
@@ -72,12 +76,45 @@ where $\sigma_{ij}$ is the stoichiometric coefficient of metabolite $i$ in react
 Let's use the [Park et al dataset](https://pubmed.ncbi.nlm.nih.gov/27159581/) to estimate values for $x_{i}$. However, how do we change the problem structure to account for the dilution terms and convert the concentration values to cell mass-specific units?
 """
 
-# ╔═╡ a7fb5ffb-d3ec-4ddc-909d-b9e1a7920321
+# ╔═╡ cb7d76b8-85f9-4886-a4f3-3f9fb82e42dc
+md"""
+##### Propose a strategy (or strategies) for accounting for dilution terms 
+"""
 
+# ╔═╡ d3a2474e-f502-4247-bba6-1f7d5f88f12d
+md"""
+Fill me in using markdown and latex
+"""
+
+# ╔═╡ a7df4d41-1c0f-422e-8f21-c84b812ac3cd
+md"""
+##### Concentration conversion factor
+Assume HL60 cells are spherical. Use [bionumbers]() to formulate a concentration conversion factor. 
+"""
+
+# ╔═╡ e891e546-f275-4cc8-beb4-0447094f01b2
+begin
+
+	# Need: convert mol/L to μmol/gDW-hr
+	CF = 1.0 
+
+	# show -
+	nothing
+end
+
+# ╔═╡ b552fa38-cdc2-4f46-917f-4cac78694c86
+md"""
+##### Formulate the concentration array
+"""
+
+# ╔═╡ c0569dfd-784f-43c5-966d-6ea2b25b9992
+md"""
+##### Computation C3
+"""
 
 # ╔═╡ eaa02eea-2c86-4e05-bbe3-46174bb9c7d2
 md"""
-##### Case 4: Include both dilution and metabolite data in bounds
+### C4: Include both dilution and metabolite data in bounds
 """
 
 # ╔═╡ 87df397b-8d88-4de6-9db5-87703850a554
@@ -127,6 +164,8 @@ end
 
 # ╔═╡ 24f4f6d4-7f78-40fa-bb3e-505c0940ec91
 begin
+
+	# Load the stoichiometric matrix -
 
     # load/parse the network file -
     _PATH_TO_NETWORK_FILE = joinpath(_PATH_TO_CONFIG,"Network.net")
@@ -187,6 +226,9 @@ begin
 	# show -
 	nothing
 end
+
+# ╔═╡ 3c523577-1910-4426-95cb-783b1b1ffe91
+mna
 
 # ╔═╡ 4dce933f-693c-4788-9c77-63784871a4c0
 begin
@@ -256,28 +298,51 @@ end
 begin
 
 	# initialize -
-	x_concentration_array = Array{Float64,1}(undef,ℳ)
+	x_concentration_array = zeros(ℳ,2) # default: missing value = 0.0
 	
 	# build table of metabolites concentrations (M) for the metabolites in the our model -
 	metabolites_in_our_model_array = [
+		"AMP","ATP", "M_Carbamoyl_phosphate_c", "M_Diphosphate_c", "fumarate"
 	];
 
 	for (i,metabolite) ∈ enumerate(metabolites_in_our_model_array)
 
 		# look up the metabolite value -
-		df_metabolite = filter([:Metabolite,:Organism]=>(x,y)->(x == metabolite && y=="Homo sapiens"),metabolite_table)
+		df_metabolite = filter([:Metabolite,:Organism]=>(x,y)->
+			(x == metabolite && y=="Homo sapiens"),metabolite_table)
 		
 		# is the df empty?
-		if (isempty(df_metabolite) == true)
-			x_concentration_array[i] = 0.0 # missing value policy
-		else
-			x_concentration_array[i] = df_metabolite[1,:Concentration]
+		if (isempty(df_metabolite) == false)
+			x_concentration_array[i,1] = df_metabolite[1,:Concentration]
+			x_concentration_array[i,2] = CF*df_metabolite[1,:Concentration]
 		end
 	end
 end
 
-# ╔═╡ 2ee77d58-5160-47e1-9aa7-8b5f7f3568e6
-x_concentration_array
+# ╔═╡ a7fb5ffb-d3ec-4ddc-909d-b9e1a7920321
+let
+
+	# setup the state array -
+	state_array = Array{Any,2}(undef,ℳ,4)
+
+	for (i,metabolite) ∈ enumerate(metabolites_in_our_model_array)
+
+		state_array[i,1] = i
+		state_array[i,2] = metabolites_in_our_model_array[i]
+		state_array[i,3] = x_concentration_array[i,1]
+		state_array[i,4] = x_concentration_array[i,2]
+	end
+
+	# setup the header -
+	header_row = (["index","metabolite","concentration", "concentration"],
+		["","","M","μmol/gDW"])
+	
+	with_terminal() do
+		
+		# make the table -
+		pretty_table(state_array; header=header_row)
+	end
+end
 
 # ╔═╡ fca0ae0f-607a-4144-9b30-e237df7f43af
 begin
@@ -329,6 +394,55 @@ a {
     text-decoration: none;
 }
 </style>"""
+
+# ╔═╡ 1d16ad51-bd30-48d6-ac19-b875b1bfe530
+html"""
+<script>
+	// initialize -
+	var section = 0;
+	var subsection = 0;
+	var subsubsection = 0;
+	var headers = document.querySelectorAll('h3, h5, h6');
+	
+	// main loop -
+	for (var i=0; i < headers.length; i++) {
+	    
+		var header = headers[i];
+	    var text = header.innerText;
+	    var original = header.getAttribute("text-original");
+	    if (original === null) {
+	        
+			// Save original header text
+	        header.setAttribute("text-original", text);
+	    } else {
+	        
+			// Replace with original text before adding section number
+	        text = header.getAttribute("text-original");
+	    }
+	
+	    var numbering = "";
+	    switch (header.tagName) {
+	        case 'H3':
+	            section += 1;
+	            numbering = section + ".";
+	            subsection = 0;
+	            break;
+	        case 'H5':
+	            subsection += 1;
+	            numbering = section + "." + subsection;
+	            break;
+			case 'H6':
+	            subsubsection += 1;
+	            numbering = section + "." + subsection + "." + subsubsection;
+	            break;
+	    }
+		// update the header text 
+		header.innerText = numbering + " " + text;
+	};
+</script>"""
+
+# ╔═╡ ce4ed3a0-f75c-4807-a3c6-3642e373e951
+TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1587,11 +1701,12 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╟─2babb04c-7f14-4c30-a4f9-348ed31d4fbf
-# ╟─6e778204-02cc-45a6-9845-3f1c0f1033ba
+# ╟─54d23ccb-211c-4716-a80c-2c087198232d
 # ╠═24f4f6d4-7f78-40fa-bb3e-505c0940ec91
 # ╠═d68d48a7-b72f-4a80-a6a4-76654fd60c49
 # ╠═e953d072-7b5a-4310-b259-4e0cabbd6291
 # ╟─47a3f3fe-425d-434c-be06-1cd36a56fe25
+# ╟─deafe11f-9065-43f4-b500-c64ff41026bd
 # ╠═7558ee4f-87ca-4fa2-89bb-7a476c5e1252
 # ╟─4dce933f-693c-4788-9c77-63784871a4c0
 # ╟─70d11054-4d8a-4dcc-a8cd-1f762c2dd9b8
@@ -1601,14 +1716,22 @@ version = "0.9.1+5"
 # ╟─e2917845-d956-45f0-a379-ea826caf7d88
 # ╠═85e1ac31-90cf-48da-b4d7-b6c009328084
 # ╟─70239f9d-1ea8-4ad2-92a3-126cd99de4f0
+# ╟─cb7d76b8-85f9-4886-a4f3-3f9fb82e42dc
+# ╟─d3a2474e-f502-4247-bba6-1f7d5f88f12d
+# ╟─a7df4d41-1c0f-422e-8f21-c84b812ac3cd
+# ╠═e891e546-f275-4cc8-beb4-0447094f01b2
+# ╠═3c523577-1910-4426-95cb-783b1b1ffe91
+# ╟─b552fa38-cdc2-4f46-917f-4cac78694c86
 # ╠═c1878272-dd06-46b3-84f3-6d05c459688a
 # ╠═a7fb5ffb-d3ec-4ddc-909d-b9e1a7920321
-# ╠═2ee77d58-5160-47e1-9aa7-8b5f7f3568e6
+# ╟─c0569dfd-784f-43c5-966d-6ea2b25b9992
 # ╟─eaa02eea-2c86-4e05-bbe3-46174bb9c7d2
 # ╠═87df397b-8d88-4de6-9db5-87703850a554
 # ╠═acd56faf-5f71-435f-ba5b-10faa7cc7b61
 # ╠═fca0ae0f-607a-4144-9b30-e237df7f43af
 # ╠═58a35e5c-2f3c-4818-a290-7b8ae509320f
 # ╠═f472e85e-8f51-11ec-25e8-e94287a542b6
+# ╠═1d16ad51-bd30-48d6-ac19-b875b1bfe530
+# ╠═ce4ed3a0-f75c-4807-a3c6-3642e373e951
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

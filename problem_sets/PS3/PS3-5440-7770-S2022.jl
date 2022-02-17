@@ -6,14 +6,20 @@ using InteractiveUtils
 
 # ╔═╡ 2babb04c-7f14-4c30-a4f9-348ed31d4fbf
 md"""
-### Problem Set 3 (PS3). Flux Balance Analysis of the Urea Cycle
+### Problem Set 3. Flux Balance Analysis of the Urea Cycle
+We are interested in the level of information required in a flux balance analysis calculation. In particular, does a flux calculation significantly improve when including different levels of information in the bounds and the dilution terms? To explore this question, calculate the flux distribution through the urea cycle in a population of human cells growing in batch culture with a doubling time of $\tau_{d}$ = 20 hr for four cases:
 
-The urea cycle eliminates excess nitrogen from the cell (Fig. XX). Let’s compute the metabolic flux through the Urea cycle in a population of human cells growing in batch culture with a doubling time of $\tau_{d}$ = 20 hr. Use cell mass specific units.
+* __Case 1__: Ignore dilution and bounds metabolite effects
+* __Case 2__: Ignore dilution but include metabolite data in the bounds
+* __Case 3__: Include dilution but ignore metabolite data in the bounds
+* __Case 4__: Include both dilution and metabolite data in bounds
+
+The teaching team found that the rate of oxygen uptake by the urea cycle is $q_{O2}$ = 0.25 $\mu$mol/gDW-hr.   
 
 __Assumptions__: 
 * The $k_{cat}$'s: EC:3.5.3.1 = 249 s$^{-1}$; EC:2.1.33 = 88.1 s$^{-1}$; EC:4.3.2.1 = 34.5 s$^{-1}$; EC:6.3.4.5 = 203 s$^{-1}$ and EC:1.14.13.39 = 13.7 s$^{-1}$;
-* The steady-state concentration for enzymes in the pathway (E) is uniform, and given by E $\simeq$ 0.01 μmol/gDW;
-* Use Park et al. Nat Chem Biol 12:482-9, 2016 for the $K_{m}$ and metabolite concentrations measurements
+* The steady-state enzyme concentration in the pathway is uniform E $\simeq$ 0.01 μmol/gDW;
+* Use [Park et al. Nat Chem Biol 12:482-9, 2016](https://pubmed.ncbi.nlm.nih.gov/27159581/) for $K_{m}$ and metabolite concentrations measurements
 * All enzymes are maximally active (ignore allosteric effects).
 """
 
@@ -31,25 +37,43 @@ md"""
 # ╔═╡ 12eef416-b3ab-4f03-8ac0-a9783dcca9bd
 md"""
 ##### Case 2: Ignore dilution but include metabolite data in the bounds
-"""
 
-# ╔═╡ 5f663b89-9279-4ee1-86d6-456f363bfe7d
-md"""
-###### Analysis of metabolite and saturation constant data
-We will use metabolite concentration and $K_{m}$ data from:
+Let's use general multisubstrate kinetics to compute flux bounds for the urea cycle problem.
+Suppose the irreversible rate $v_{i}$ is dependent upon susbtrates $S_{j},j=1,2,\dots,\mathcal{S}$, then the multiple saturation kinetic form is given by:
+
+$$v_{i} = V_{max,i}\left[\frac{\prod_{j}\frac{S_{j}}{K_{j}}}{\prod_{j}\left(1+\frac{S_{j}}{K_{j}}\right) - 1}\right]\qquad{i=1,2,\dots,\mathcal{R}}$$
+
+where $V_{max,i}$ denote the maximum reaction rate (units: concentration/time), $S_{j}$ denotes the substrate concentration (units: concentration) and $K_{j}$ denotes the saturation constant for substrate $j$.
+
+* [Liebermeister W, Klipp E. Bringing metabolic networks to life: convenience rate law and thermodynamic constraints. Theor Biol Med Model. 2006;3:41. Published 2006 Dec 15. doi:10.1186/1742-4682-3-41](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC1781438/)
+
+We need to calculate the substrate/$K_{m}$ ratios to calculate the rates. To do that, we can use the metabolite concentration and $K_{m}$ data from:
 
 * [Park JO, Rubin SA, Xu YF, Amador-Noguez D, Fan J, Shlomi T, Rabinowitz JD. Metabolite concentrations, fluxes and free energies imply efficient enzyme usage. Nat Chem Biol. 2016 Jul;12(7):482-9. doi: 10.1038/nchembio.2077. Epub 2016 May 2. PMID: 27159581; PMCID: PMC4912430.](https://pubmed.ncbi.nlm.nih.gov/27159581/)
-
-However, these measurements are in units of M (mol/L) and we are operating in cell mass-specific units of mmol/gDW. Thus we need to convert.
 """
 
-# ╔═╡ 85e1ac31-90cf-48da-b4d7-b6c009328084
-
+# ╔═╡ e2917845-d956-45f0-a379-ea826caf7d88
+md"""
+##### Are any of the enzymes in our system in the Park dataset?
+To answer this question, let's take advantage of the features of [DataFrames](https://dataframes.juliadata.org/stable/) and do in-memory filtering of the dataset using the [filter](https://dataframes.juliadata.org/stable/lib/functions/#Base.filter) command. Let's filter on the [enzyme commission number (ec number)](https://en.wikipedia.org/wiki/Enzyme_Commission_number).
+"""
 
 # ╔═╡ 70239f9d-1ea8-4ad2-92a3-126cd99de4f0
 md"""
 ##### Case 3: Include dilution but ignore metabolite data in the bounds
+
+We have (up to now) ignored the dilution to growth terms (as often done in practice). Typically, we do not have access to intracellular metabolite concentration data; thus, including the dilution terms makes the problem more difficult. In particular, when including the dilution due to growth terms, the intracellular metabolite balances are given by (at steady state):
+
+$$\sum_{j=1}^{\mathcal{R}}\sigma_{ij}v_{j} - \mu{x}_{i} = 0\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+where $\sigma_{ij}$ is the stoichiometric coefficient of metabolite $i$ in reaction $j$, $v_{j}$ denotes the $j$ metabolic flux, $\mu$ denotes the specific growth rate (units: hr$^{-1}$) and $x_{i}$ denotes the concentration of metabolite $i$ (units: $\star$mol/gDW-hr). 
+
+
+Let's use the [Park et al dataset](https://pubmed.ncbi.nlm.nih.gov/27159581/) to estimate values for $x_{i}$. However, how do we change the problem structure to account for the dilution terms and convert the concentration values to cell mass-specific units?
 """
+
+# ╔═╡ a7fb5ffb-d3ec-4ddc-909d-b9e1a7920321
+
 
 # ╔═╡ eaa02eea-2c86-4e05-bbe3-46174bb9c7d2
 md"""
@@ -119,7 +143,7 @@ begin
 end
 
 # ╔═╡ d68d48a7-b72f-4a80-a6a4-76654fd60c49
- expanded_reaction_array
+mna
 
 # ╔═╡ e953d072-7b5a-4310-b259-4e0cabbd6291
 (ℳ,ℛ) = size(S)
@@ -129,21 +153,26 @@ begin
 
 	# E - 
 	Eₒ = 0.01 # units: μmol/gDW
+	u = ones(6)
+	E = Eₒ.*u
 	
 	# setup flux bounds array -
 	flux_bounds_array = zeros(ℛ,2)
 	flux_bounds_array[:,2] .= 100.0 # default value is 100 for flux -
 
 	# fill in specific values -
-	flux_bounds_array[1,2] = 203.0*Eₒ
-	flux_bounds_array[2,2] = 34.5*Eₒ
-	flux_bounds_array[3,2] = 249.0*Eₒ
-	flux_bounds_array[4,2] = 88.1*Eₒ
-	flux_bounds_array[5,2] = 203.0*Eₒ
-	flux_bounds_array[6,2] = 13.7*Eₒ
+	flux_bounds_array[1,2] = 203.0*E[1]
+	flux_bounds_array[2,2] = 34.5*E[2]
+	flux_bounds_array[3,2] = 249.0*E[3]
+	flux_bounds_array[4,2] = 88.1*E[4]
+	flux_bounds_array[5,2] = 203.0*E[5]
+	flux_bounds_array[6,2] = 13.7*E[6]
 
-	# force O2 uptake -
-	flux_bounds_array[15,1] = 0.25
+	# O2 uptake -
+	# flux_bounds_array[15,1] = 0.25
+
+	# no water exchange -
+	# flux_bounds_array[20,2] = 0.0
 	
 	# setup species bounds array -
 	species_bounds_array = zeros(ℳ,2)
@@ -159,17 +188,24 @@ begin
 	nothing
 end
 
-# ╔═╡ 76cd3883-d701-410d-87e7-77494538e6d9
-mna
-
-# ╔═╡ 771a158b-7049-485c-9ad2-ad28830b461f
-list_of_reactions
-
 # ╔═╡ 4dce933f-693c-4788-9c77-63784871a4c0
-result_case_1 = lib.flux(S,flux_bounds_array,species_bounds_array,c_vector);
+begin
+	
+	# compute the flux -
+	result_case_1 = lib.flux(S,flux_bounds_array,species_bounds_array,c_vector);
 
-# ╔═╡ 7f260a3d-d3af-4e3c-ab86-afdaba4384ce
-result_case_1.uptake_array
+	# check:
+	with_terminal() do
+		ef = result_case_1.exit_flag
+		sf = result_case_1.status_flag
+
+		if (ef == 0.0 && sf == 5.0)
+			println("Optimal solution found. exit flag = $(ef) and status flag = $(sf)")
+		else
+			println("Ooops! Check your problem setup. exit flag = $(ef) and status flag = $(sf)")
+		end
+	end
+end
 
 # ╔═╡ 70d11054-4d8a-4dcc-a8cd-1f762c2dd9b8
 let
@@ -178,17 +214,21 @@ let
 	calculated_flux_array = result_case_1.calculated_flux_array
 
 	# build flux table -
-	flux_table = Array{Any,2}(undef,ℛ,3)
+	flux_table = Array{Any,2}(undef,ℛ,4)
 
 	# populate -
 	for i ∈ 1:ℛ
 		flux_table[i,1] = i
 		flux_table[i,2] = rna[i]
 		flux_table[i,3] = calculated_flux_array[i]
+		flux_table[i,4] = expanded_reaction_array[i]
 	end
 
+	# setup header -
+	header_row = (["i","name","flux","reaction"],["","","μmol/gDW-hr",""])
+	
 	with_terminal() do
-		pretty_table(flux_table)
+		pretty_table(flux_table; header=header_row, alignment=:l)
 	end
 end
 
@@ -199,6 +239,45 @@ begin
     path_to_data_file = joinpath(_PATH_TO_DATA, "Metabolite-NatChemBio-12-482-2016.csv")
     metabolite_table = CSV.read(path_to_data_file, DataFrame)
 end
+
+# ╔═╡ 85e1ac31-90cf-48da-b4d7-b6c009328084
+begin
+
+	# what are the ec numbers in our system? (add as strings)
+	ec_number_array = ["6.3.4.5","4.3.2.1","3.5.3.1","2.1.3.3","1.14.13.39"]
+	# ec_number_array = [];
+	
+	# use the filter command on the df to check: do we have our ec numbers?
+	filter_col_key = Symbol("EC Number")
+	df = filter(filter_col_key=>x->in(x,ec_number_array), metabolite_table)
+end
+
+# ╔═╡ c1878272-dd06-46b3-84f3-6d05c459688a
+begin
+
+	# initialize -
+	x_concentration_array = Array{Float64,1}(undef,ℳ)
+	
+	# build table of metabolites concentrations (M) for the metabolites in the our model -
+	metabolites_in_our_model_array = [
+	];
+
+	for (i,metabolite) ∈ enumerate(metabolites_in_our_model_array)
+
+		# look up the metabolite value -
+		df_metabolite = filter([:Metabolite,:Organism]=>(x,y)->(x == metabolite && y=="Homo sapiens"),metabolite_table)
+		
+		# is the df empty?
+		if (isempty(df_metabolite) == true)
+			x_concentration_array[i] = 0.0 # missing value policy
+		else
+			x_concentration_array[i] = df_metabolite[1,:Concentration]
+		end
+	end
+end
+
+# ╔═╡ 2ee77d58-5160-47e1-9aa7-8b5f7f3568e6
+x_concentration_array
 
 # ╔═╡ fca0ae0f-607a-4144-9b30-e237df7f43af
 begin
@@ -1514,17 +1593,17 @@ version = "0.9.1+5"
 # ╠═e953d072-7b5a-4310-b259-4e0cabbd6291
 # ╟─47a3f3fe-425d-434c-be06-1cd36a56fe25
 # ╠═7558ee4f-87ca-4fa2-89bb-7a476c5e1252
-# ╠═4dce933f-693c-4788-9c77-63784871a4c0
-# ╠═7f260a3d-d3af-4e3c-ab86-afdaba4384ce
-# ╠═76cd3883-d701-410d-87e7-77494538e6d9
-# ╠═70d11054-4d8a-4dcc-a8cd-1f762c2dd9b8
-# ╠═771a158b-7049-485c-9ad2-ad28830b461f
+# ╟─4dce933f-693c-4788-9c77-63784871a4c0
+# ╟─70d11054-4d8a-4dcc-a8cd-1f762c2dd9b8
 # ╟─12eef416-b3ab-4f03-8ac0-a9783dcca9bd
-# ╟─5f663b89-9279-4ee1-86d6-456f363bfe7d
 # ╠═880ce921-308b-4e3c-8bd9-fb9d07d18bd3
 # ╟─07ca2450-8a84-4e71-adcf-91b12a1544ee
+# ╟─e2917845-d956-45f0-a379-ea826caf7d88
 # ╠═85e1ac31-90cf-48da-b4d7-b6c009328084
 # ╟─70239f9d-1ea8-4ad2-92a3-126cd99de4f0
+# ╠═c1878272-dd06-46b3-84f3-6d05c459688a
+# ╠═a7fb5ffb-d3ec-4ddc-909d-b9e1a7920321
+# ╠═2ee77d58-5160-47e1-9aa7-8b5f7f3568e6
 # ╟─eaa02eea-2c86-4e05-bbe3-46174bb9c7d2
 # ╠═87df397b-8d88-4de6-9db5-87703850a554
 # ╠═acd56faf-5f71-435f-ba5b-10faa7cc7b61

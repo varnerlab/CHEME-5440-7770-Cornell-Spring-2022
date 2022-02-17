@@ -14,11 +14,11 @@ We are interested in the level of information required for flux balance analysis
 * __Case 3__: Include dilution but ignore metabolite data in the bounds
 * __Case 4__: Include both dilution and metabolite data in bounds
 
-The teaching team found that the rate of oxygen uptake by the urea cycle is $q_{O2}$ = 0.25 $\mu$mol/gDW-hr.   
+The teaching team found that the rate of oxygen uptake by the urea cycle is $q_{O2}$ = 0.25 $\mu$mol/gDW-s.   
 
 __Assumptions__: 
 * The $k_{cat}$'s: EC:3.5.3.1 = 249 s$^{-1}$; EC:2.1.33 = 88.1 s$^{-1}$; EC:4.3.2.1 = 34.5 s$^{-1}$; EC:6.3.4.5 = 203 s$^{-1}$ and EC:1.14.13.39 = 13.7 s$^{-1}$;
-* The steady-state enzyme concentration in the pathway is uniform E $\simeq$ 0.1 μmol/gDW;
+* The steady-state enzyme concentration in the pathway is uniform E $\simeq$ 0.01 μmol/gDW;
 * Use [Park et al. Nat Chem Biol 12:482-9, 2016](https://pubmed.ncbi.nlm.nih.gov/27159581/) for $K_{m}$ and metabolite concentrations measurements
 * All enzymes are maximally active (ignore allosteric effects).
 """
@@ -1715,7 +1715,7 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╟─2babb04c-7f14-4c30-a4f9-348ed31d4fbf
+# ╠═2babb04c-7f14-4c30-a4f9-348ed31d4fbf
 # ╟─0fe1a22d-a333-4834-88be-92180c39bbb3
 # ╟─54d23ccb-211c-4716-a80c-2c087198232d
 # ╠═24f4f6d4-7f78-40fa-bb3e-505c0940ec91

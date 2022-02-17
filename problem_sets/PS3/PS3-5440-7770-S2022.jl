@@ -18,7 +18,7 @@ The teaching team found that the rate of oxygen uptake by the urea cycle is $q_{
 
 __Assumptions__: 
 * The $k_{cat}$'s: EC:3.5.3.1 = 249 s$^{-1}$; EC:2.1.33 = 88.1 s$^{-1}$; EC:4.3.2.1 = 34.5 s$^{-1}$; EC:6.3.4.5 = 203 s$^{-1}$ and EC:1.14.13.39 = 13.7 s$^{-1}$;
-* The steady-state enzyme concentration in the pathway is uniform E $\simeq$ 0.01 μmol/gDW;
+* The steady-state enzyme concentration in the pathway is uniform E $\simeq$ 0.1 μmol/gDW;
 * Use [Park et al. Nat Chem Biol 12:482-9, 2016](https://pubmed.ncbi.nlm.nih.gov/27159581/) for $K_{m}$ and metabolite concentrations measurements
 * All enzymes are maximally active (ignore allosteric effects).
 """
@@ -86,21 +86,16 @@ md"""
 Fill me in using markdown and latex
 """
 
+# ╔═╡ db005134-6e21-474a-9539-91faf6d0a4a4
+md"""
+##### Compute specific growth rate
+"""
+
 # ╔═╡ a7df4d41-1c0f-422e-8f21-c84b812ac3cd
 md"""
 ##### Concentration conversion factor
 Assume HL60 cells are spherical. Use [bionumbers]() to formulate a concentration conversion factor. 
 """
-
-# ╔═╡ e891e546-f275-4cc8-beb4-0447094f01b2
-begin
-
-	# Need: convert mol/L to μmol/gDW-hr
-	CF = 1.0 
-
-	# show -
-	nothing
-end
 
 # ╔═╡ b552fa38-cdc2-4f46-917f-4cac78694c86
 md"""
@@ -112,13 +107,17 @@ md"""
 ##### Computation C3
 """
 
+# ╔═╡ 7e11b015-ab19-4aba-80b1-a413ab13439f
+begin
+
+	# computation for C3 goes here ...
+	
+end
+
 # ╔═╡ eaa02eea-2c86-4e05-bbe3-46174bb9c7d2
 md"""
 ### C4: Include both dilution and metabolite data in bounds
 """
-
-# ╔═╡ 87df397b-8d88-4de6-9db5-87703850a554
-
 
 # ╔═╡ 58a35e5c-2f3c-4818-a290-7b8ae509320f
 function ingredients(path::String)
@@ -148,12 +147,15 @@ begin
     using DataFrames
     using CSV
 	using StatsPlots
+	using Statistics
+	using StatsBase
 	
     # setup paths -
     const _PATH_TO_NOTEBOOK = pwd()
     const _PATH_TO_SRC = joinpath(_PATH_TO_NOTEBOOK, "src")
     const _PATH_TO_DATA = joinpath(_PATH_TO_NOTEBOOK, "data")
 	const _PATH_TO_CONFIG = joinpath(_PATH_TO_NOTEBOOK, "config")
+	const _PATH_TO_FIGS = joinpath(_PATH_TO_NOTEBOOK, "figs")
 	
     # load the PS3 code lib -
     lib = ingredients(joinpath(_PATH_TO_SRC, "Include.jl"))
@@ -161,6 +163,9 @@ begin
     # return -
     nothing
 end
+
+# ╔═╡ 0fe1a22d-a333-4834-88be-92180c39bbb3
+PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"Fig-Urea-cycle.png"))
 
 # ╔═╡ 24f4f6d4-7f78-40fa-bb3e-505c0940ec91
 begin
@@ -181,9 +186,6 @@ begin
     nothing
 end
 
-# ╔═╡ d68d48a7-b72f-4a80-a6a4-76654fd60c49
-mna
-
 # ╔═╡ e953d072-7b5a-4310-b259-4e0cabbd6291
 (ℳ,ℛ) = size(S)
 
@@ -197,22 +199,8 @@ begin
 	
 	# setup flux bounds array -
 	flux_bounds_array = zeros(ℛ,2)
-	flux_bounds_array[:,2] .= 100.0 # default value is 100 for flux -
+	flux_bounds_array[:,2] .= 100.0 # default value is 100 for flux units: μmol/gDW-s
 
-	# fill in specific values -
-	flux_bounds_array[1,2] = 203.0*E[1]
-	flux_bounds_array[2,2] = 34.5*E[2]
-	flux_bounds_array[3,2] = 249.0*E[3]
-	flux_bounds_array[4,2] = 88.1*E[4]
-	flux_bounds_array[5,2] = 203.0*E[5]
-	flux_bounds_array[6,2] = 13.7*E[6]
-
-	# O2 uptake -
-	# flux_bounds_array[15,1] = 0.25
-
-	# no water exchange -
-	# flux_bounds_array[20,2] = 0.0
-	
 	# setup species bounds array -
 	species_bounds_array = zeros(ℳ,2)
 
@@ -223,29 +211,23 @@ begin
 	idx_b₄ = findall(x->x=="b4", rna)[1]
 	c_vector[idx_b₄] = -1
 
+	# compute the flux -
+	result_case_1 = lib.flux(S,flux_bounds_array,species_bounds_array,c_vector);
+
 	# show -
 	nothing
 end
 
-# ╔═╡ 3c523577-1910-4426-95cb-783b1b1ffe91
-mna
-
 # ╔═╡ 4dce933f-693c-4788-9c77-63784871a4c0
-begin
-	
-	# compute the flux -
-	result_case_1 = lib.flux(S,flux_bounds_array,species_bounds_array,c_vector);
+# check:
+with_terminal() do
+	ef = result_case_1.exit_flag
+	sf = result_case_1.status_flag
 
-	# check:
-	with_terminal() do
-		ef = result_case_1.exit_flag
-		sf = result_case_1.status_flag
-
-		if (ef == 0.0 && sf == 5.0)
-			println("Optimal solution found. exit flag = $(ef) and status flag = $(sf)")
-		else
-			println("Ooops! Check your problem setup. exit flag = $(ef) and status flag = $(sf)")
-		end
+	if (ef == 0.0 && sf == 5.0)
+		println("Optimal solution found. exit flag = $(ef) and status flag = $(sf)")
+	else
+		println("Ooops! Check your problem setup. exit flag = $(ef) and status flag = $(sf)")
 	end
 end
 
@@ -262,12 +244,12 @@ let
 	for i ∈ 1:ℛ
 		flux_table[i,1] = i
 		flux_table[i,2] = rna[i]
-		flux_table[i,3] = calculated_flux_array[i]
+		flux_table[i,3] = calculated_flux_array[i]*(1) # units: μmol/gDW-hr
 		flux_table[i,4] = expanded_reaction_array[i]
 	end
 
 	# setup header -
-	header_row = (["i","name","flux","reaction"],["","","μmol/gDW-hr",""])
+	header_row = (["i","name","flux","reaction"],["","","μmol/gDW-s",""])
 	
 	with_terminal() do
 		pretty_table(flux_table; header=header_row, alignment=:l)
@@ -294,15 +276,37 @@ begin
 	df = filter(filter_col_key=>x->in(x,ec_number_array), metabolite_table)
 end
 
+# ╔═╡ 34682c11-8139-4e7e-8a8b-bcfafa8ce628
+begin
+
+	# default value for μ -
+	μ = 1.0 # units: 1/s
+
+	with_terminal() do
+		println("Specific growth rate μ = $(μ) s⁻¹")
+	end
+end
+
+# ╔═╡ e891e546-f275-4cc8-beb4-0447094f01b2
+begin
+
+	# Need: convert mol/L to μmol/gDW-hr
+	CF = 1.0
+
+	with_terminal() do
+		println("Conversion factor CF = $(CF) M -> μmol/gDW")
+	end
+end
+
 # ╔═╡ c1878272-dd06-46b3-84f3-6d05c459688a
 begin
 
 	# initialize -
-	x_concentration_array = zeros(ℳ,2) # default: missing value = 0.0
+	x_concentration_array = zeros(ℳ,2) # default: missing value = 0.0. Should we choose a different policy?
+	# x_concentration_array = (gmean_x)*ones(ℳ,2)*CF # units: μmol/gDW
 	
 	# build table of metabolites concentrations (M) for the metabolites in the our model -
 	metabolites_in_our_model_array = [
-		"AMP","ATP", "M_Carbamoyl_phosphate_c", "M_Diphosphate_c", "fumarate"
 	];
 
 	for (i,metabolite) ∈ enumerate(metabolites_in_our_model_array)
@@ -317,6 +321,14 @@ begin
 			x_concentration_array[i,2] = CF*df_metabolite[1,:Concentration]
 		end
 	end
+end
+
+# ╔═╡ 65c3eff4-006f-4b1b-b151-6857cf764d07
+begin
+
+	# compute geometric mean metabolite concentration -
+	tmp = metabolite_table[!,:Concentration]
+	gmean_x = geomean(tmp) # units: M
 end
 
 # ╔═╡ a7fb5ffb-d3ec-4ddc-909d-b9e1a7920321
@@ -454,6 +466,8 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
@@ -463,6 +477,7 @@ GLPK = "~0.15.3"
 Plots = "~1.25.10"
 PlutoUI = "~0.7.34"
 PrettyTables = "~1.3.1"
+StatsBase = "~0.33.16"
 StatsPlots = "~0.14.33"
 """
 
@@ -1701,15 +1716,15 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╟─2babb04c-7f14-4c30-a4f9-348ed31d4fbf
+# ╟─0fe1a22d-a333-4834-88be-92180c39bbb3
 # ╟─54d23ccb-211c-4716-a80c-2c087198232d
 # ╠═24f4f6d4-7f78-40fa-bb3e-505c0940ec91
-# ╠═d68d48a7-b72f-4a80-a6a4-76654fd60c49
 # ╠═e953d072-7b5a-4310-b259-4e0cabbd6291
 # ╟─47a3f3fe-425d-434c-be06-1cd36a56fe25
 # ╟─deafe11f-9065-43f4-b500-c64ff41026bd
 # ╠═7558ee4f-87ca-4fa2-89bb-7a476c5e1252
 # ╟─4dce933f-693c-4788-9c77-63784871a4c0
-# ╟─70d11054-4d8a-4dcc-a8cd-1f762c2dd9b8
+# ╠═70d11054-4d8a-4dcc-a8cd-1f762c2dd9b8
 # ╟─12eef416-b3ab-4f03-8ac0-a9783dcca9bd
 # ╠═880ce921-308b-4e3c-8bd9-fb9d07d18bd3
 # ╟─07ca2450-8a84-4e71-adcf-91b12a1544ee
@@ -1718,15 +1733,17 @@ version = "0.9.1+5"
 # ╟─70239f9d-1ea8-4ad2-92a3-126cd99de4f0
 # ╟─cb7d76b8-85f9-4886-a4f3-3f9fb82e42dc
 # ╟─d3a2474e-f502-4247-bba6-1f7d5f88f12d
+# ╟─db005134-6e21-474a-9539-91faf6d0a4a4
+# ╠═34682c11-8139-4e7e-8a8b-bcfafa8ce628
 # ╟─a7df4d41-1c0f-422e-8f21-c84b812ac3cd
 # ╠═e891e546-f275-4cc8-beb4-0447094f01b2
-# ╠═3c523577-1910-4426-95cb-783b1b1ffe91
 # ╟─b552fa38-cdc2-4f46-917f-4cac78694c86
+# ╠═65c3eff4-006f-4b1b-b151-6857cf764d07
 # ╠═c1878272-dd06-46b3-84f3-6d05c459688a
 # ╠═a7fb5ffb-d3ec-4ddc-909d-b9e1a7920321
 # ╟─c0569dfd-784f-43c5-966d-6ea2b25b9992
+# ╠═7e11b015-ab19-4aba-80b1-a413ab13439f
 # ╟─eaa02eea-2c86-4e05-bbe3-46174bb9c7d2
-# ╠═87df397b-8d88-4de6-9db5-87703850a554
 # ╠═acd56faf-5f71-435f-ba5b-10faa7cc7b61
 # ╠═fca0ae0f-607a-4144-9b30-e237df7f43af
 # ╠═58a35e5c-2f3c-4818-a290-7b8ae509320f

@@ -91,33 +91,11 @@ md"""
 ##### Compute specific growth rate
 """
 
-# ╔═╡ 34682c11-8139-4e7e-8a8b-bcfafa8ce628
-begin
-
-	# default value for μ -
-	μ = 1.0 # units: 1/s
-
-	with_terminal() do
-		println("Specific growth rate μ = $(μ) s⁻¹")
-	end
-end
-
 # ╔═╡ a7df4d41-1c0f-422e-8f21-c84b812ac3cd
 md"""
 ##### Concentration conversion factor
-Assume HL60 cells are spherical. Use [bionumbers]() to formulate a concentration conversion factor. 
+Assume HL60 cells are spherical. Use [bionumbers]() to formulate a concentration conversion factor between M and $\mu$mol/gDW concentration units.
 """
-
-# ╔═╡ e891e546-f275-4cc8-beb4-0447094f01b2
-begin
-
-	# Need: convert mol/L to μmol/gDW-hr
-	CF = 1.0
-
-	with_terminal() do
-		println("Conversion factor CF = $(CF) M -> μmol/gDW")
-	end
-end
 
 # ╔═╡ b552fa38-cdc2-4f46-917f-4cac78694c86
 md"""
@@ -129,32 +107,10 @@ md"""
 ##### Computation C3
 """
 
-# ╔═╡ 7e11b015-ab19-4aba-80b1-a413ab13439f
-begin
-
-	# computation for C3 goes here ...
-	
-end
-
 # ╔═╡ eaa02eea-2c86-4e05-bbe3-46174bb9c7d2
 md"""
 ### C4: Include both dilution and metabolite data in bounds
 """
-
-# ╔═╡ fca0ae0f-607a-4144-9b30-e237df7f43af
-begin
-	
-	# background color plots -
-    background_color_outside = RGB(1.0, 1.0, 1.0)
-    background_color = RGB(0.99, 0.98, 0.96)
-    CB_BLUE = RGB(68 / 255, 119 / 255, 170 / 255)
-    CB_LBLUE = RGB(102 / 255, 204 / 255, 238 / 255)
-    CB_GRAY = RGB(187 / 255, 187 / 255, 187 / 255)
-    CB_RED = RGB(238 / 255, 102 / 255, 119 / 255)
-
-	# show -
-	nothing
-end
 
 # ╔═╡ 58a35e5c-2f3c-4818-a290-7b8ae509320f
 function ingredients(path::String)
@@ -237,6 +193,15 @@ begin
 	# setup flux bounds array -
 	flux_bounds_array = zeros(ℛ,2)
 	flux_bounds_array[:,2] .= 100.0 # default value is 100 for flux units: μmol/gDW-s
+	flux_bounds_array[1,2] = 203.0*E[1]
+	flux_bounds_array[2,2] = 34.5*E[2]
+	flux_bounds_array[3,2] = 249.0*E[3]
+	flux_bounds_array[4,2] = 88.1*E[4]
+	flux_bounds_array[5,2] = 13.7*E[5]
+	flux_bounds_array[6,2] = 13.7*E[6]
+
+	# O2 uptake -
+	flux_bounds_array[15,1] = 0.25
 
 	# setup species bounds array -
 	species_bounds_array = zeros(ℳ,2)
@@ -262,9 +227,9 @@ with_terminal() do
 	sf = result_case_1.status_flag
 
 	if (ef == 0.0 && sf == 5.0)
-		println("Optimal solution found. exit flag = $(ef) and status flag = $(sf)")
+		println("Case 1: Optimal solution found. exit flag = $(ef) and status flag = $(sf)")
 	else
-		println("Ooops! Check your problem setup. exit flag = $(ef) and status flag = $(sf)")
+		println("Case 1: Ooops! Check your problem setup. exit flag = $(ef) and status flag = $(sf)")
 	end
 end
 
@@ -301,26 +266,6 @@ begin
     metabolite_table = CSV.read(path_to_data_file, DataFrame)
 end
 
-# ╔═╡ 07ca2450-8a84-4e71-adcf-91b12a1544ee
-begin
-
-	# grab data from the [Met]/Km col -
-	col_key = Symbol("[Met]/Km")
-	length = 1000
-	saturation_data_set = sort(metabolite_table[!,col_key])[1:length]
-	number_of_bins = round(Int64,0.25*length)
-	
-	# make a histogram plot -
-	stephist(saturation_data_set, bins = number_of_bins, normed = :true,
-                background_color = background_color, background_color_outside = background_color_outside,
-                foreground_color_minor_grid = RGB(1.0, 1.0, 1.0),
-                lw = 2, c = CB_RED, foreground_color_legend = nothing, label = "N = $(length)")
-
-	# label the axis -
-	xlabel!("Metabolite saturation xᵢ/Kₘ (dimensionless)",fontsize=18)
-	ylabel!("Instance count", fontsize=18)
-end
-
 # ╔═╡ 85e1ac31-90cf-48da-b4d7-b6c009328084
 begin
 
@@ -333,35 +278,75 @@ begin
 	df = filter(filter_col_key=>x->in(x,ec_number_array), metabolite_table)
 end
 
-# ╔═╡ 65c3eff4-006f-4b1b-b151-6857cf764d07
+# ╔═╡ 34682c11-8139-4e7e-8a8b-bcfafa8ce628
 begin
 
-	# compute geometric mean metabolite concentration -
-	tmp = metabolite_table[!,:Concentration]
-	gmean_x = geomean(tmp) # units: M
+	# default value for μ -
+	#μ = 0.0 # units: 1/s
+	τ = 20.0
+	μ = log(2)/(τ)*(1/3600) # units: 1/s
+	
+	with_terminal() do
+		println("Specific growth rate μ = $(μ) s⁻¹")
+	end
+end
+
+# ╔═╡ e891e546-f275-4cc8-beb4-0447094f01b2
+begin
+
+	# Need: convert mol/L to μmol/gDW
+	#CF = 0.0
+	d = 12.4 # units: μm
+	V = ((4/3)*π*(d/2)^3)*(1e-15) # units: L
+	m = 1e-9 # units: g
+	f = 0.70 # units: fraction of water
+	CF = V*(1/m)*(1/(1-f))*(1e6)
+	
+
+	with_terminal() do
+		println("Conversion factor (M -> μmol/gDW) CF = $(CF)")
+	end
 end
 
 # ╔═╡ c1878272-dd06-46b3-84f3-6d05c459688a
 begin
 
+	# replacement flag -
+	replacement_strategy_flag = 1 # use 0's, 1 if geometric mean
+	
 	# initialize -
-	x_concentration_array = zeros(ℳ,2) # default: missing value = 0.0. Should we choose a different policy?
-	# x_concentration_array = (gmean_x)*ones(ℳ,2)*CF # units: μmol/gDW
+	x_concentration_array = zeros(ℳ,2) # default: missing value = 0.0
+	if (replacement_strategy_flag == 1)
+		
+		# compute geometric mean metabolite concentration -
+		gmean_x = geomean(metabolite_table[!,:Concentration]) # units: M
+		x_concentration_array = (gmean_x)*ones(ℳ,2)*CF # units: μmol/gDW
+	end
 	
 	# build table of metabolites concentrations (M) for the metabolites in the our model -
 	metabolites_in_our_model_array = [
+		"AMP","ATP", "M_Carbamoyl_phosphate_c", "M_Diphosphate_c", 
+		"fumarate", "M_H2O_c", "M_H_c",
+		"arginine","aspartate","citrulline","ornithine",
+		"M_N-(L-Arginino)succinate_c","nadph","nadp","M_Nitric_oxide_c",
+		"M_Orthophosphate_c","M_Oxygen_c","M_Urea_c"
 	];
 
 	for (i,metabolite) ∈ enumerate(metabolites_in_our_model_array)
 
 		# look up the metabolite value -
 		df_metabolite = filter([:Metabolite,:Organism]=>(x,y)->
-			(x == metabolite && y=="Homo sapiens"),metabolite_table)
+			(x == metabolite && y=="Homo sapiens"), metabolite_table)
 		
 		# is the df empty?
 		if (isempty(df_metabolite) == false)
 			x_concentration_array[i,1] = df_metabolite[1,:Concentration]
 			x_concentration_array[i,2] = CF*df_metabolite[1,:Concentration]
+		else
+
+			if (replacement_strategy_flag == 1)
+				x_concentration_array[i,1] = gmean_x
+			end
 		end
 	end
 end
@@ -389,6 +374,128 @@ let
 		# make the table -
 		pretty_table(state_array; header=header_row)
 	end
+end
+
+# ╔═╡ 7e11b015-ab19-4aba-80b1-a413ab13439f
+begin
+
+	# setup concentration array -
+	conc_array = copy(x_concentration_array[:,2])
+	
+	# computation for C3 goes here ...
+	S_C3 = S
+	flux_bounds_array_C3 = flux_bounds_array
+	
+	# compute the flux -
+	result_case_3 = lib.flux(S_C3,flux_bounds_array_C3,species_bounds_array,c_vector);
+
+	# show -
+	nothing
+end
+
+# ╔═╡ fa075bcb-6411-4f4d-aa67-f2c02b4381b7
+# check:
+with_terminal() do
+	ef = result_case_3.exit_flag
+	sf = result_case_3.status_flag
+
+	if (ef == 0.0 && sf == 5.0)
+		println("Case 3: Optimal solution found. exit flag = $(ef) and status flag = $(sf)")
+	else
+		println("Case 3: Ooops! Check your problem setup. exit flag = $(ef) and status flag = $(sf)")
+	end
+end
+
+# ╔═╡ 00c37b03-821a-4bcb-b3d2-c52109dcfb13
+let
+
+	# get flux values from the result -
+	calculated_flux_array = result_case_3.calculated_flux_array
+	if (size(calculated_flux_array,1) == ℛ)
+		calculated_flux_array = [calculated_flux_array ; 0.0]
+	end
+	
+	# build flux table -
+	flux_table = Array{Any,2}(undef,(ℛ+1),4)
+
+	rna = [rna ; "μ"]
+	expanded_reaction_array = [expanded_reaction_array ; "precursors -> cellmass"]
+
+	# populate -
+	for i ∈ 1:(ℛ+1)
+		flux_table[i,1] = i
+		flux_table[i,2] = rna[i]
+		flux_table[i,3] = calculated_flux_array[i]*(1) # units: μmol/gDW-hr
+		flux_table[i,4] = expanded_reaction_array[i]
+	end
+
+	# setup header -
+	header_row = (["i","name","flux","reaction"],["","","μmol/gDW-s",""])
+	
+	with_terminal() do
+		pretty_table(flux_table; header=header_row, alignment=:l)
+	end
+end
+
+# ╔═╡ a53d7f87-376d-4721-86bc-89f22307fb7e
+let
+
+	residual_array = result_case_3.uptake_array
+
+	# build flux table -
+	state_table = Array{Any,2}(undef,ℳ,5)
+
+	# populate -
+	for i ∈ 1:ℳ
+		state_table[i,1] = i
+		state_table[i,2] = mna[i]
+		state_table[i,3] = x_concentration_array[i,2] # units: μmol/gDW
+		state_table[i,4] = conc_array[i]
+		state_table[i,5] = residual_array[i]*(1) # units: μmol/gDW-s
+	end
+
+	# setup header -
+	header_row = (["i","name","conc (measured)","conc (model)", "residual"],["","","μmol/gDW","μmol/gDW","μmol/gDW-s"])
+	
+	with_terminal() do
+		pretty_table(state_table; header=header_row, alignment=:l)
+	end
+	
+end
+
+# ╔═╡ fca0ae0f-607a-4144-9b30-e237df7f43af
+begin
+	
+	# background color plots -
+    background_color_outside = RGB(1.0, 1.0, 1.0)
+    background_color = RGB(0.99, 0.98, 0.96)
+    CB_BLUE = RGB(68 / 255, 119 / 255, 170 / 255)
+    CB_LBLUE = RGB(102 / 255, 204 / 255, 238 / 255)
+    CB_GRAY = RGB(187 / 255, 187 / 255, 187 / 255)
+    CB_RED = RGB(238 / 255, 102 / 255, 119 / 255)
+
+	# show -
+	nothing
+end
+
+# ╔═╡ 07ca2450-8a84-4e71-adcf-91b12a1544ee
+begin
+
+	# grab data from the [Met]/Km col -
+	col_key = Symbol("[Met]/Km")
+	length = 1000
+	saturation_data_set = sort(metabolite_table[!,col_key])[1:length]
+	number_of_bins = round(Int64,0.25*length)
+	
+	# make a histogram plot -
+	stephist(saturation_data_set, bins = number_of_bins, normed = :true,
+                background_color = background_color, background_color_outside = background_color_outside,
+                foreground_color_minor_grid = RGB(1.0, 1.0, 1.0),
+                lw = 2, c = CB_RED, foreground_color_legend = nothing, label = "N = $(length)")
+
+	# label the axis -
+	xlabel!("Metabolite saturation xᵢ/Kₘ (dimensionless)",fontsize=18)
+	ylabel!("Instance count", fontsize=18)
 end
 
 # ╔═╡ f472e85e-8f51-11ec-25e8-e94287a542b6
@@ -1715,15 +1822,15 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╠═2babb04c-7f14-4c30-a4f9-348ed31d4fbf
-# ╟─0fe1a22d-a333-4834-88be-92180c39bbb3
+# ╟─2babb04c-7f14-4c30-a4f9-348ed31d4fbf
+# ╠═0fe1a22d-a333-4834-88be-92180c39bbb3
 # ╟─54d23ccb-211c-4716-a80c-2c087198232d
 # ╠═24f4f6d4-7f78-40fa-bb3e-505c0940ec91
 # ╠═e953d072-7b5a-4310-b259-4e0cabbd6291
 # ╟─47a3f3fe-425d-434c-be06-1cd36a56fe25
 # ╟─deafe11f-9065-43f4-b500-c64ff41026bd
 # ╠═7558ee4f-87ca-4fa2-89bb-7a476c5e1252
-# ╟─4dce933f-693c-4788-9c77-63784871a4c0
+# ╠═4dce933f-693c-4788-9c77-63784871a4c0
 # ╠═70d11054-4d8a-4dcc-a8cd-1f762c2dd9b8
 # ╟─12eef416-b3ab-4f03-8ac0-a9783dcca9bd
 # ╠═880ce921-308b-4e3c-8bd9-fb9d07d18bd3
@@ -1738,11 +1845,13 @@ version = "0.9.1+5"
 # ╟─a7df4d41-1c0f-422e-8f21-c84b812ac3cd
 # ╠═e891e546-f275-4cc8-beb4-0447094f01b2
 # ╟─b552fa38-cdc2-4f46-917f-4cac78694c86
-# ╠═65c3eff4-006f-4b1b-b151-6857cf764d07
 # ╠═c1878272-dd06-46b3-84f3-6d05c459688a
-# ╠═a7fb5ffb-d3ec-4ddc-909d-b9e1a7920321
+# ╟─a7fb5ffb-d3ec-4ddc-909d-b9e1a7920321
 # ╟─c0569dfd-784f-43c5-966d-6ea2b25b9992
 # ╠═7e11b015-ab19-4aba-80b1-a413ab13439f
+# ╟─fa075bcb-6411-4f4d-aa67-f2c02b4381b7
+# ╟─00c37b03-821a-4bcb-b3d2-c52109dcfb13
+# ╟─a53d7f87-376d-4721-86bc-89f22307fb7e
 # ╟─eaa02eea-2c86-4e05-bbe3-46174bb9c7d2
 # ╠═acd56faf-5f71-435f-ba5b-10faa7cc7b61
 # ╠═fca0ae0f-607a-4144-9b30-e237df7f43af

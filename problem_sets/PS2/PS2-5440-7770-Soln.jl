@@ -20,7 +20,7 @@ md"""
 """
 
 # ╔═╡ 82ddb8c4-d286-47e4-9aa4-02f95b6792c9
-idx_pathway = 15
+idx_pathway = 13
 
 # ╔═╡ 6389894e-e9b4-4530-b10c-feedb44862f9
 md"""

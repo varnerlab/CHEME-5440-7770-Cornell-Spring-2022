@@ -56,8 +56,11 @@ md"""
 
 # ╔═╡ b56d3316-aab6-400e-94bf-148d81620d2e
 md"""
-### Simple model for transcription and translation
-Ultimately, carbon catabolite repression is a sensor system that generates a signal that either represses or promotes the production of enzymes through transcription (TX) and translation (TL) processes.  
+### Simple models for transcription and translation
+Ultimately, carbon catabolite repression is a sensor system that generates a signal that either represses or promotes the production of enzymes. Enzymes (and other proteins) are produced according to the central dogma. 
+
+##### Central Dogma 
+In bacteria, long term information is stored in double stranded DNA (dsDNA), which is read by a [RNA Polymerase](https://en.wikipedia.org/wiki/DNA_polymerase) to form an intermediate molecule messengare RNA (mRNA) in a process called [transcription](https://en.wikipedia.org/wiki/Transcription_(biology)). Messenger RNA is read by a [Ribosome](https://en.wikipedia.org/wiki/Ribosome), in a process called [translation](https://en.wikipedia.org/wiki/Translation_(biology)), to form a polypeptide molecule which eventually forms a folded protein. This two step process, involving DNA to mRNA and mRNA to protein is called the [central dogma of molecular biology](https://en.wikipedia.org/wiki/Central_dogma_of_molecular_biology).
 """
 
 # ╔═╡ 7817693f-cb94-4d48-a057-cb2cf3c9cf93
@@ -1188,8 +1191,8 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╟─6d81e029-cf70-4656-bef7-59a800537444
 # ╟─4c1e8649-61a7-41c3-a588-b343412ac840
-# ╠═67a82e69-f18c-431a-afcc-1ab9af40a10f
-# ╠═b56d3316-aab6-400e-94bf-148d81620d2e
+# ╟─67a82e69-f18c-431a-afcc-1ab9af40a10f
+# ╟─b56d3316-aab6-400e-94bf-148d81620d2e
 # ╟─7817693f-cb94-4d48-a057-cb2cf3c9cf93
 # ╟─11a4ae4a-d366-4e71-8a2e-daacbb18f30d
 # ╟─77882e6f-6ab0-4027-a840-eb782cbe6ec4
@@ -1199,7 +1202,7 @@ version = "0.9.1+5"
 # ╟─7735d8c3-f97d-4897-b808-d7c551824d1f
 # ╠═56d2c4e8-3f8c-4a36-9ff6-de97c49e5fe4
 # ╠═6d07c626-ed8a-49d3-9915-7ae71ab3b3f8
-# ╠═931a2a2e-2b00-4919-9c2c-84ff87e415d6
-# ╠═1dd04da4-9560-11ec-264f-b36749de815b
+# ╟─931a2a2e-2b00-4919-9c2c-84ff87e415d6
+# ╟─1dd04da4-9560-11ec-264f-b36749de815b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

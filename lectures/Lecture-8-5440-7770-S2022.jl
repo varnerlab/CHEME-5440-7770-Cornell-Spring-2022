@@ -56,7 +56,7 @@ md"""
 
 # ╔═╡ b56d3316-aab6-400e-94bf-148d81620d2e
 md"""
-### Starter model for transcription (TX) and translation (TL)
+### Simple model for transcription and translation
 Ultimately, carbon catabolite repression is a sensor system that generates a signal that either represses or promotes the production of enzymes through transcription (TX) and translation (TL) processes.  
 """
 
@@ -122,8 +122,16 @@ In this lecture we:
 
 # ╔═╡ 7735d8c3-f97d-4897-b808-d7c551824d1f
 md"""
-### Next time
+### Theme of the next few lectures
+
+* The biology and kinetics of transcription and translation processes
+* Models for $u\left(\dots\right)$ and $w\left(\dots\right)$ control functions in systems and synthetic biology applications
+* Whole cell simulations in metabolic engineering and human health applications.
+
 """
+
+# ╔═╡ 6d07c626-ed8a-49d3-9915-7ae71ab3b3f8
+TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true)
 
 # ╔═╡ 931a2a2e-2b00-4919-9c2c-84ff87e415d6
 html"""
@@ -1180,17 +1188,18 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╟─6d81e029-cf70-4656-bef7-59a800537444
 # ╟─4c1e8649-61a7-41c3-a588-b343412ac840
-# ╟─67a82e69-f18c-431a-afcc-1ab9af40a10f
-# ╟─b56d3316-aab6-400e-94bf-148d81620d2e
+# ╠═67a82e69-f18c-431a-afcc-1ab9af40a10f
+# ╠═b56d3316-aab6-400e-94bf-148d81620d2e
 # ╟─7817693f-cb94-4d48-a057-cb2cf3c9cf93
 # ╟─11a4ae4a-d366-4e71-8a2e-daacbb18f30d
 # ╟─77882e6f-6ab0-4027-a840-eb782cbe6ec4
 # ╟─f4360cb7-41af-4bac-84fc-5791668ce642
 # ╟─a61ac889-abb1-4c2c-866e-7315ac136d8d
 # ╟─2f1b65f4-59cc-43ce-bb40-eeedca7220b0
-# ╠═7735d8c3-f97d-4897-b808-d7c551824d1f
+# ╟─7735d8c3-f97d-4897-b808-d7c551824d1f
 # ╠═56d2c4e8-3f8c-4a36-9ff6-de97c49e5fe4
-# ╟─931a2a2e-2b00-4919-9c2c-84ff87e415d6
+# ╠═6d07c626-ed8a-49d3-9915-7ae71ab3b3f8
+# ╠═931a2a2e-2b00-4919-9c2c-84ff87e415d6
 # ╠═1dd04da4-9560-11ec-264f-b36749de815b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

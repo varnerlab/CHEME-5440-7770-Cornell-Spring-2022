@@ -14,6 +14,7 @@ begin
 	using CSV
 	using DataFrames
 	using Combinatorics
+	using PrettyTables
 	
 	# setup paths -
 	_PATH_TO_ROOT = pwd()
@@ -55,8 +56,11 @@ $$x\oplus y = \left(x\lor y\right) \land \lnot \left(x \land y\right)$$
 Boolean expressions can be expressed by tabulating their values in a truth table; the rows denote the possible $2^n$ variable permutations, where $n$ denotes the number of boolean variables, while the columns denote the values of the boolean expression.
 """
 
-# ╔═╡ 736351a5-b2d1-4295-ba55-001f803aa9da
-parse.(Int,Base.bin(UInt8(7), 3,false) |> collect)
+# ╔═╡ 481c2f91-6880-47d0-b86c-5561c833f172
+s = bitstring(3)
+
+# ╔═╡ 89820d68-a84a-4a9b-9ee4-754af2903d49
+length(s)
 
 # ╔═╡ 5c2fece4-57f6-4573-a926-19beed581ed1
 md"""
@@ -85,6 +89,67 @@ md"""
 ### Next time
 """
 
+# ╔═╡ 3d04a836-cdd7-474b-a8ab-baaebd821fa6
+function enumerate_binary_variables(number_of_variables::Int)
+
+	# how many binary variables are we going to have?
+	number_of_rows = 2^number_of_variables	
+	
+	# initialize -
+	tmp_array = Array{Int,2}(undef, number_of_rows, number_of_variables)
+
+	# main -
+	for i ∈ 1:number_of_rows
+
+		# generate a row -
+		tmp_row = parse.(Int,Base.bin(UInt8(i-1), number_of_variables ,false) |> collect)
+
+		# add the row to the tmp_array =
+		for j ∈ 1:number_of_variables
+			tmp_array[i,j] = tmp_row[j]
+		end
+	end
+
+	return tmp_array
+end
+
+# ╔═╡ fa03a3ff-7105-48aa-bb9d-453f72ceeb78
+enumerate_binary_variables(2)
+
+# ╔═╡ dc45c7ff-3b04-4436-b863-39640576658d
+let
+
+	# generate a truth table for basic boolean operations -
+	number_of_variables = 2
+	number_of_rows = 2^number_of_variables
+	state_array = Array{Any,2}(undef, number_of_rows, 5)
+	
+	# generate the rows of the truth table -
+	input_array = enumerate_binary_variables(number_of_variables);
+	for row_index ∈ 1:number_of_rows
+
+		# get input values -
+		x = input_array[row_index,1]
+		y = input_array[row_index,2]
+
+		# compute XOR -
+		C1 = max(x,y)
+		C2 = 1 - min(x,y)
+		
+		state_array[row_index,1] = x
+		state_array[row_index,2] = y
+		state_array[row_index,3] = min(x,y)
+		state_array[row_index,4] = max(x,y)
+		state_array[row_index,5] = min(C1,C2)
+	end
+
+	header_row = (["x", "y", "x AND y", "x OR y", "x XOR y"])
+	
+	with_terminal() do
+		pretty_table(state_array; header = header_row)
+	end
+end
+
 # ╔═╡ 1532ec7c-d815-4da9-ad57-90abb75076ba
 function bb(n)
 	
@@ -111,9 +176,6 @@ function bb(n)
 	
 	return transpose(hcat(tmp_array...))
 end
-
-# ╔═╡ 3ae53301-ba51-41e2-a8cc-2bf81b23b431
-S = bb(3)
 
 # ╔═╡ 4ea7ed32-d485-4de7-aeed-9a99622715ff
 html"""
@@ -186,6 +248,7 @@ DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
 
 [compat]
 CSV = "~0.10.2"
@@ -193,6 +256,7 @@ Combinatorics = "~1.0.2"
 DataFrames = "~1.3.2"
 Plots = "~1.26.0"
 PlutoUI = "~0.7.35"
+PrettyTables = "~1.3.1"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1177,12 +1241,15 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╟─853efd57-f0a3-41ce-8104-b63825c79919
 # ╟─4a6362d4-7d36-4615-bc26-7115ee6bf6d9
-# ╠═3ae53301-ba51-41e2-a8cc-2bf81b23b431
-# ╠═736351a5-b2d1-4295-ba55-001f803aa9da
+# ╠═fa03a3ff-7105-48aa-bb9d-453f72ceeb78
+# ╠═481c2f91-6880-47d0-b86c-5561c833f172
+# ╠═89820d68-a84a-4a9b-9ee4-754af2903d49
+# ╠═dc45c7ff-3b04-4436-b863-39640576658d
 # ╟─5c2fece4-57f6-4573-a926-19beed581ed1
 # ╟─b68a2826-e738-4c5c-9feb-5274c8b56f4d
 # ╟─4dac81c2-bdd7-4a4a-9c1b-94a242e48368
 # ╠═407fceef-0f50-4839-b15c-253e64f7f0de
+# ╠═3d04a836-cdd7-474b-a8ab-baaebd821fa6
 # ╠═1532ec7c-d815-4da9-ad57-90abb75076ba
 # ╠═1e8ac9e8-9ae4-11ec-0871-133a54070e74
 # ╠═4ea7ed32-d485-4de7-aeed-9a99622715ff

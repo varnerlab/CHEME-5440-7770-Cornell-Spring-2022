@@ -13,7 +13,8 @@ begin
 	using LinearAlgebra
 	using CSV
 	using DataFrames
-
+	using Combinatorics
+	
 	# setup paths -
 	_PATH_TO_ROOT = pwd()
 	_PATH_TO_DATA = joinpath(_PATH_TO_ROOT, "data")
@@ -41,12 +42,21 @@ md"""
 ### The basics of Boolean algebra
 In Boolean algebra, a variable $v$ can take on one of two possible binary values, $v$ = 0 or $v$ = 1. Boolean variables describe the state of process or object, where $v$ = 0 indicates that a process or object is in the `OFF` state, while $v$ = 1 indicates the process or object is in the `ON` state. 
 
-The basic operations of Boolean algebra are conjunction, disjunction, and negation. These Boolean operations are expressed with the corresponding binary operators `AND`, and `OR` and the unary operator `NOT`, collectively referred to as Boolean operators:
+The basic operations of Boolean algebra are conjunction, disjunction, and negation. These Boolean operations are expressed with the corresponding binary operators `AND`, and `OR` and the unary operator `NOT`, collectively referred to as the `basic` Boolean operators:
 
-* __Conjunction__: Conjunction between two boolean variables $x$ and $y$, given the symbol $x\land y$, denotes the `AND` operation; `AND` can be evaluated using the `min` operator
-* __Disjunction__: Disjunction between two boolean variables $x$ and $y$, given the symbol $x\lor y$, is the `OR` operation; `OR` can be evaluated using the `max` operator
+* __Conjunction__: Conjunction between two boolean variables $x$ and $y$, given the symbol $x\land y$, denotes the `AND` operation; `AND` can be evaluated using the `min` operator or multiplication. 
+* __Disjunction__: Disjunction between two boolean variables $x$ and $y$, given the symbol $x\lor y$, is the `OR` operation; `OR` can be evaluated using the `max` operator or addition.
 * __Negation__: Negation is a unary operator. Negation of variable $x$, given the symbol $\lnot x$, denotes the `NOT` operation; `NOT` can be implemented by $1-x$.
+
+The basic boolean operators can be combined into more complex `secondary` operators, and they follow the same laws as ordinary algebra. One common secondary operator is `exclusive OR` or `XOR` given the symbol $x\oplus y$, which is defined as:
+
+$$x\oplus y = \left(x\lor y\right) \land \lnot \left(x \land y\right)$$
+
+Boolean expressions can be expressed by tabulating their values in a truth table; the rows denote the possible $2^n$ variable permutations, where $n$ denotes the number of boolean variables, while the columns denote the values of the boolean expression.
 """
+
+# ╔═╡ 736351a5-b2d1-4295-ba55-001f803aa9da
+parse.(Int,Base.bin(UInt8(7), 3,false) |> collect)
 
 # ╔═╡ 5c2fece4-57f6-4573-a926-19beed581ed1
 md"""
@@ -74,6 +84,36 @@ In this lecture we:
 md"""
 ### Next time
 """
+
+# ╔═╡ 1532ec7c-d815-4da9-ad57-90abb75076ba
+function bb(n)
+	
+	tmp = Array{String,1}()
+    
+	for i = 0:2^n-1
+       	s = bitstring(i)
+		push!(tmp,s[end-n+1:end])
+    end
+
+	# convert to an array of ints -
+	tmp_array = Array{Vector{Int},1}()
+	for s ∈ tmp
+
+		row_array = Vector{Int}()
+		N = length(s)
+		for i ∈ 1:N
+			val = parse(Int,s[i])
+			push!(row_array, val)
+		end
+
+		push!(tmp_array, row_array)
+	end
+	
+	return transpose(hcat(tmp_array...))
+end
+
+# ╔═╡ 3ae53301-ba51-41e2-a8cc-2bf81b23b431
+S = bb(3)
 
 # ╔═╡ 4ea7ed32-d485-4de7-aeed-9a99622715ff
 html"""
@@ -141,6 +181,7 @@ html"""
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
@@ -148,6 +189,7 @@ PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 CSV = "~0.10.2"
+Combinatorics = "~1.0.2"
 DataFrames = "~1.3.2"
 Plots = "~1.26.0"
 PlutoUI = "~0.7.35"
@@ -234,6 +276,11 @@ deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
 git-tree-sha1 = "417b0ed7b8b838aa6ca0a87aadf1bb9eb111ce40"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.12.8"
+
+[[deps.Combinatorics]]
+git-tree-sha1 = "08c8b6831dc00bfea825826be0bc8336fc369860"
+uuid = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
+version = "1.0.2"
 
 [[deps.Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "SHA", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
@@ -1130,10 +1177,13 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╟─853efd57-f0a3-41ce-8104-b63825c79919
 # ╟─4a6362d4-7d36-4615-bc26-7115ee6bf6d9
+# ╠═3ae53301-ba51-41e2-a8cc-2bf81b23b431
+# ╠═736351a5-b2d1-4295-ba55-001f803aa9da
 # ╟─5c2fece4-57f6-4573-a926-19beed581ed1
 # ╟─b68a2826-e738-4c5c-9feb-5274c8b56f4d
 # ╟─4dac81c2-bdd7-4a4a-9c1b-94a242e48368
 # ╠═407fceef-0f50-4839-b15c-253e64f7f0de
+# ╠═1532ec7c-d815-4da9-ad57-90abb75076ba
 # ╠═1e8ac9e8-9ae4-11ec-0871-133a54070e74
 # ╠═4ea7ed32-d485-4de7-aeed-9a99622715ff
 # ╠═92648516-d19f-4c9c-88f1-d98eabf01d5a

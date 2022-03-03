@@ -36,7 +36,7 @@ we will
 
 * Introduce Boolean logic and its application in biological systems modeling 
 * Use Boolean logic in flux balance analysis models to capture system choice 
-* Introduce fuzzy logic (FL) as a technique to model choice functions
+* Introduce fuzzy logic (FL) as a techn to model choice functions
 """
 
 # ╔═╡ 4a6362d4-7d36-4615-bc26-7115ee6bf6d9
@@ -44,7 +44,8 @@ md"""
 ### The basics of Boolean algebra
 In Boolean algebra, a variable $v$ can take on one of two possible binary values, $v$ = 0 or $v$ = 1. Boolean variables describe the state of process or object, where $v$ = 0 indicates that a process or object is in the `OFF` state, while $v$ = 1 indicates the process or object is in the `ON` state. 
 
-The basic operations of Boolean algebra are conjunction, disjunction, and negation. These Boolean operations are expressed with the corresponding binary operators `AND`, and `OR` and the unary operator `NOT`, collectively referred to as the `basic` Boolean operators:
+##### Basic Boolean operations
+The basic operations of Boolean algebra are Conjunction, Disjunction, and Negation. These Boolean operations are associated with the corresponding binary operators `AND`, and `OR` and the unary operator `NOT`, collectively referred to as the `basic` Boolean operators:
 
 * __Conjunction__: Conjunction between two boolean variables $x$ and $y$, given the symbol $x\land y$, denotes the `AND` operation; `AND` can be evaluated using the `min` operator or multiplication. 
 * __Disjunction__: Disjunction between two boolean variables $x$ and $y$, given the symbol $x\lor y$, is the `OR` operation; `OR` can be evaluated using the `max` operator or addition.
@@ -54,7 +55,7 @@ The basic boolean operators can be combined into more complex `secondary` operat
 
 $$x\oplus y = \left(x\lor y\right) \land \lnot \left(x \land y\right)$$
 
-Boolean expressions can be expressed by tabulating their values in a truth table; the rows denote the possible $2^n$ variable permutations, where $n$ denotes the number of boolean variables, while the columns denote the values of the boolean expression.
+Boolean expressions can be expressed by tabulating their values in a truth table; the rows denote the possible $2^n$ variable permutations, where $n$ represents the number of boolean variables, while the columns contain the values of the boolean expression.
 """
 
 # ╔═╡ 481c2f91-6880-47d0-b86c-5561c833f172
@@ -69,14 +70,14 @@ md"""
 
 Boolean algebra can simulate the output of regulatory decisions in flux balance analysis calculations. Incorporating Boolean regulatory models, which are typically parameter-free, into flux balance analysis calculations (and ultimately metabolic design calculations) improves the ability of this type of mathematical model to simulate (predict) metabolic function.  
 
-Example papers:
+##### Boolean logic example papers:
 
 * [Covert MW, Palsson BO. Constraints-based models: regulation of gene expression reduces the steady-state solution space. J Theor Biol. 2003 Apr 7;221(3):309-25. doi: 10.1006/jtbi.2003.3071. PMID: 12642111.](https://pubmed.ncbi.nlm.nih.gov/12642111/)
 * [Orth JD, Fleming RM, Palsson BØ. Reconstruction and Use of Microbial Metabolic Networks: the Core Escherichia coli Metabolic Model as an Educational Guide. EcoSal Plus. 2010 Sep;4(1). doi: 10.1128/ecosalplus.10.2.1. PMID: 26443778.](https://pubmed.ncbi.nlm.nih.gov/26443778/)
 * [Covert MW, Knight EM, Reed JL, Herrgard MJ, Palsson BO. Integrating high-throughput and computational data elucidates bacterial networks. Nature. 2004 May 6;429(6987):92-6. doi: 10.1038/nature02456. PMID: 15129285.](https://pubmed.ncbi.nlm.nih.gov/15129285/)
 """
 
-# ╔═╡ 6d682873-89c3-4489-bdc3-1a68fc2398a4
+# ╔═╡ bc4fa26a-19ff-4607-a254-1cac5ac61f71
 begin
 	
 	# what is the model name -
@@ -84,7 +85,7 @@ begin
 	model_name = "modelReg"
 	
 	# where is model file?
-	_PATH_TO_MODEL_FILE = joinpath(_PATH_TO_DATA, model_file_name)
+	_PATH_TO_MODEL_FILE = joinpath(_PATH_TO_DATA,model_file_name)
 	
 	# load the mat file -> get the cobra_dictionary
 	file = matopen(_PATH_TO_MODEL_FILE)
@@ -92,28 +93,32 @@ begin
     close(file)
 end
 
-# ╔═╡ bc4fa26a-19ff-4607-a254-1cac5ac61f71
-R = cobra_dictionary["rules"]
-
 # ╔═╡ 16c8ce48-0926-4e61-89fd-b8adc5d91d8a
 cobra_dictionary
+
+# ╔═╡ 4336d74d-4f12-4445-81e8-fc687ddc1a6b
+cobra_dictionary["grRules"][1]
+
+# ╔═╡ 406892b0-217c-4497-9f84-d4e873048a74
+begin
+	idx_rule = findall(x->x=="b1241",cobra_dictionary["regulatoryGenes"])
+	cobra_dictionary["regulatoryRules"][idx_rule]
+end
 
 # ╔═╡ b68a2826-e738-4c5c-9feb-5274c8b56f4d
 md"""
 ### Fuzzy Logic
 
-Fuzzy logic is an extension of Boolean logic in which variables vary continuously between 0 and 1. The same `basic` Boolean operations are defined on fuzzy variables (Conjunction, Disjunction, and Negation). However, when applied to fuzzy inputs, these operations now produce continuous outputs. Fuzzy logic has been used to model signal transduction systems and regulatory logic in various systems. 
+Fuzzy logic is an extension of Boolean logic in which variables vary continuously between 0 and 1. The same `basic` Boolean operations are defined on fuzzy variables (Conjunction, Disjunction, and Negation). However, these operations now produce continuous outputs when applied to fuzzy inputs. Fuzzy logic has been used to model signal transduction systems and regulatory logic in various systems. 
 
-Example papers:
+##### Fuzzy logic example papers:
 
 * [Morris MK, Saez-Rodriguez J, Clarke DC, Sorger PK, Lauffenburger DA. Training signaling pathway maps to biochemical data with constrained fuzzy logic: quantitative analysis of liver cell responses to inflammatory stimuli. PLoS Comput Biol. 2011 Mar;7(3):e1001099. doi: 10.1371/journal.pcbi.1001099. Epub 2011 Mar 3. PMID: 21408212; PMCID: PMC3048376.](https://pubmed.ncbi.nlm.nih.gov/21408212/)
 * [Mitsos A, Melas IN, Morris MK, Saez-Rodriguez J, Lauffenburger DA, Alexopoulos LG. Non-Linear Programming (NLP) formulation for quantitative modeling of protein signal transduction pathways. PLoS One. 2012;7(11):e50085. doi: 10.1371/journal.pone.0050085. Epub 2012 Nov 30. PMID: 23226239; PMCID: PMC3511450.](https://pubmed.ncbi.nlm.nih.gov/23226239/)
 * [Hu CY, Varner JD, Lucks JB. Generating Effective Models and Parameters for RNA Genetic Circuits. ACS Synth Biol. 2015 Aug 21;4(8):914-26. doi: 10.1021/acssynbio.5b00077. Epub 2015 Jul 2. PMID: 26046393.](https://pubmed.ncbi.nlm.nih.gov/26046393/)
+* [Gould R, Bassen DM, Chakrabarti A, Varner JD, Butcher J. Population Heterogeneity in the Epithelial to Mesenchymal Transition is Controlled by NFAT and Phosphorylated Sp1. PLoS Comput Biol. 2016;12(12):e1005251. Published 2016 Dec 27. doi:10.1371/journal.pcbi.1005251](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC5189931/)
 
 """
-
-# ╔═╡ 738eed19-7f16-4960-a238-ece0b06e69c0
-
 
 # ╔═╡ 4dac81c2-bdd7-4a4a-9c1b-94a242e48368
 md"""
@@ -123,14 +128,23 @@ In this lecture we:
 
 * Introduced Boolean logic and its application in biological systems modeling 
 * Used Boolean logic in flux balance analysis models to capture system choice 
-* Introduced constrained fuzzy logic (cFL) to model choice functions
+* Introduced fuzzy logic (FL) to model choice functions
 
 """
 
 # ╔═╡ 407fceef-0f50-4839-b15c-253e64f7f0de
 md"""
 ### Next time
+
+Next time, we'll look at discrete state gene expression decision rules:
+
+* [Moon TS, Lou C, Tamsir A, Stanton BC, Voigt CA. Genetic programs constructed from layered logic gates in single cells. Nature. 2012 Nov 8;491(7423):249-53. doi: 10.1038/nature11516. Epub 2012 Oct 7. PMID: 23041931; PMCID: PMC3904217.](https://pubmed.ncbi.nlm.nih.gov/23041931/)
+
+
 """
+
+# ╔═╡ 3430dce5-4fe7-4cff-b166-bacad692cbf8
+TableOfContents(title="📚 Table of Contents", indent=true, depth=5, aside=true)
 
 # ╔═╡ 3d04a836-cdd7-474b-a8ab-baaebd821fa6
 function enumerate_binary_variables(number_of_variables::Int)
@@ -1321,17 +1335,18 @@ version = "0.9.1+5"
 # ╠═89820d68-a84a-4a9b-9ee4-754af2903d49
 # ╠═dc45c7ff-3b04-4436-b863-39640576658d
 # ╟─5c2fece4-57f6-4573-a926-19beed581ed1
-# ╠═6d682873-89c3-4489-bdc3-1a68fc2398a4
 # ╠═bc4fa26a-19ff-4607-a254-1cac5ac61f71
 # ╠═16c8ce48-0926-4e61-89fd-b8adc5d91d8a
-# ╠═b68a2826-e738-4c5c-9feb-5274c8b56f4d
-# ╠═738eed19-7f16-4960-a238-ece0b06e69c0
+# ╠═4336d74d-4f12-4445-81e8-fc687ddc1a6b
+# ╠═406892b0-217c-4497-9f84-d4e873048a74
+# ╟─b68a2826-e738-4c5c-9feb-5274c8b56f4d
 # ╟─4dac81c2-bdd7-4a4a-9c1b-94a242e48368
-# ╠═407fceef-0f50-4839-b15c-253e64f7f0de
+# ╟─407fceef-0f50-4839-b15c-253e64f7f0de
+# ╠═3430dce5-4fe7-4cff-b166-bacad692cbf8
 # ╠═3d04a836-cdd7-474b-a8ab-baaebd821fa6
 # ╠═1532ec7c-d815-4da9-ad57-90abb75076ba
 # ╠═1e8ac9e8-9ae4-11ec-0871-133a54070e74
-# ╠═4ea7ed32-d485-4de7-aeed-9a99622715ff
-# ╠═92648516-d19f-4c9c-88f1-d98eabf01d5a
+# ╟─4ea7ed32-d485-4de7-aeed-9a99622715ff
+# ╟─92648516-d19f-4c9c-88f1-d98eabf01d5a
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

@@ -47,8 +47,8 @@ We use [Visual Studio Code](https://code.visualstudio.com) and GitHub desktop be
 * [Lecture 6: Introduction to Enzyme Kinetics](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-6-5440-7770-S2022.jl.html)
 * [Lecture 7: Multisubstrate enzyme kinetics and inhibitors](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-7-5440-7770-S2022.jl.html)
 * [Lecture 8: Carbon catabolite repression and central dogma](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-8-5440-7770-S2022.jl.html)
+* [Lecture 9: Boolean and Fuzzy Logic in Metabolic Models](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-9-5440-7770-S2022.jl.html)
 
 ### Problem set solutions
+
 * [Problem set 2 solution](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/PS2-5440-7770-Soln.jl.html)
-
-

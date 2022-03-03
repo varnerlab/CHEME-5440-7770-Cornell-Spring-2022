@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.0
+# v0.18.1
 
 using Markdown
 using InteractiveUtils
@@ -15,6 +15,7 @@ begin
 	using DataFrames
 	using Combinatorics
 	using PrettyTables
+	using MAT
 	
 	# setup paths -
 	_PATH_TO_ROOT = pwd()
@@ -35,7 +36,7 @@ we will
 
 * Introduce Boolean logic and its application in biological systems modeling 
 * Use Boolean logic in flux balance analysis models to capture system choice 
-* Introduce constrained fuzzy logic (cFL) to model choice functions
+* Introduce fuzzy logic (FL) as a technique to model choice functions
 """
 
 # ╔═╡ 4a6362d4-7d36-4615-bc26-7115ee6bf6d9
@@ -64,13 +65,55 @@ length(s)
 
 # ╔═╡ 5c2fece4-57f6-4573-a926-19beed581ed1
 md"""
-### Using Boolean logic in flux balance analysis 
+### Using Boolean algebra in flux balance analysis
+
+Boolean algebra can simulate the output of regulatory decisions in flux balance analysis calculations. Incorporating Boolean regulatory models, which are typically parameter-free, into flux balance analysis calculations (and ultimately metabolic design calculations) improves the ability of this type of mathematical model to simulate (predict) metabolic function.  
+
+Example papers:
+
+* [Covert MW, Palsson BO. Constraints-based models: regulation of gene expression reduces the steady-state solution space. J Theor Biol. 2003 Apr 7;221(3):309-25. doi: 10.1006/jtbi.2003.3071. PMID: 12642111.](https://pubmed.ncbi.nlm.nih.gov/12642111/)
+* [Orth JD, Fleming RM, Palsson BØ. Reconstruction and Use of Microbial Metabolic Networks: the Core Escherichia coli Metabolic Model as an Educational Guide. EcoSal Plus. 2010 Sep;4(1). doi: 10.1128/ecosalplus.10.2.1. PMID: 26443778.](https://pubmed.ncbi.nlm.nih.gov/26443778/)
+* [Covert MW, Knight EM, Reed JL, Herrgard MJ, Palsson BO. Integrating high-throughput and computational data elucidates bacterial networks. Nature. 2004 May 6;429(6987):92-6. doi: 10.1038/nature02456. PMID: 15129285.](https://pubmed.ncbi.nlm.nih.gov/15129285/)
 """
+
+# ╔═╡ 6d682873-89c3-4489-bdc3-1a68fc2398a4
+begin
+	
+	# what is the model name -
+	model_file_name = "modelReg.mat"
+	model_name = "modelReg"
+	
+	# where is model file?
+	_PATH_TO_MODEL_FILE = joinpath(_PATH_TO_DATA, model_file_name)
+	
+	# load the mat file -> get the cobra_dictionary
+	file = matopen(_PATH_TO_MODEL_FILE)
+    cobra_dictionary = read(file, model_name)
+    close(file)
+end
+
+# ╔═╡ bc4fa26a-19ff-4607-a254-1cac5ac61f71
+R = cobra_dictionary["rules"]
+
+# ╔═╡ 16c8ce48-0926-4e61-89fd-b8adc5d91d8a
+cobra_dictionary
 
 # ╔═╡ b68a2826-e738-4c5c-9feb-5274c8b56f4d
 md"""
-### Constrained Fuzzy Logic (cFL)
+### Fuzzy Logic
+
+Fuzzy logic is an extension of Boolean logic in which variables vary continuously between 0 and 1. The same `basic` Boolean operations are defined on fuzzy variables (Conjunction, Disjunction, and Negation). However, when applied to fuzzy inputs, these operations now produce continuous outputs. Fuzzy logic has been used to model signal transduction systems and regulatory logic in various systems. 
+
+Example papers:
+
+* [Morris MK, Saez-Rodriguez J, Clarke DC, Sorger PK, Lauffenburger DA. Training signaling pathway maps to biochemical data with constrained fuzzy logic: quantitative analysis of liver cell responses to inflammatory stimuli. PLoS Comput Biol. 2011 Mar;7(3):e1001099. doi: 10.1371/journal.pcbi.1001099. Epub 2011 Mar 3. PMID: 21408212; PMCID: PMC3048376.](https://pubmed.ncbi.nlm.nih.gov/21408212/)
+* [Mitsos A, Melas IN, Morris MK, Saez-Rodriguez J, Lauffenburger DA, Alexopoulos LG. Non-Linear Programming (NLP) formulation for quantitative modeling of protein signal transduction pathways. PLoS One. 2012;7(11):e50085. doi: 10.1371/journal.pone.0050085. Epub 2012 Nov 30. PMID: 23226239; PMCID: PMC3511450.](https://pubmed.ncbi.nlm.nih.gov/23226239/)
+* [Hu CY, Varner JD, Lucks JB. Generating Effective Models and Parameters for RNA Genetic Circuits. ACS Synth Biol. 2015 Aug 21;4(8):914-26. doi: 10.1021/acssynbio.5b00077. Epub 2015 Jul 2. PMID: 26046393.](https://pubmed.ncbi.nlm.nih.gov/26046393/)
+
 """
+
+# ╔═╡ 738eed19-7f16-4960-a238-ece0b06e69c0
+
 
 # ╔═╡ 4dac81c2-bdd7-4a4a-9c1b-94a242e48368
 md"""
@@ -246,6 +289,7 @@ CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
@@ -254,6 +298,7 @@ PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
 CSV = "~0.10.2"
 Combinatorics = "~1.0.2"
 DataFrames = "~1.3.2"
+MAT = "~0.10.3"
 Plots = "~1.26.0"
 PlutoUI = "~0.7.35"
 PrettyTables = "~1.3.1"
@@ -286,6 +331,12 @@ uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[deps.BufferedStreams]]
+deps = ["Compat", "Test"]
+git-tree-sha1 = "5d55b9486590fdda5905c275bb21ce1f0754020f"
+uuid = "e1450e63-4bb3-523b-b2a4-4ffa8c0fd77d"
+version = "1.0.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -522,6 +573,18 @@ git-tree-sha1 = "53bb909d1151e57e2484c3d1b53e19552b887fb2"
 uuid = "42e2da0e-8278-4e71-bc24-59509adca0fe"
 version = "1.0.2"
 
+[[deps.HDF5]]
+deps = ["Compat", "HDF5_jll", "Libdl", "Mmap", "Random", "Requires"]
+git-tree-sha1 = "ed6c28c220375a214d07fba0e3d3382d8edd779e"
+uuid = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
+version = "0.16.2"
+
+[[deps.HDF5_jll]]
+deps = ["Artifacts", "JLLWrappers", "LibCURL_jll", "Libdl", "OpenSSL_jll", "Pkg", "Zlib_jll"]
+git-tree-sha1 = "bab67c0d1c4662d2c4be8c6007751b0b6111de5c"
+uuid = "0234f1f7-429e-5d53-9886-15a909be8d59"
+version = "1.12.1+0"
+
 [[deps.HTTP]]
 deps = ["Base64", "Dates", "IniFile", "Logging", "MbedTLS", "NetworkOptions", "Sockets", "URIs"]
 git-tree-sha1 = "0fa77022fe4b511826b39c894c90daf5fce3334a"
@@ -616,6 +679,12 @@ git-tree-sha1 = "f6250b16881adf048549549fba48b1161acdac8c"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
 version = "3.100.1+0"
 
+[[deps.LERC_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "bf36f528eec6634efc60d7ec062008f171071434"
+uuid = "88015f11-f218-50d7-93a8-a6af411a945d"
+version = "3.0.0+1"
+
 [[deps.LZO_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "e5b909bcf985c5e2605737d2ce278ed791b89be6"
@@ -689,10 +758,10 @@ uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
 version = "2.35.0+0"
 
 [[deps.Libtiff_jll]]
-deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Pkg", "Zlib_jll", "Zstd_jll"]
-git-tree-sha1 = "340e257aada13f95f98ee352d316c3bed37c8ab9"
+deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "Pkg", "Zlib_jll", "Zstd_jll"]
+git-tree-sha1 = "c9551dd26e31ab17b86cbd00c2ede019c08758eb"
 uuid = "89763e89-9b03-5906-acba-b20f662cd828"
-version = "4.3.0+0"
+version = "4.3.0+1"
 
 [[deps.Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -712,6 +781,12 @@ version = "0.3.6"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+
+[[deps.MAT]]
+deps = ["BufferedStreams", "CodecZlib", "HDF5", "SparseArrays"]
+git-tree-sha1 = "971be550166fe3f604d28715302b58a3f7293160"
+uuid = "23992714-dd62-5051-b70f-ba57cb901cac"
+version = "0.10.3"
 
 [[deps.MacroTools]]
 deps = ["Markdown", "Random"]
@@ -1246,7 +1321,11 @@ version = "0.9.1+5"
 # ╠═89820d68-a84a-4a9b-9ee4-754af2903d49
 # ╠═dc45c7ff-3b04-4436-b863-39640576658d
 # ╟─5c2fece4-57f6-4573-a926-19beed581ed1
-# ╟─b68a2826-e738-4c5c-9feb-5274c8b56f4d
+# ╠═6d682873-89c3-4489-bdc3-1a68fc2398a4
+# ╠═bc4fa26a-19ff-4607-a254-1cac5ac61f71
+# ╠═16c8ce48-0926-4e61-89fd-b8adc5d91d8a
+# ╠═b68a2826-e738-4c5c-9feb-5274c8b56f4d
+# ╠═738eed19-7f16-4960-a238-ece0b06e69c0
 # ╟─4dac81c2-bdd7-4a4a-9c1b-94a242e48368
 # ╠═407fceef-0f50-4839-b15c-253e64f7f0de
 # ╠═3d04a836-cdd7-474b-a8ab-baaebd821fa6

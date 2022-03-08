@@ -13,19 +13,6 @@ end
 md"""
 ### Discrete State Models for Transcriptional Regulation
 
-In this lecture, we'll take a deeper dive into the modeling and analysis of transcription (TX) and translation (TL). In particular, we will:
-
-* Revisit the mRNA and protein balance equations
-* Introduce the discrete state promoter model formulation
-* Explore gene expression dynamics in a population of single cells
-
-"""
-
-# ╔═╡ ffddbade-a162-4ebc-a81c-3ff672ae3a2c
-md"""
-
-### Revisit: mRNA and protein balance equations
-
 A few lectures ago, we introduced balance equations for messenger RNA (mRNA) and protein abundance.
 The material balance equations governing the abundance of the ith mRNA species ($m_{i}$) and the ith protein species ($p_{i}$) are given by (in cellmass specific units in a growing population):
 
@@ -36,49 +23,21 @@ $$\begin{eqnarray}
 
 The $r_{X, i}$ denote the _kinetic limit_ of transcription (if a gene were `ON`, this is the rate of production that you would expect), while the $r_{L, i}$ denote the _kinetic limit_ of translation. The second set of terms represents the degradation and dilution due to growth. The term $\lambda_{i}$ denotes the rate of unregulated or background expression (units: conc/time). Finally, the $u_{i}\in\left[0,1\right]$ and $w_{i}\in\left[0,1\right]$ terms describe the input controlling the transcription of gene $i$, and the translation of mRNA $i$, respectively. There is a __huge__ variety of approaches to formulate these control functions (many are super interesting)! 
 
-However, these equations hold a dark secret; they actually assume a well-mixed population of cells. As well shall see, the well-mixed assumption is not valid (but does it matter?)
+In this lecture, we'll take a deeper dive into the modeling and analysis of transcription (TX) and translation (TL). In particular, we will:
 
-##### Derivation
+* Introduce the discrete state promoter model formulation for the $u\left(\dots\right)$ function
+* Explore gene expression dynamics in a population of single _Escherichia coli_  cells
+* Revisit the mRNA and protein balance equations to reveal their shameful dark secret
 
-Let's consider the integral form of the mol balance around the ith mRNA $m_{i}$ written with respect to some volume basis $\beta$ in a _batch_ system (no convective or diffusive transport terms):
+"""
 
-$$\frac{d}{dt}\left(\int_{\beta}m_{i}d\beta\right) = \int_{\beta}\left(
-\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)d\beta\qquad{i=1,2,\dots,\mathcal{M}}$$
+# ╔═╡ 7bef424f-8e94-4bdd-8c13-09a08d54ab7b
+md"""
+### Some fun: Cybernetic models
+Cybernetic models, developed over the last 30 years by [Ramkrishna and coworkers](https://engineering.purdue.edu/ChE/people/ptProfile?resource_id=11806), use ideas from Microeconomics (allocation of a scarce resource) to predict global gene expression:
 
-The term on the left-hand side is the accumulation term, while the right-hand side is the reaction term where $\sigma_{ij}$ denotes the stoichiometric coefficient for species $i$ in reaction $j$, 
-$\mathcal{R}$ represents the number of reactions, and $\hat{r}_{j}$ denotes the kinetics of reaction $j$ per unit $\beta$. 
-
-###### Well mixed assumption
-Let's assume the system has no $\beta$ dependence, i.e., the system is well mixed such that there we ignore the variation of $m_{i}$ with $\beta$, then we can pull $m_{i}$ out of the integral:
-
-$$\frac{d}{dt}\left(\int_{\beta}m_{i}d\beta\right) \simeq \frac{d}{dt}\left(\langle m_{i} \rangle\beta\right)$$
-
-Similarly, we can pull the out the reaction terms to give:
-
-$$\int_{\beta}\left(
-\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)d\beta \simeq 
-\langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle\beta$$
-
-where $\langle\cdot\rangle$ denotes an averaged quantity over $\beta$. Thus, the mRNA balance equation is given by:
-
-$$\frac{d}{dt}\left(\langle m_{i} \rangle\beta\right) = \langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle\beta\qquad{i=1,2,\dots,\mathcal{M}}$$
-
-Expanding the accumulation term and simplifying gives:
-
-$$\frac{d\langle m_{i}\rangle}{dt} = \langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle - 
-\frac{\langle m_{i} \rangle}{\beta}\frac{d\beta}{dt}\qquad{i=1,2,\dots,\mathcal{M}}$$
-
-When we use cell mass specific units, we assume $\beta = XV_{R}$, where $X$ denotes the cell mass abundance (units: gDW/L) in the culture, and $V_{R}$ (units: L) represents the culture volume. Thus, for a _batch_ culture of cells we have:
-
-$$\frac{d\langle m_{i}\rangle}{dt} = \langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle -
-\mu\langle m_{i} \rangle\qquad{i=1,2,\dots,\mathcal{M}}$$
-
-where $\mu$ denotes the specific growth rate (units: hr$^{-1}$). Finally, for mRNA we know that we have both regulated and unregulated production and a degradation term, thus:
-
-$$\frac{d\langle m_{i}\rangle}{dt} =  r_{X,i}u_{i} + \lambda_{i} - \theta_{m,i}\langle m_{i}\rangle -
-\mu\langle m_{i} \rangle\qquad{i=1,2,\dots,\mathcal{M}}$$
-
-
+* [Kompala DS, Ramkrishna D, Jansen NB, Tsao GT. Investigation of bacterial growth on mixed substrates: experimental evaluation of cybernetic models. Biotechnol Bioeng. 1986 Jul;28(7):1044-55. doi: 10.1002/bit.260280715. PMID: 18555426.](https://pubmed.ncbi.nlm.nih.gov/18555426/)
+* [Effective Dynamic Models of Metabolic Networks Michael Vilkhovoy, Mason Minot, Jeffrey D. Varner bioRxiv 047316; doi: https://doi.org/10.1101/047316](https://www.biorxiv.org/content/10.1101/047316v2)
 """
 
 # ╔═╡ 9aff53c6-0d8e-431f-b690-72c9b97be740
@@ -97,9 +56,13 @@ which gives:
 
 $$p_{i} = \frac{f_{i}\exp\left(-\beta\epsilon_{i}\right)}{\displaystyle \sum_{s=1}^{\mathcal{S}}f_{i}\exp\left(-\beta\epsilon_{i}\right)}\qquad{i=1,2,\dots,\mathcal{S}}$$.
 
-Finally, we relate the probability that promoter $P$ is in microstate $s$ back to the $u\left(\dots\right)$ control function by computing the overall probability that the desired event happens, e.g., promoter $P$ undergoes transcription. We know if $\Omega = \left\{1,2,\dots,\mathcal{S}\right\}$, then we can define the subset $\mathcal{A}\subseteq\Omega$ in which the desired event happens (in this case transcription). Given $\mathcal{A}$, the $u\left(\dots\right)$ function becomes:
+Finally, we relate the probability that promoter $P$ is in microstate $s$ back to the $\bar{u}\left(\dots\right)$ control function by computing the overall probability that the desired event happens, e.g., promoter $P$ undergoes transcription. We know if $\Omega = \left\{1,2,\dots,\mathcal{S}\right\}$, then we can define the subset $\mathcal{A}\subseteq\Omega$ in which the desired event happens (in this case transcription). Given $\mathcal{A}$, the $\bar{u}\left(\dots\right)$ function becomes:
 
-$$u=\sum_{s\in{\mathcal{A}}}p_{s}$$
+$$\bar{u}=\sum_{s\in{\mathcal{A}}}p_{s}$$
+
+where the control function $\bar{u}$ is the sum of a regulated $u\left(\dots\right)$ and unregulated $u^{\dagger}\left(\dots\right)$ component:
+
+$$\bar{u} = u + u^{\dagger}$$
 
 ##### Example
 
@@ -117,15 +80,62 @@ Typical transcription and translation models (such as those we'll use in this cl
 * [Golding I, Paulsson J, Zawilski SM, Cox EC. Real-time kinetics of gene activity in individual bacteria. Cell. 2005 Dec 16;123(6):1025-36. doi: 10.1016/j.cell.2005.09.031. PMID: 16360033.](https://pubmed.ncbi.nlm.nih.gov/16360033/)
 """
 
+# ╔═╡ ffddbade-a162-4ebc-a81c-3ff672ae3a2c
+md"""
+
+### Revisit: mRNA and protein balance equations
+
+The mRNA and protein balance equations shown above hold a dark secret; they assume a well-mixed population of cells. The work of Golding et al. suggests that the well-mixed assumption is not valid. Does it matter?
+
+##### Derivation
+Let's see where the well-mixed assumption comes into the derivation of the mRNA and protein balance equations. Consider the integral form of the mol balance around the ith mRNA $m_{i}$ written with respect to some volume basis $\beta$ in a _batch_ system (no convective or diffusive transport terms):
+
+$$\frac{d}{dt}\left(\int_{\Omega}m_{i}d\beta\right) = \int_{\Omega}\left(
+\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)d\beta\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+The term on the left-hand side is the accumulation term (in the domain $\Omega$). In contrast, the right-hand side is the reaction term (in the domain $\Omega$) where $\sigma_{ij}$ denotes the stoichiometric coefficient for species $i$ in reaction $j$, $\mathcal{R}$ represents the number of reactions, and $\hat{r}_{j}$ denotes the kinetics of reaction $j$ per unit $\beta$. 
+
+###### Well mixed assumption
+Let's assume the system has no $\beta$ dependence, i.e., the system is well mixed such that we can pull $m_{i}$ out of the integral:
+
+$$\frac{d}{dt}\left(\int_{\Omega}m_{i}d\beta\right) \simeq \frac{d}{dt}\left(\langle m_{i} \rangle\beta\right)$$
+
+Similarly, we can pull the out the reaction terms to give:
+
+$$\int_{\Omega}\left(
+\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)d\beta \simeq 
+\langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle\beta$$
+
+where $\langle\cdot\rangle$ denotes an averaged quantity over the domain $\Omega$. Thus, the mRNA balance equation is given by:
+
+$$\frac{d}{dt}\left(\langle m_{i} \rangle\beta\right) = \langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle\beta\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+Expanding the accumulation term and simplifying gives:
+
+$$\frac{d\langle m_{i}\rangle}{dt} = \langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle - 
+\frac{\langle m_{i} \rangle}{\beta}\frac{d\beta}{dt}\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+When we use cell mass specific units, we assume $\beta = XV_{R}$, where $X$ denotes the cell mass abundance (units: gDW/L) in the culture, and $V_{R}$ (units: L) represents the culture volume. Thus, for a _batch_ culture of cells we have:
+
+$$\frac{d\langle m_{i}\rangle}{dt} = \langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle -
+\mu\langle m_{i} \rangle\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+where $\mu$ denotes the specific growth rate (units: hr$^{-1}$). Finally, for mRNA we know that we have both regulated and unregulated production of transcript,  and a transcript degradation term, thus:
+
+$$\frac{dm_{i}}{dt} = r_{X,i}u_{i} - (\theta_{m,i}+\mu)m_{i}+\lambda_{i}\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+where we have dropped the $\langle \cdot \rangle$ notation and substituted our TX and degradation reactions.
+"""
+
 # ╔═╡ ba43f178-01c8-4801-b750-32b84b923707
 md"""
 ### Summary and conclusions
 
 In this lecture we:
 
-* Derived the mRNA and protein balance equations for a population of cells
 * Introduced discrete state promoter models used them to capture averaged expression dynamics for logic circuits 
-* Explored gene expression dynamics in a population of single cells
+* Explored gene expression dynamics in a population of single _Escherichia coli_ cells
+* Derived the population-averaged mRNA and protein balance equations in cell mass specific units
 """
 
 # ╔═╡ f25cda13-83fd-470a-b755-ec7b4877b19d
@@ -420,14 +430,15 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 
 # ╔═╡ Cell order:
 # ╟─deb978d1-54a6-4d1d-9722-0a44778c4a94
-# ╟─ffddbade-a162-4ebc-a81c-3ff672ae3a2c
+# ╟─7bef424f-8e94-4bdd-8c13-09a08d54ab7b
 # ╟─9aff53c6-0d8e-431f-b690-72c9b97be740
 # ╟─8494b59a-bcb4-4836-a3dd-5a72d4060d7b
+# ╟─ffddbade-a162-4ebc-a81c-3ff672ae3a2c
 # ╟─ba43f178-01c8-4801-b750-32b84b923707
 # ╟─f25cda13-83fd-470a-b755-ec7b4877b19d
 # ╠═9a85e011-6188-41f0-b309-b0a869ec5e9d
 # ╠═fdb00d02-cb5b-49e0-aa5b-af108ab078f4
-# ╠═f5cafa0c-4173-4354-a873-0953e9bcfcb1
-# ╠═248cbb68-9ec6-11ec-05b5-abe80f6c2b53
+# ╟─f5cafa0c-4173-4354-a873-0953e9bcfcb1
+# ╟─248cbb68-9ec6-11ec-05b5-abe80f6c2b53
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

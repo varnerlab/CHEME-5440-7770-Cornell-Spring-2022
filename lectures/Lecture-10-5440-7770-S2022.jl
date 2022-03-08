@@ -131,6 +131,11 @@ In this lecture we:
 # ╔═╡ f25cda13-83fd-470a-b755-ec7b4877b19d
 md"""
 ### Next time
+
+During the next lecture, we'll discuss: 
+* numerical and experimental examples of deterministic and stochastic gene expression
+* models of kinetics of transcription and translation
+
 """
 
 # ╔═╡ 9a85e011-6188-41f0-b309-b0a869ec5e9d
@@ -418,7 +423,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─ffddbade-a162-4ebc-a81c-3ff672ae3a2c
 # ╟─9aff53c6-0d8e-431f-b690-72c9b97be740
 # ╟─8494b59a-bcb4-4836-a3dd-5a72d4060d7b
-# ╠═ba43f178-01c8-4801-b750-32b84b923707
+# ╟─ba43f178-01c8-4801-b750-32b84b923707
 # ╟─f25cda13-83fd-470a-b755-ec7b4877b19d
 # ╠═9a85e011-6188-41f0-b309-b0a869ec5e9d
 # ╠═fdb00d02-cb5b-49e0-aa5b-af108ab078f4

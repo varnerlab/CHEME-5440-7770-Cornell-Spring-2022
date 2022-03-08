@@ -40,7 +40,44 @@ However, these equations hold a dark secret; they actually assume a well-mixed p
 
 ##### Derivation
 
+Let's consider the integral form of the mol balance around the ith mRNA $m_{i}$ written with respect to some volume basis $\beta$ in a _batch_ system (no convective or diffusive transport terms):
 
+$$\frac{d}{dt}\left(\int_{\beta}m_{i}d\beta\right) = \int_{\beta}\left(
+\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)d\beta\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+The term on the left-hand side is the accumulation term, while the right-hand side is the reaction term where $\sigma_{ij}$ denotes the stoichiometric coefficient for species $i$ in reaction $j$, 
+$\mathcal{R}$ represents the number of reactions, and $\hat{r}_{j}$ denotes the kinetics of reaction $j$ per unit $\beta$. 
+
+###### Well mixed assumption
+If the system has no $\beta$ dependence, i.e., the system is well mixed such that there is no variation of $m_{i}$ with $\beta$, then we can pull $m_{i}$ out of the integral:
+
+$$\frac{d}{dt}\left(\int_{\beta}m_{i}d\beta\right) \simeq \frac{d}{dt}\left(m_{i}\beta\right)$$
+
+Similarly, we can pull the out the reaction terms to give:
+
+$$\int_{\beta}\left(
+\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)d\beta \simeq \beta\left(
+\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)$$
+
+###### Alternative explanation
+Another way to think about these arguments is to assume there _is_ variation with $\beta$, but we approximate the integrals as:
+
+$$\int_{\beta}m_{i}d\beta \simeq \langle m_{i} \rangle\beta$$
+
+and
+
+$$\int_{\beta}\left(
+\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)d\beta \simeq 
+\langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle\beta$$
+
+where $\langle\cdot\rangle$ denotes an averaged quantity over $\beta$. 
+
+###### Putting it all together
+Either argument gives a balance equation of the form (shown for the alternative perspective):
+
+$$\frac{d}{dt}\left(\langle m_{i} \rangle\beta\right) = \langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle\beta\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+When we use cell mass specific units, we assume $\beta = XV_{R}$, where $X$ denotes the cell mass abundance (units: gDW/L) in the culture, while $V_{R}$ (units: L) represents the culture volume.
 
 """
 

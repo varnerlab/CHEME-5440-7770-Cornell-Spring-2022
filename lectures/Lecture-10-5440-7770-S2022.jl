@@ -49,35 +49,35 @@ The term on the left-hand side is the accumulation term, while the right-hand si
 $\mathcal{R}$ represents the number of reactions, and $\hat{r}_{j}$ denotes the kinetics of reaction $j$ per unit $\beta$. 
 
 ###### Well mixed assumption
-If the system has no $\beta$ dependence, i.e., the system is well mixed such that there is no variation of $m_{i}$ with $\beta$, then we can pull $m_{i}$ out of the integral:
+Let's assume the system has no $\beta$ dependence, i.e., the system is well mixed such that there we ignore the variation of $m_{i}$ with $\beta$, then we can pull $m_{i}$ out of the integral:
 
-$$\frac{d}{dt}\left(\int_{\beta}m_{i}d\beta\right) \simeq \frac{d}{dt}\left(m_{i}\beta\right)$$
+$$\frac{d}{dt}\left(\int_{\beta}m_{i}d\beta\right) \simeq \frac{d}{dt}\left(\langle m_{i} \rangle\beta\right)$$
 
 Similarly, we can pull the out the reaction terms to give:
-
-$$\int_{\beta}\left(
-\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)d\beta \simeq \beta\left(
-\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)$$
-
-###### Alternative explanation
-Another way to think about these arguments is to assume there _is_ variation with $\beta$, but we approximate the integrals as:
-
-$$\int_{\beta}m_{i}d\beta \simeq \langle m_{i} \rangle\beta$$
-
-and
 
 $$\int_{\beta}\left(
 \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j}\right)d\beta \simeq 
 \langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle\beta$$
 
-where $\langle\cdot\rangle$ denotes an averaged quantity over $\beta$. 
-
-###### Putting it all together
-Either argument gives a balance equation of the form (shown for the alternative perspective):
+where $\langle\cdot\rangle$ denotes an averaged quantity over $\beta$. Thus, the mRNA balance equation is given by:
 
 $$\frac{d}{dt}\left(\langle m_{i} \rangle\beta\right) = \langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle\beta\qquad{i=1,2,\dots,\mathcal{M}}$$
 
-When we use cell mass specific units, we assume $\beta = XV_{R}$, where $X$ denotes the cell mass abundance (units: gDW/L) in the culture, while $V_{R}$ (units: L) represents the culture volume.
+Expanding the accumulation term and simplifying gives:
+
+$$\frac{d\langle m_{i}\rangle}{dt} = \langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle - 
+\frac{\langle m_{i} \rangle}{\beta}\frac{d\beta}{dt}\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+When we use cell mass specific units, we assume $\beta = XV_{R}$, where $X$ denotes the cell mass abundance (units: gDW/L) in the culture, and $V_{R}$ (units: L) represents the culture volume. Thus, for a _batch_ culture of cells we have:
+
+$$\frac{d\langle m_{i}\rangle}{dt} = \langle \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\hat{r}_{j} \rangle -
+\mu\langle m_{i} \rangle\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+where $\mu$ denotes the specific growth rate (units: hr$^{-1}$). Finally, for mRNA we know that we have both regulated and unregulated production and a degradation term, thus:
+
+$$\frac{d\langle m_{i}\rangle}{dt} =  r_{X,i}u_{i} + \lambda_{i} - \theta_{m,i}\langle m_{i}\rangle -
+\mu\langle m_{i} \rangle\qquad{i=1,2,\dots,\mathcal{M}}$$
+
 
 """
 
@@ -415,7 +415,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 
 # ╔═╡ Cell order:
 # ╟─deb978d1-54a6-4d1d-9722-0a44778c4a94
-# ╠═ffddbade-a162-4ebc-a81c-3ff672ae3a2c
+# ╟─ffddbade-a162-4ebc-a81c-3ff672ae3a2c
 # ╟─9aff53c6-0d8e-431f-b690-72c9b97be740
 # ╟─8494b59a-bcb4-4836-a3dd-5a72d4060d7b
 # ╠═ba43f178-01c8-4801-b750-32b84b923707

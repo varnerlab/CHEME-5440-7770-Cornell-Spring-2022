@@ -25,6 +25,16 @@ We need to calculate the substrate/$K_{m}$ ratios to calculate the rates. To do 
 * [Park JO, Rubin SA, Xu YF, Amador-Noguez D, Fan J, Shlomi T, Rabinowitz JD. Metabolite concentrations, fluxes and free energies imply efficient enzyme usage. Nat Chem Biol. 2016 Jul;12(7):482-9. doi: 10.1038/nchembio.2077. Epub 2016 May 2. PMID: 27159581; PMCID: PMC4912430.](https://pubmed.ncbi.nlm.nih.gov/27159581/)
 """
 
+# ╔═╡ 32ea93ca-bc99-4ed0-9628-fd9d9b51c984
+md"""
+__Table__: Comparison of flux upper bound $U_{i}$ with and without metabolite adjustment
+"""
+
+# ╔═╡ fe07699e-4740-4340-8618-d1a0b13d3c0d
+md"""
+__Table__: Comparison of estimated optimal flux $v_{i}$ with and without metabolite adjustment
+"""
+
 # ╔═╡ 918a84ce-4e3b-435f-ab53-f6bcea99ff7a
 function ingredients(path::String)
 
@@ -124,7 +134,7 @@ begin
 	u = ones(6)
 	E = Eₒ.*u
 
-	# initialize saturation terms array -
+	# Missing data policy: if we don't have x/K, then assume x/K = 1 (valid?)
 	sat_term_array = ones(ℛ)
 
 	# v₁ - EC: 6.3.4.5 
@@ -181,6 +191,16 @@ begin
 	nothing
 end
 
+# ╔═╡ 40bf8003-852e-4841-8183-e7f29c3cfcd2
+with_terminal() do
+	println("Case: w/metabolites exit = $(result_case_2.exit_flag) and status = $(result_case_2.status_flag)")
+end
+
+# ╔═╡ 317705a1-8ea5-41e2-9f5a-f8750c80321a
+with_terminal() do
+	println("Case: w/o metabolites exit = $(result_case_2_nm.exit_flag) and status = $(result_case_2_nm.status_flag)")
+end
+
 # ╔═╡ 79272652-fb86-441d-8479-3e38340c3121
 with_terminal() do
 
@@ -201,11 +221,30 @@ with_terminal() do
 	pretty_table(state_array; header=header_data)
 end
 
-# ╔═╡ ef372cad-17ba-4ac2-a7c9-e8f8dd84014c
-result_case_2
+# ╔═╡ 862539bf-7103-4405-a91f-355d7c4b3527
+with_terminal() do
 
-# ╔═╡ 0ad6c7f8-f636-4d37-836d-f94cab9235ad
-sat_term_array
+	# get fluxes -
+	flux_array = result_case_2.calculated_flux_array
+	flux_array_nm = result_case_2_nm.calculated_flux_array
+	
+	# show bounds -
+	N = 8
+	state_array = Array{Any,2}(undef, N, 3)
+	for i ∈ 1:N
+		state_array[i,1] = i
+		state_array[i,2] = flux_array_nm[i]
+		state_array[i,3] = flux_array[i]
+	end
+
+	# setup header -
+	header_data = (["i","vᵢ w/no metabolite", "vᵢ w/metabolite"],
+	["","μmol/gDW-s","μmol/gDW-s"])
+	
+	# table -
+	pretty_table(state_array; header=header_data)
+
+end
 
 # ╔═╡ 1827b41a-a07c-11ec-281c-65f98f489de9
 html"""
@@ -1548,9 +1587,12 @@ version = "0.9.1+5"
 # ╟─226acc4e-be79-4708-a463-d233adf74dad
 # ╠═55e82daf-f124-4303-88b2-debfcb9ece7f
 # ╠═bac77de6-24bf-403a-b8b2-80084a4a2d86
+# ╟─40bf8003-852e-4841-8183-e7f29c3cfcd2
+# ╟─317705a1-8ea5-41e2-9f5a-f8750c80321a
+# ╟─32ea93ca-bc99-4ed0-9628-fd9d9b51c984
 # ╠═79272652-fb86-441d-8479-3e38340c3121
-# ╠═ef372cad-17ba-4ac2-a7c9-e8f8dd84014c
-# ╠═0ad6c7f8-f636-4d37-836d-f94cab9235ad
+# ╟─fe07699e-4740-4340-8618-d1a0b13d3c0d
+# ╠═862539bf-7103-4405-a91f-355d7c4b3527
 # ╠═7312cd61-30f0-444a-84f5-9fe11b682f7e
 # ╠═918a84ce-4e3b-435f-ab53-f6bcea99ff7a
 # ╠═1827b41a-a07c-11ec-281c-65f98f489de9

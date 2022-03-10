@@ -11,11 +11,69 @@ begin
 	using PlutoUI
 	using Distributions
 	using Plots
+
+	# setup paths -
+	_PATH_TO_ROOT = pwd()
+	_PATH_TO_DATA = joinpath(_PATH_TO_ROOT, "data")
+	_PATH_TO_FIGS = joinpath(_PATH_TO_ROOT, "figs")
+	_PATH_TO_SRC = joinpath(_PATH_TO_ROOT, "src")
+
+	# show -
+	nothing
 end
 
 # ╔═╡ 3024cd1a-61dd-4feb-bd21-2f6b38ee36b5
 md"""
 ### Single cell gene expression dynamics
+"""
+
+# ╔═╡ 1342bde2-37d7-4bef-beac-9303742e786b
+PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"Fig-TXTL-Starter.png"))
+
+# ╔═╡ 922c72ec-aefd-46d6-a465-cbf72a2cc05f
+md"""
+### Derivation of the rate of transcription
+The rate of transcription is the product between the _kinetic limit_ of transcription $r_{X,i}$ and the control variable $u_{i}\left(\dots\right)$, which describes the activity of promoter $i$. One simple model of $r_{X,i}$ can be developed by thinking about RNA polymerase (RNAP) as an enzyme that produces mRNA but does not consume its substrate, gene $i$ ($G_{i}$). Suppose we proposed the elementary steps:
+
+$$\begin{eqnarray}
+	RNAP+G_{i}&\rightleftharpoons&{RNAP:G_{i}}\\
+	{RNAP:G_{i}}&\longrightarrow&RNAP+G_{i}+m_{i}
+\end{eqnarray}$$
+
+The kinetics of each elementary step can be written using mass-action kinetics, i.e.,
+
+$$\begin{eqnarray}
+	r_{1} & = & k_{1}\left[RNAP\right]\left[G_{i}\right]\\
+	r_{2} & = & k_{2}\left[RNAP:G_{i}\right]\\
+	r_{3} & = & k_{3}\left[RNAP:G_{i}\right]
+\end{eqnarray}$$
+
+where $\left[\cdot\right]$ denotes a species concentration, and $k_{j}$ denotes the rate constant governing the $jth$ elementary reaction:
+
+* The rate $r_{1}$ describes the _association_ rate between RNAP and the ith gene,
+* The rate $r_{2}$ represents the rate of _dissociation_ of the RNAP-gene complex, and
+* The $r_{3}$ denotes the rate of _transcription_ of gene $i$ forming mRNA $m_{i}$
+
+RNAP must obey the relationship:
+
+$$\left[RNAP\right]_{T} = \left[RNAP\right] + \left[RNAP:G_{i}\right]$$
+
+where $\left[RNAP_{T}\right]$ denotes the total RNAP concentration in the system, 
+$\left[RNAP\right]$ denotes the free RNAP concentration (not bound to gene) while
+$\left[RNAP:G_{i}\right]$ denotes the enzyme-substrate complex. 
+
+To estimate the _overall_ rate of transcription $r_{X,i}$, we stipulate a single rate-limiting step out of the set of elementary reactions. Let's assume that the rate of elongation ($r_{3}$) is the slowest step. Thus, the overall transcription rate is then given by:
+
+$$v = k_{3}\left[RNAP:G_{i}\right]$$
+
+Following the same procedure as the derivation of Michaelis-Menten enzyme kinetics gives the expression:
+
+$$v = V_{max,i}\frac{\left[G_{i}\right]}{K_{X,i}+\left[G_{i}\right]}$$
+
+where $V_{max,i}\equiv{k_{3,i}}\left[RNAP\right]_{T}$, and $K_{X,i}$ denotes the saturation constant governing the expression of gene $i$:
+
+
+
 """
 
 # ╔═╡ 2d47c9da-c182-4e7f-9f4d-bfff4b97e3a4
@@ -24,6 +82,9 @@ md"""
 
 * [Gillespie, D. T. (2001). Approximate accelerated stochastic simulation of chemically reacting systems. J. Chem Phys. 115: 1716–1733. Bibcode:2001JChPh.115.1716G. doi:10.1063/1.1378322](https://aip.scitation.org/doi/10.1063/1.1378322)
 """
+
+# ╔═╡ c84158ae-3a2d-45be-a08c-0757afae0a7a
+
 
 # ╔═╡ c4cdac00-b344-4246-a445-23f710047a8c
 begin
@@ -35,7 +96,7 @@ begin
 	parameters["RNAP_copy_number"] = 4600.0 					# units: copies/cell BNID 108601
 	parameters["RNAP_elongation_rate"] = 35.0 					# units: nt/s BNID 111871
 	parameters["gene_coding_length"] = 1000.0 					# units: nt BNID 111610
-	parameters["mRNA_half_life"] = 4.0*(60)						# units: s BIND 104324
+	parameters["mRNA_half_life"] = 0.5*(60)						# units: s BIND 104324
 	parameters["gene_copy_number"] = 2.0 						# units: copies/cell problem
 	parameters["saturation_constant_transcription"] = 1000.0 	# units: copies/cell problem
 	
@@ -140,7 +201,7 @@ function tau_leaping_solve(S::Matrix{Float64}, Xₒ::Array{Float64,1}, Tₒ::Flo
 		X += Δ
 
 		# correct for negative numbers if there are any -
-		X = max.(0.0, X)
+		#X = max.(0.0, X)
 
 		# recompute the propensity with the new state -
 		R = propensity(X, parameters)
@@ -180,6 +241,8 @@ begin
 
 	# setup problem -
 	Xₒ = ones(1) # suppose we start with a single mRNA molecule -
+	number_of_cells = 10
+	cell_dictionary = Dict()
 
 	# we have 1 species (mRNA) and two reaction "channels" -
 	S = Array{Float64,2}(undef, 1,2)
@@ -191,19 +254,28 @@ begin
 	T₁ = 120.0 # simulate number of s 
 
 	# run solver -
+	for i ∈ 1:number_of_cells
+		cell_dictionary[i] = tau_leaping_solve(S, Xₒ, Tₒ, T₁, parameters; τ = 0.01)
+	end
 	
-	
-	(T_1,X_1) = tau_leaping_solve(S, Xₒ, Tₒ, T₁, parameters; τ = nothing, should_update_τ = true)
-	(T_2,X_2) = tau_leaping_solve(S, Xₒ, Tₒ, T₁, parameters; τ = 0.01)
-
 	# show -
 	nothing
 end
 
 # ╔═╡ 5e3fb403-4f13-451b-a996-2466504971e7
 begin
-	plot(T_1,X_1)
-	plot!(T_2,X_2, c=:red)
+
+	for i ∈ 1:number_of_cells
+		(T,X) = cell_dictionary[i]
+		if (i == 1)
+			plot(T,X, legend=false)
+		else
+			plot!(T,X)
+		end
+	end
+	xlabel!("Time (s)", fontsize=18)
+	ylabel!("Copies (mRNA/cell)", fontsize=18)
+	current()
 end
 
 # ╔═╡ cdf5e092-499c-4010-a2a3-c050a9395fb4
@@ -1274,8 +1346,11 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╠═3024cd1a-61dd-4feb-bd21-2f6b38ee36b5
+# ╟─3024cd1a-61dd-4feb-bd21-2f6b38ee36b5
+# ╠═1342bde2-37d7-4bef-beac-9303742e786b
+# ╠═922c72ec-aefd-46d6-a465-cbf72a2cc05f
 # ╟─2d47c9da-c182-4e7f-9f4d-bfff4b97e3a4
+# ╠═c84158ae-3a2d-45be-a08c-0757afae0a7a
 # ╠═c4cdac00-b344-4246-a445-23f710047a8c
 # ╠═b8bed16f-e4b3-4ee8-8c73-a04d1df43205
 # ╠═5e3fb403-4f13-451b-a996-2466504971e7

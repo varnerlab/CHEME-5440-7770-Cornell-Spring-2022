@@ -25,6 +25,13 @@ end
 # ╔═╡ 3024cd1a-61dd-4feb-bd21-2f6b38ee36b5
 md"""
 ### Single cell gene expression dynamics
+
+In this lecture we'll continue our discussion of gene expression dynamics. In particular:
+
+* We'll derive a _starter_ model for the kinetic rate of transcription $r_{X,i}$
+* We'll introduce the basics of the stochastic simulation algorithms developed by [Gillespie](https://en.wikipedia.org/wiki/Daniel_Gillespie), [Petzold](https://engineering.ucsb.edu/people/linda-petzold) and coworkers. 
+* We'll use the [τ leaping algorithm](https://en.wikipedia.org/wiki/Tau-leaping) to simulate the expresssion of a single gene in an _Escherichia coli_ cell.
+
 """
 
 # ╔═╡ 1342bde2-37d7-4bef-beac-9303742e786b
@@ -32,8 +39,10 @@ PlutoUI.LocalResource(joinpath(_PATH_TO_FIGS,"Fig-TXTL-Starter.png"))
 
 # ╔═╡ 922c72ec-aefd-46d6-a465-cbf72a2cc05f
 md"""
-### Derivation of the rate of transcription
-The rate of transcription is the product between the _kinetic limit_ of transcription $r_{X,i}$ and the control variable $u_{i}\left(\dots\right)$, which describes the activity of promoter $i$. One simple model of $r_{X,i}$ can be developed by thinking about RNA polymerase (RNAP) as an enzyme that produces mRNA but does not consume its substrate, gene $i$ ($G_{i}$). Suppose we proposed the elementary steps:
+### A simple model for transcription kinetics
+
+##### Assumptions and derivation
+The rate of transcription is the product between the _kinetic limit_ of transcription $r_{X,i}$ and the control variable $u_{i}\left(\dots\right)$, which describes the activity of promoter $i$. One simple model of $r_{X, i}$ can be developed by thinking about RNA polymerase (RNAP) as an enzyme that produces mRNA but does not consume its substrate, gene $i$ ($G_{i}$). Suppose we proposed the elementary steps:
 
 $$\begin{eqnarray}
 	RNAP+G_{i}&\rightleftharpoons&{RNAP:G_{i}}\\
@@ -43,48 +52,73 @@ $$\begin{eqnarray}
 The kinetics of each elementary step can be written using mass-action kinetics, i.e.,
 
 $$\begin{eqnarray}
-	r_{1} & = & k_{1}\left[RNAP\right]\left[G_{i}\right]\\
-	r_{2} & = & k_{2}\left[RNAP:G_{i}\right]\\
-	r_{3} & = & k_{3}\left[RNAP:G_{i}\right]
+	r_{1,i} & = & k_{1,i}\left[RNAP\right]\left[G_{i}\right]\\
+	r_{2,i} & = & k_{2,i}\left[RNAP:G_{i}\right]\\
+	r_{3,i} & = & k_{3,i}\left[RNAP:G_{i}\right]
 \end{eqnarray}$$
 
-where $\left[\cdot\right]$ denotes a species concentration, and $k_{j}$ denotes the rate constant governing the $jth$ elementary reaction:
+where $\left[\cdot\right]$ denotes a species concentration, and $k_{\star,i}$ denotes the rate constant governing the $\star$ elementary reaction:
 
-* The rate $r_{1}$ describes the _association_ rate between RNAP and the ith gene,
-* The rate $r_{2}$ represents the rate of _dissociation_ of the RNAP-gene complex, and
-* The $r_{3}$ denotes the rate of _transcription_ of gene $i$ forming mRNA $m_{i}$
+* The rate $r_{1,i}$ describes the _association_ rate between RNAP and the ith gene,
+* The rate $r_{2,i}$ represents the rate of _dissociation_ of the RNAP-gene complex, and
+* The $r_{3,i}$ denotes the rate of _transcription_ of gene $i$ forming mRNA $m_{i}$
 
 RNAP must obey the relationship:
 
 $$\left[RNAP\right]_{T} = \left[RNAP\right] + \left[RNAP:G_{i}\right]$$
 
-where $\left[RNAP_{T}\right]$ denotes the total RNAP concentration in the system, 
+where $\left[RNAP\right]_{T}$ denotes the total RNAP concentration in the system, 
 $\left[RNAP\right]$ denotes the free RNAP concentration (not bound to gene) while
 $\left[RNAP:G_{i}\right]$ denotes the enzyme-substrate complex. 
 
-To estimate the _overall_ rate of transcription $r_{X,i}$, we stipulate a single rate-limiting step out of the set of elementary reactions. Let's assume that the rate of elongation ($r_{3}$) is the slowest step. Thus, the overall transcription rate is then given by:
+To estimate the _overall_ rate of transcription $r_{X, i}$, we stipulate a single rate-limiting step out of the set of elementary reactions. Let's assume that the rate of elongation ($r_{3,i}$) is the slowest step. Thus, the overall transcription rate is then given by:
 
-$$v = k_{3}\left[RNAP:G_{i}\right]$$
+$$v = k_{3,i}\left[RNAP:G_{i}\right]$$
 
 Following the same procedure as the derivation of Michaelis-Menten enzyme kinetics gives the expression:
 
-$$v = V_{max,i}\frac{\left[G_{i}\right]}{K_{X,i}+\left[G_{i}\right]}$$
+$$r_{X,i} = V_{max,i}\frac{\left[G_{i}\right]}{K_{X,i}+\left[G_{i}\right]}$$
 
 where $V_{max,i}\equiv{k_{3,i}}\left[RNAP\right]_{T}$, and $K_{X,i}$ denotes the saturation constant governing the expression of gene $i$:
 
+##### A model for the elongation rate constant
+We can estimate a value for $V_{max,i}$, and in particular the rate of elongation $k_{3,i}$ (units: 1/s), from first principles. The elongation rate constant can modeled as an average elongation rate of the polymerase $\langle e_{X} \rangle$ (units: nt/s) times the inverse of the length of gene $i$ $L_{i}$:
 
+$$k_{3,i} \sim \langle e_{X} \rangle L_{i}^{-1}$$
 
+Experimental measurements of the elongation rate $\langle e_{X} \rangle$ for multiple organisms are availble on [bionumbers](https://bionumbers.hms.harvard.edu/search.aspx?trm=RNAP+elongation+rate).
+
+##### What is the saturation constant of transcription?
+
+The saturation constant of transcription $K_{X,i}$ (units: conc) is defined as the ratio of elementary rate constants:
+
+$$K_{X,i}\equiv\frac{k_{2,i}+k_{3,i}}{k_{1,i}}$$
+
+In the limit of small $k_{3,i}$, the saturation constant $K_{X,i}$ is the inverse of the affinity (and directly proportional to the dissociation constant) of the polymerase for the gene. In other words:
+
+* High affinity: tight binding $k_{1,i}\gg k_{2,i}$ implies $K_{X,i}$ is small, conversely 
+* Low affinity: loose binding $k_{1,i}\ll k_{2,i}$ which implies $K_{X,i}$ is large.
+
+We know that the RNAP dissociation constant $K_{D,i}$:
+
+$$K_{D,i} = \frac{k_{2,i}}{k_{1,i}}$$
+
+for the lac promoter in _E. coli_ is [$K_{D}\sim 550$ nM (units: nM or molecules/cell)](https://bionumbers.hms.harvard.edu/search.aspx?trm=KD+for+RNAP+to+lac+E.+coli). 
 """
 
 # ╔═╡ 2d47c9da-c182-4e7f-9f4d-bfff4b97e3a4
 md"""
 ### A crash course in Stochastic Simulation Algorithms (SSAs)
 
+__Key references__
+* [Gillespie DT. Stochastic simulation of chemical kinetics. Annu Rev Phys Chem. 2007;58:35-55. doi: 10.1146/annurev.physchem.58.032806.104637. PMID: 17037977.](https://pubmed.ncbi.nlm.nih.gov/17037977/)
 * [Gillespie, D. T. (2001). Approximate accelerated stochastic simulation of chemically reacting systems. J. Chem Phys. 115: 1716–1733. Bibcode:2001JChPh.115.1716G. doi:10.1063/1.1378322](https://aip.scitation.org/doi/10.1063/1.1378322)
 """
 
-# ╔═╡ c84158ae-3a2d-45be-a08c-0757afae0a7a
-
+# ╔═╡ f9c5fea7-f713-403e-ad82-75c68ecfe81d
+md"""
+##### Example: Expression of a gene in a single _Escherichia coli_ cell
+"""
 
 # ╔═╡ c4cdac00-b344-4246-a445-23f710047a8c
 begin
@@ -92,17 +126,54 @@ begin
 	# setup the parameters -
 	parameters = Dict{String, Any}()
 
+	# let's compute a literature value -
+	k₁ = 100.0 	# units: 1/conc-t
+	eₓ = 35.0 	# units: nt/s
+	L = 1000.0 	# units: nt
+	KD = 550.0  # units: nM
+	Kₓ = (eₓ*(1/L) + KD*k₁)/(k₁)
+
 	# get parameters from bionumbers -
 	parameters["RNAP_copy_number"] = 4600.0 					# units: copies/cell BNID 108601
-	parameters["RNAP_elongation_rate"] = 35.0 					# units: nt/s BNID 111871
-	parameters["gene_coding_length"] = 1000.0 					# units: nt BNID 111610
-	parameters["mRNA_half_life"] = 0.5*(60)						# units: s BIND 104324
+	parameters["RNAP_elongation_rate"] = eₓ 					# units: nt/s BNID 111871
+	parameters["gene_coding_length"] = L 						# units: nt BNID 111610
+	parameters["mRNA_half_life"] = 4.5*(60)						# units: s BIND 104324
 	parameters["gene_copy_number"] = 2.0 						# units: copies/cell problem
-	parameters["saturation_constant_transcription"] = 1000.0 	# units: copies/cell problem
+	parameters["saturation_constant_transcription"] = Kₓ 		# units: copies/cell problem
 	
 	# show -
 	nothing
 end
+
+# ╔═╡ 782c6ddb-f5fa-46db-8a1e-5ae01285e3ef
+Kₓ
+
+# ╔═╡ 3c48cfd0-5403-4faf-a1f9-6460a18df49c
+md"""
+### Summary and conclusions
+In this lecture we:
+
+* Derived a _starter_ model for the kinetic rate of transcription $r_{X,i}$
+* Introduced the basics of the stochastic simulation algorithms developed by [Gillespie](https://en.wikipedia.org/wiki/Daniel_Gillespie), [Petzold](https://engineering.ucsb.edu/people/linda-petzold) and coworkers. 
+* Used the [τ leaping algorithm](https://en.wikipedia.org/wiki/Tau-leaping) to simulate the expresssion of a single gene in an _Escherichia coli_ cell.
+"""
+
+# ╔═╡ 8eae03bc-f2f4-4546-81eb-112be811f5dd
+md"""
+### Next time
+
+* We'll move back to the continuous world to simulate gene expression for cell-free synthetic circuits and 
+* We'll couple the rate of gene expression with the availability of metabolic resources. 
+
+__Reference__:
+
+[Allen TE, Palsson BØ. Sequence-based analysis of metabolic demands for protein synthesis in prokaryotes. J Theor Biol. 2003 Jan 7;220(1):1-18. doi: 10.1006/jtbi.2003.3087. PMID: 12453446.](https://pubmed.ncbi.nlm.nih.gov/12453446/)
+"""
+
+# ╔═╡ c7949300-f103-424d-996e-907cc0f04d92
+md"""
+### Function library
+"""
 
 # ╔═╡ cc2e34c3-e86c-40ca-be7a-0ba1d6f92201
 function generate_step_size(S,X,R)::Float64
@@ -277,6 +348,9 @@ begin
 	ylabel!("Copies (mRNA/cell)", fontsize=18)
 	current()
 end
+
+# ╔═╡ 8cfc75c7-5893-4505-8825-b2b351088aea
+TableOfContents(title="📚 Lecture Outline", indent=true, depth=5, aside=true)
 
 # ╔═╡ cdf5e092-499c-4010-a2a3-c050a9395fb4
 html"""
@@ -1348,17 +1422,22 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╟─3024cd1a-61dd-4feb-bd21-2f6b38ee36b5
 # ╠═1342bde2-37d7-4bef-beac-9303742e786b
-# ╠═922c72ec-aefd-46d6-a465-cbf72a2cc05f
+# ╟─922c72ec-aefd-46d6-a465-cbf72a2cc05f
 # ╟─2d47c9da-c182-4e7f-9f4d-bfff4b97e3a4
-# ╠═c84158ae-3a2d-45be-a08c-0757afae0a7a
+# ╟─f9c5fea7-f713-403e-ad82-75c68ecfe81d
 # ╠═c4cdac00-b344-4246-a445-23f710047a8c
+# ╠═782c6ddb-f5fa-46db-8a1e-5ae01285e3ef
 # ╠═b8bed16f-e4b3-4ee8-8c73-a04d1df43205
 # ╠═5e3fb403-4f13-451b-a996-2466504971e7
-# ╠═ed06b789-ece0-4d4e-a9bc-4431806f3b43
-# ╠═cc2e34c3-e86c-40ca-be7a-0ba1d6f92201
-# ╠═de95690b-a564-471d-8597-0d9e6dcf2f1b
+# ╟─3c48cfd0-5403-4faf-a1f9-6460a18df49c
+# ╟─8eae03bc-f2f4-4546-81eb-112be811f5dd
+# ╟─c7949300-f103-424d-996e-907cc0f04d92
+# ╟─ed06b789-ece0-4d4e-a9bc-4431806f3b43
+# ╟─cc2e34c3-e86c-40ca-be7a-0ba1d6f92201
+# ╟─de95690b-a564-471d-8597-0d9e6dcf2f1b
 # ╠═2b2d7259-c670-4765-95d1-d33595729dc2
-# ╠═cdf5e092-499c-4010-a2a3-c050a9395fb4
-# ╠═ea0020f6-a051-11ec-2fb6-ef39a663134b
+# ╠═8cfc75c7-5893-4505-8825-b2b351088aea
+# ╟─cdf5e092-499c-4010-a2a3-c050a9395fb4
+# ╟─ea0020f6-a051-11ec-2fb6-ef39a663134b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

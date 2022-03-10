@@ -49,7 +49,9 @@ We use [Visual Studio Code](https://code.visualstudio.com) and GitHub desktop be
 * [Lecture 8: Carbon catabolite repression and central dogma](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-8-5440-7770-S2022.jl.html)
 * [Lecture 9: Boolean and Fuzzy Logic in Metabolic Models](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-9-5440-7770-S2022.jl.html)
 * [Lecture 10: Discrete State Models for Transcriptional Regulation](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-10-5440-7770-S2022.jl.html)
+* [Lecture 11: Stochastic simulation og single cell gene expression](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-11-5440-7770-S2022.jl.html)
 
 ### Problem set solutions
 
 * [Problem set 2 solution](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/PS2-5440-7770-Soln.jl.html)
+* [Problem set 3 solution](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/PS3-5440-7770-S2022-C2-Soln.jl.html)

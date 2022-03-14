@@ -130,15 +130,15 @@ begin
 	k₁ = 100.0 	# units: 1/conc-t
 	eₓ = 35.0 	# units: nt/s
 	L = 1000.0 	# units: nt
-	KD = 550.0  # units: nM
+	KD = 1000.0  # units: nM
 	Kₓ = (eₓ*(1/L) + KD*k₁)/(k₁)
 
 	# get parameters from bionumbers -
 	parameters["RNAP_copy_number"] = 4600.0 					# units: copies/cell BNID 108601
 	parameters["RNAP_elongation_rate"] = eₓ 					# units: nt/s BNID 111871
 	parameters["gene_coding_length"] = L 						# units: nt BNID 111610
-	parameters["mRNA_half_life"] = 4.5*(60)						# units: s BIND 104324
-	parameters["gene_copy_number"] = 2.0 						# units: copies/cell problem
+	parameters["mRNA_half_life"] = 0.5*(60)						# units: s BIND 104324
+	parameters["gene_copy_number"] = 20.0 						# units: copies/cell problem
 	parameters["saturation_constant_transcription"] = Kₓ 		# units: copies/cell problem
 	
 	# show -
@@ -312,7 +312,7 @@ begin
 
 	# setup problem -
 	Xₒ = ones(1) # suppose we start with a single mRNA molecule -
-	number_of_cells = 10
+	number_of_cells = 3
 	cell_dictionary = Dict()
 
 	# we have 1 species (mRNA) and two reaction "channels" -

@@ -144,7 +144,7 @@ begin
 	sat_term_array[3] = (0.165)/(1+0.165)
 
 	# v₄ - EC: 2.1.3.3
-	sat_term_array[4] = (2.81)/(1+2.81) # use yeast data
+	sat_term_array[4] = (0.0119)/(1+0.0119) # use yeast data
 
 	# v₅ - EC: 1.14.13.39
 	sat_term_array[5] = (73.1)/(1+73.1) # only have data for forward direction

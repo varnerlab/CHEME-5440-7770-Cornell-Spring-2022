@@ -91,6 +91,38 @@ md"""
 ###### Setup: flux bounds array
 """
 
+# ╔═╡ 981fcf59-63f4-4312-b5e6-cb74a76e5d55
+begin
+
+	# setup the parameters -
+	parameters = Dict{String, Any}()
+
+	# let's compute a literature value -
+	k₁ = 100.0 			# units: 1/conc-t
+	eₓ = 35.0 			# units: nt/s
+	eₗ = 2.0 			# units: aa/s
+	Lₓ = 922.0 			# units: nt
+	Lₗ = 238.0 			# units: aa
+	Kₗ = 483.0 			# units: μmol/L
+	Kₓ = 0.036 			# units: μmol/L
+	V = 30.0*(1/1e6) 	# units: L
+
+	# get parameters from bionumbers -
+	parameters["volume"] = V									# units: L
+	parameters["RNAP_concentration"] = 0.06 					# units: μmol/L
+	parameters["RNAP_elongation_rate"] = eₓ 					# units: nt/s BNID 111871
+	parameters["ribsome_elongation_rate"] = eₗ 					# units: aa/s
+	parameters["gene_coding_length"] = Lₓ 						# units: nt BNID 111610
+	parameters["mRNA_half_life"] = 2.5*(60)						# units: s BIND 104324
+	parameters["gene_concentration"] = 8.0*(V)*(1e6/1e9) 		# units: μmol/L
+	parameters["saturation_constant_transcription"] = Kₓ 	# units: μmol/L
+	parameters["ribosome_concentration"] = 2.3 				# units: μmol/L
+	parameters["saturation_constant_translation"] = Kₗ 		# units: μmol/L
+	
+	# show -
+	nothing
+end
+
 # ╔═╡ 02756d50-5881-49c8-be5a-d228b90b3912
 md"""
 ###### Solve
@@ -226,10 +258,13 @@ begin
 	# get the default flux bounds array -
 	flux_bounds_array = model["flux_bounds_array"]
 
-	# setup constraints on gene expression -
-	# ...
+	# get some stuff out of parameters -
+	G = parameters["gene_concentration"]
+	RNAP = parameters["RNAP_concentration"]
+	RIBOSOME = parameters["ribosome_concentration"]
+	Vₜ = parameters["volume"]
+	t_half_life = parameters["mRNA_half_life"]
 
-	
 	# show -
 	nothing
 end
@@ -288,7 +323,7 @@ with_terminal() do
 	state_array = Array{Any,2}(undef, ℛ, 5)
 	for i ∈ 1:ℛ
 		state_array[i,1] = i
-		state_array[i,2] = v[i]
+		state_array[i,2] = v[i]*(1e9/1e6)*(3600)
 		state_array[i,3] = reaction_table[i,:id]
 		state_array[i,4] = reaction_table[i,:forward_reaction]
 		state_array[i,5] = reaction_table[i,:reverse_reaction]
@@ -297,7 +332,7 @@ with_terminal() do
 	# setup the header -
 	header_data = (
 		["i", "ϵ", "reaction name", "foward", "reverse"], 
-		["", "⋆mol/time", "", "", ""]
+		["", "nmol/hr", "", "", ""]
 	);
 	
 	pretty_table(state_array; alignment=:l, header=header_data)
@@ -819,6 +854,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═758c8e5e-7a41-40c6-945c-bf68e93947e9
 # ╠═a1f07b91-e911-4811-b02b-64ddc487e6af
 # ╟─213041c0-2bfe-4c10-81da-5301b4d46b58
+# ╠═981fcf59-63f4-4312-b5e6-cb74a76e5d55
 # ╠═e4538ec6-678d-43dd-a01e-18a92dfe8e18
 # ╟─02756d50-5881-49c8-be5a-d228b90b3912
 # ╠═fbd77bc8-9388-4e79-9036-bdca3f03fd4c

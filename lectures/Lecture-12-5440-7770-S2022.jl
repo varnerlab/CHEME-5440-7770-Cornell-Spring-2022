@@ -4,6 +4,47 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ c835ff26-9df0-416c-a64f-9e04db57543b
+md"""
+### Example: Analysis of GFP expression using FBA
+"""
+
+# ╔═╡ d052ff3c-2a8d-4897-b3ce-aa08d06f8124
+md"""
+##### Setup: objective coefficient array
+"""
+
+# ╔═╡ d4c47ae1-d670-48f6-a2f1-61c8ff5620db
+md"""
+##### Setup: species bounds array
+"""
+
+# ╔═╡ 213041c0-2bfe-4c10-81da-5301b4d46b58
+md"""
+##### Setup: flux bounds array
+"""
+
+# ╔═╡ 02756d50-5881-49c8-be5a-d228b90b3912
+md"""
+##### Solve
+"""
+
+# ╔═╡ 34d2f753-d74a-457a-83bc-44e08d6323ca
+function ingredients(path::String)
+
+    # this is from the Julia source code (evalfile in base/loading.jl)
+    # but with the modification that it returns the module instead of the last object
+    name = Symbol("lib")
+    m = Module(name)
+    Core.eval(m,
+        Expr(:toplevel,
+            :(eval(x) = $(Expr(:core, :eval))($name, x)),
+            :(include(x) = $(Expr(:top, :include))($name, x)),
+            :(include(mapexpr::Function, x) = $(Expr(:top, :include))(mapexpr, $name, x)),
+            :(include($path))))
+    m
+end
+
 # ╔═╡ 656bc222-a43f-11ec-1f09-6b332c3b672f
 begin
 
@@ -12,12 +53,17 @@ begin
 	using BSON
 	using DataFrames
 	using TOML
+	using GLPK
+	using PrettyTables
 	
 	# setup paths -
 	_PATH_TO_ROOT = pwd()
 	_PATH_TO_DATA = joinpath(_PATH_TO_ROOT, "data")
 	_PATH_TO_FIGS = joinpath(_PATH_TO_ROOT, "figs")
 	_PATH_TO_SRC = joinpath(_PATH_TO_ROOT, "src")
+
+	# load the 5440/7770 code lib -
+    lib = ingredients(joinpath(_PATH_TO_SRC, "Include.jl"))
 
 	# show -
 	nothing
@@ -34,11 +80,6 @@ begin
 	nothing
 end
 
-# ╔═╡ c835ff26-9df0-416c-a64f-9e04db57543b
-md"""
-### Example: Analysis of GFP expression using FBA
-"""
-
 # ╔═╡ e97e290a-d920-4797-8315-c65adf94c8d5
 model
 
@@ -48,15 +89,10 @@ S = model["stoichiometric_matrix"]
 # ╔═╡ 75394d6e-f185-4d3c-8b27-4d27c1a7c94a
 (ℳ,ℛ) = size(S)
 
-# ╔═╡ d052ff3c-2a8d-4897-b3ce-aa08d06f8124
-md"""
-##### Setup the objective coefficient array
-"""
-
 # ╔═╡ 0562d302-30dd-4c88-a9bb-5ec4100b3060
 begin
 	# setup the objective coefficient array -
-	obj_array_tmp = model["objective_coefficient_array"]
+	c_vector = model["objective_coefficient_array"]
 	reaction_table = model["reaction_table"]
 	
 	# find the index of the reaction we want to maximize -
@@ -64,23 +100,28 @@ begin
 	idx_target = findfirst(x->x==target_reaction_id, reaction_table[!,:id])
 
 	# update -
-	if (isnothing(obj_array_tmp) == true)
-		obj_array_tmp = zeros(ℛ)
+	if (isnothing(c_vector) == true)
+		c_vector = zeros(ℛ)
 	end
-	obj_array_tmp[idx_target] = -1.0
-	model["objective_coefficient_array"] = obj_array_tmp
+	c_vector[idx_target] = -1.0
+	model["objective_coefficient_array"] = c_vector
 
 	# show -
 	nothing
 end
 
-# ╔═╡ d4c47ae1-d670-48f6-a2f1-61c8ff5620db
-md"""
-### Setup the species bounds array
-"""
-
 # ╔═╡ 29a92990-1e95-49cd-aac0-7b68e1099a1d
 model["species_table"][!,:symbol]
+
+# ╔═╡ e4538ec6-678d-43dd-a01e-18a92dfe8e18
+begin
+
+	# get the default flux bounds array -
+	flux_bounds_array = model["flux_bounds_array"]
+
+	# show -
+	nothing
+end
 
 # ╔═╡ 758c8e5e-7a41-40c6-945c-bf68e93947e9
 aa_map = TOML.parsefile(joinpath(_PATH_TO_DATA,"AAMap.toml"))
@@ -88,45 +129,54 @@ aa_map = TOML.parsefile(joinpath(_PATH_TO_DATA,"AAMap.toml"))
 # ╔═╡ a1f07b91-e911-4811-b02b-64ddc487e6af
 begin
 
-	# species_bounds_array = sba -
-	sba = model["species_bounds_array"]
+	# species_bounds_array 
+	species_bounds_array = model["species_bounds_array"]
 	
 	# update the upper bound -
-	sba[:,2] .= Inf # everything can go out of the box at whatever rate -
+	species_bounds_array[:,2] .= Inf # everything can go out of the box at whatever rate -
 
 	# update the lower bound -
-	sba[5:9,1] .= -10000.0
+	species_bounds_array[5:9,1] .= -1000.0
 
 	# we need to update the bounds of all of the AA's -
 	species_symbol_array = model["species_table"][!,:symbol]
-	for (key, aa_symbol) ∈ enumerate(aa_map)
+	for (key, aa_symbol) ∈ aa_map
 
 		# find index of aa_symbol -
-		# ...
+		aa_index = findfirst(x->x==aa_symbol, species_symbol_array)
 
 		# update the bound -
-		# ...
-	
+		species_bounds_array[aa_index,1] = -100.0
 	end
 
 	# show -
 	nothing
 end
 
-# ╔═╡ 34d2f753-d74a-457a-83bc-44e08d6323ca
-function ingredients(path::String)
+# ╔═╡ fbd77bc8-9388-4e79-9036-bdca3f03fd4c
+begin
 
-    # this is from the Julia source code (evalfile in base/loading.jl)
-    # but with the modification that it returns the module instead of the last object
-    name = Symbol("lib")
-    m = Module(name)
-    Core.eval(m,
-        Expr(:toplevel,
-            :(eval(x) = $(Expr(:core, :eval))($name, x)),
-            :(include(x) = $(Expr(:top, :include))($name, x)),
-            :(include(mapexpr::Function, x) = $(Expr(:top, :include))(mapexpr, $name, x)),
-            :(include($path))))
-    m
+	# estimate the optimal flux -
+	result = lib.flux(S,flux_bounds_array,species_bounds_array,c_vector);
+	
+end
+
+# ╔═╡ ea038677-c71d-4e64-992d-c36497fe52f8
+with_terminal() do
+
+	v = result.calculated_flux_array
+	
+	# let's build a table -
+	state_array = Array{Any,2}(undef, ℛ, 5)
+	for i ∈ 1:ℛ
+		state_array[i,1] = i
+		state_array[i,2] = v[i]
+		state_array[i,3] = reaction_table[i,:id]
+		state_array[i,4] = reaction_table[i,:forward_reaction]
+		state_array[i,5] = reaction_table[i,:reverse_reaction]
+	end
+
+	pretty_table(state_array; alignment=:l)
 end
 
 # ╔═╡ 446ef6c4-b3c5-4b17-9cec-098dac93774b
@@ -196,13 +246,17 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+GLPK = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [compat]
 BSON = "~0.3.5"
 DataFrames = "~1.3.2"
+GLPK = "~1.0.0"
 PlutoUI = "~0.7.37"
+PrettyTables = "~1.3.1"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -231,6 +285,30 @@ version = "0.3.5"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[deps.BenchmarkTools]]
+deps = ["JSON", "Logging", "Printf", "Profile", "Statistics", "UUIDs"]
+git-tree-sha1 = "4c10eee4af024676200bc7752e536f858c6b8f93"
+uuid = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+version = "1.3.1"
+
+[[deps.Bzip2_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "19a35467a82e236ff51bc17a3a44b69ef35185a2"
+uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
+version = "1.0.8+0"
+
+[[deps.CodecBzip2]]
+deps = ["Bzip2_jll", "Libdl", "TranscodingStreams"]
+git-tree-sha1 = "2e62a725210ce3c3c2e1a3080190e7ca491f18d7"
+uuid = "523fee87-0ab8-5b00-afb7-3ecf72e48cfd"
+version = "0.7.2"
+
+[[deps.CodecZlib]]
+deps = ["TranscodingStreams", "Zlib_jll"]
+git-tree-sha1 = "ded953804d019afa9a3f98981d99b33e3db7b6da"
+uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
+version = "0.7.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -307,6 +385,22 @@ version = "0.4.2"
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
+[[deps.GLPK]]
+deps = ["GLPK_jll", "MathOptInterface"]
+git-tree-sha1 = "7971e2ce3715a873b539174137bd8c4e19ac7a8f"
+uuid = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
+version = "1.0.0"
+
+[[deps.GLPK_jll]]
+deps = ["Artifacts", "GMP_jll", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "fe68622f32828aa92275895fdb324a85894a5b1b"
+uuid = "e8aa6df9-e6ca-548a-97ff-1f85fc5b8b98"
+version = "5.0.1+0"
+
+[[deps.GMP_jll]]
+deps = ["Artifacts", "Libdl"]
+uuid = "781609d7-10c4-51f6-84f2-b8444358ff6d"
+
 [[deps.Hyperscript]]
 deps = ["Test"]
 git-tree-sha1 = "8d511d5b81240fc8e6802386302675bdf47737b9"
@@ -337,6 +431,12 @@ version = "1.1.0"
 git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
 uuid = "82899510-4779-5014-852e-03e436cf321d"
 version = "1.0.0"
+
+[[deps.JLLWrappers]]
+deps = ["Preferences"]
+git-tree-sha1 = "abc9885a7ca2052a736a600f7fa66209f96506e1"
+uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
+version = "1.4.1"
 
 [[deps.JSON]]
 deps = ["Dates", "Mmap", "Parsers", "Unicode"]
@@ -374,6 +474,12 @@ uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
+[[deps.MathOptInterface]]
+deps = ["BenchmarkTools", "CodecBzip2", "CodecZlib", "JSON", "LinearAlgebra", "MutableArithmetics", "OrderedCollections", "Printf", "SparseArrays", "Test", "Unicode"]
+git-tree-sha1 = "a62df301482a41cb7b1db095a4e6949ba7eb3349"
+uuid = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
+version = "1.1.0"
+
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
@@ -389,6 +495,12 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
+
+[[deps.MutableArithmetics]]
+deps = ["LinearAlgebra", "SparseArrays", "Test"]
+git-tree-sha1 = "ba8c0f8732a24facba709388c74ba99dcbfdda1e"
+uuid = "d8a4904e-b15c-11e9-3269-09a3773c0cb0"
+version = "1.0.0"
 
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
@@ -424,6 +536,12 @@ git-tree-sha1 = "db3a23166af8aebf4db5ef87ac5b00d36eb771e2"
 uuid = "2dfb63ee-cc39-5dd5-95bd-886bf059d720"
 version = "1.4.0"
 
+[[deps.Preferences]]
+deps = ["TOML"]
+git-tree-sha1 = "d3538e7f8a790dc8903519090857ef8e1283eecd"
+uuid = "21216c6a-2e73-6563-6e65-726566657250"
+version = "1.2.5"
+
 [[deps.PrettyTables]]
 deps = ["Crayons", "Formatting", "Markdown", "Reexport", "Tables"]
 git-tree-sha1 = "dfb54c4e414caa595a1f2ed759b160f5a3ddcba5"
@@ -433,6 +551,10 @@ version = "1.3.1"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
+[[deps.Profile]]
+deps = ["Printf"]
+uuid = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
 
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
@@ -498,6 +620,12 @@ uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
+[[deps.TranscodingStreams]]
+deps = ["Random", "Test"]
+git-tree-sha1 = "216b95ea110b5972db65aa90f88d8d89dcb8851c"
+uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
+version = "0.9.6"
+
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
@@ -534,6 +662,11 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═29a92990-1e95-49cd-aac0-7b68e1099a1d
 # ╠═758c8e5e-7a41-40c6-945c-bf68e93947e9
 # ╠═a1f07b91-e911-4811-b02b-64ddc487e6af
+# ╠═213041c0-2bfe-4c10-81da-5301b4d46b58
+# ╠═e4538ec6-678d-43dd-a01e-18a92dfe8e18
+# ╟─02756d50-5881-49c8-be5a-d228b90b3912
+# ╠═fbd77bc8-9388-4e79-9036-bdca3f03fd4c
+# ╠═ea038677-c71d-4e64-992d-c36497fe52f8
 # ╠═656bc222-a43f-11ec-1f09-6b332c3b672f
 # ╠═34d2f753-d74a-457a-83bc-44e08d6323ca
 # ╠═446ef6c4-b3c5-4b17-9cec-098dac93774b

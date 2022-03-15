@@ -22,7 +22,7 @@ Let's take a look at an example that ignores metabolism:
 
 # ╔═╡ 8aaf3475-6ea7-45ea-90f5-0c4673925258
 md"""
-### Background: Accounting for the cost of transcription and translation
+### Accounting for the cost of transcription and translation
 
 Nature has developed extensive control mechanisms which regulate when transcription and translation processes occur (accounted for by the $u\left(\dots\right)$ and $w\left(\dots\right)$ functions) because of their metabolic cost. 
 
@@ -33,7 +33,7 @@ Let's take a look at using flux balance analysis to compute the metabolic demand
 
 # ╔═╡ c835ff26-9df0-416c-a64f-9e04db57543b
 md"""
-### Example: Analysis of GFP expression using FBA
+### Analysis of green fluorescent protein (GFP) expression
 """
 
 # ╔═╡ d052ff3c-2a8d-4897-b3ce-aa08d06f8124
@@ -745,7 +745,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═e4538ec6-678d-43dd-a01e-18a92dfe8e18
 # ╟─02756d50-5881-49c8-be5a-d228b90b3912
 # ╠═fbd77bc8-9388-4e79-9036-bdca3f03fd4c
-# ╟─f12fdff4-0ce5-4d07-a278-16d4f41ede2f
+# ╠═f12fdff4-0ce5-4d07-a278-16d4f41ede2f
 # ╠═ea038677-c71d-4e64-992d-c36497fe52f8
 # ╟─6f852067-8c2e-45d0-baa9-73875ca49e12
 # ╠═ada9b431-b449-40c8-9a65-77a88259615e

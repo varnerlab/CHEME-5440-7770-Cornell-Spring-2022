@@ -29,6 +29,16 @@ md"""
 ##### Solve
 """
 
+# ╔═╡ f12fdff4-0ce5-4d07-a278-16d4f41ede2f
+md"""
+__Table__: Open extent table $\dot{\epsilon}_{j}$ (units: $\star$mol/time) for the transcription and translation of green fluorescent protein (GFP).
+"""
+
+# ╔═╡ 6f852067-8c2e-45d0-baa9-73875ca49e12
+md"""
+__Table__: Input/output mol transfer rate $\dot{n}_{i,\star}$ (units: ⋆mol/time) for the transcription and translation of green fluorescent protein (GFP).
+"""
+
 # ╔═╡ 34d2f753-d74a-457a-83bc-44e08d6323ca
 function ingredients(path::String)
 
@@ -176,7 +186,42 @@ with_terminal() do
 		state_array[i,5] = reaction_table[i,:reverse_reaction]
 	end
 
-	pretty_table(state_array; alignment=:l)
+	# setup the header -
+	header_data = (
+		["i", "ϵ", "reaction name", "foward", "reverse"], 
+		["", "⋆mol/time", "", "", ""]
+	);
+	
+	pretty_table(state_array; alignment=:l, header=header_data)
+end
+
+# ╔═╡ ada9b431-b449-40c8-9a65-77a88259615e
+with_terminal() do
+
+	# get the "flux" -
+	ϵ_dot = result.calculated_flux_array
+	
+	# get compute the 
+	n_dot_in = abs.(species_bounds_array[:,1])
+	n_dot_out = n_dot_in + S*ϵ_dot
+	
+	# setup species table -
+	state_array = Array{Any, 2}(undef, ℳ, 5)
+	for i ∈ 1:ℳ
+		state_array[i,1] = i
+		state_array[i,2] = species_symbol_array[i]
+		state_array[i,3] = round(n_dot_in[i]; digits=2)
+		state_array[i,4] = round(n_dot_out[i]; digits=2)
+		state_array[i,5] = round((n_dot_out[i] - n_dot_in[i]); digits=2)
+	end
+
+	# setup the header -
+	header_data = (
+		["i", "species", "nᵢ_in", "nᵢ_out", "Δn"], 
+		["", "", "⋆mol/time", "⋆mol/time", "⋆mol/time"]
+	);
+	
+	pretty_table(state_array; header=header_data)
 end
 
 # ╔═╡ 446ef6c4-b3c5-4b17-9cec-098dac93774b
@@ -666,7 +711,10 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═e4538ec6-678d-43dd-a01e-18a92dfe8e18
 # ╟─02756d50-5881-49c8-be5a-d228b90b3912
 # ╠═fbd77bc8-9388-4e79-9036-bdca3f03fd4c
+# ╠═f12fdff4-0ce5-4d07-a278-16d4f41ede2f
 # ╠═ea038677-c71d-4e64-992d-c36497fe52f8
+# ╟─6f852067-8c2e-45d0-baa9-73875ca49e12
+# ╠═ada9b431-b449-40c8-9a65-77a88259615e
 # ╠═656bc222-a43f-11ec-1f09-6b332c3b672f
 # ╠═34d2f753-d74a-457a-83bc-44e08d6323ca
 # ╠═446ef6c4-b3c5-4b17-9cec-098dac93774b

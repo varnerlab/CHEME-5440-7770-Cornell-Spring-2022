@@ -7,6 +7,12 @@ using InteractiveUtils
 # ╔═╡ 254d20da-8b47-448b-bb16-c078c86d872f
 md"""
 ### Computing the Metabolic Demand of Transcription and Translation
+
+In this lecture, we'll continue our discussion of transcription and translation processes. In particular, we'll discuss:
+
+* Cell-free simulation of synthetic transcription (TX) and translation (TL) circuits
+* The analysis of TX/TL systems using flux balance analysis
+* Coupling TX/TL processes with metabolism in a cell-free system 
 """
 
 # ╔═╡ 8617bf13-ca94-434d-b6ea-9d982fcd2012
@@ -22,7 +28,7 @@ Let's take a look at an example that ignores metabolism:
 
 # ╔═╡ 8aaf3475-6ea7-45ea-90f5-0c4673925258
 md"""
-### Accounting for the cost of transcription and translation
+### Accounting for the cost of transcription (TX) and translation (TL)
 
 Nature has developed extensive control mechanisms which regulate when transcription and translation processes occur (accounted for by the $u\left(\dots\right)$ and $w\left(\dots\right)$ functions) because of their metabolic cost. 
 
@@ -33,27 +39,61 @@ Let's take a look at using flux balance analysis to compute the metabolic demand
 
 # ╔═╡ c835ff26-9df0-416c-a64f-9e04db57543b
 md"""
-### Analysis of green fluorescent protein (GFP) expression
+##### Analysis of green fluorescent protein (GFP) expression
+
+The standard flux balance analysis problem is written in `concentration` units and metabolic reaction flux, e.g., $\star$mol/gDW-hr. However, there is nothing that says we have to do that. For example, working in mass or mole units may be more convenient than working in concentration units. Let's consider the latter. 
+
+We know from our material and energy balance class that the open mole balance around component $i$ in the _logical_ control volume is given by:
+
+$$\sum_{s=1}^{\mathcal{S}}d_{s}\dot{n}_{is} + \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\dot{\epsilon}_{j} = 0\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+The first term is the rate of `transport` into and from the control volume (units: mol $i$/time) from $\mathcal{S}$ possible `streams`; the `transport` terms can be physical or logical where $d_{s} = 1$ if the stream $s$ enters control volume, $d_{s}=-1$ is stream $s$ exits the control volume. The second summation denotes the reaction terms, where $\sigma_{ij}$ denote the stoichiometric coefficient describing the connection between metabolite $i$ and reaction $j$ and $\dot{\epsilon}_{j}$ denote the open extent of reaction (units: mol/time).
+
+Let's suppose that we have a single logical stream entering (s=1) and exiting (s=2) the control volume. In this case, the open mole balance becomes:
+
+$$\dot{n}_{i,2} = \dot{n}_{i,1} + \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\dot{\epsilon}_{j}\qquad{i=1,2,\dots,\mathcal{M}}$$
+
+These balances can be used as constraints to find the optimal open extent of reaction. In particular, we know that we actually pass $\alpha\leq{S\dot{\epsilon}}\leq\beta$ to the solve. Thus, because $\dot{n}_{i,2}\geq{0}$, the FBA problem is subject to the mol constraints: 
+
+$$\dot{n}_{i,1} + \sum_{j=1}^{\mathcal{R}}\sigma_{ij}\dot{\epsilon}_{j}\geq{0}\qquad\forall{i}$$
+
+In other words, when searching for the optimal set of $\dot{\epsilon}_{j}$ we have to select values that give physically realistic answers (we can't have a negative mol flow rate). Next, the $\dot{\epsilon}_{j}$ terms (just flux) are bounded from above and below: 
+
+$$\mathcal{L}_{j}\leq\dot{\epsilon}_{j}\leq\mathcal{U}_{j}\qquad{j=1,2\dots,\mathcal{R}}$$
+
+where the $\mathcal{L}_{j}$ and $\mathcal{U}_{j}$ denote the lower and upper bounds that $\dot{\epsilon}_{j}$ can take, remember that the open extents $\dot{\epsilon}_{j}$ are just reaction rates times the volume. Thus, the lower and upper bounds describe the permissible range we expect the rate _could_ obtain.  
+
+Putting everything together gives a slightly different problem formulation to compute the mol/time flux through a reaction network. An objective:
+
+$$\mathcal{O} = \sum_{j=1}^{\mathcal{R}}c_{j}\dot{\epsilon}_{j}$$
+
+is minimized (or maximized) subject to a collection of linear constraints:
+
+$$\begin{eqnarray}
+\sum_{j=1}^{\mathcal{R}}\sigma_{ij}\dot{\epsilon}_{j}&\geq&{-\dot{n}_{i,1}}\qquad\forall{i}\\
+\dot{n}_{i,2}&\geq&{0}\qquad\forall{i}\\ 
+\mathcal{L}_{j}&\leq\dot{\epsilon}_{j}\leq&\mathcal{U}_{j}\qquad{j=1,2\dots,\mathcal{R}}
+\end{eqnarray}$$
 """
 
 # ╔═╡ d052ff3c-2a8d-4897-b3ce-aa08d06f8124
 md"""
-##### Setup: objective coefficient array
+###### Setup: objective coefficient array
 """
 
 # ╔═╡ d4c47ae1-d670-48f6-a2f1-61c8ff5620db
 md"""
-##### Setup: species bounds array
+###### Setup: species bounds array
 """
 
 # ╔═╡ 213041c0-2bfe-4c10-81da-5301b4d46b58
 md"""
-##### Setup: flux bounds array
+###### Setup: flux bounds array
 """
 
 # ╔═╡ 02756d50-5881-49c8-be5a-d228b90b3912
 md"""
-##### Solve
+###### Solve
 """
 
 # ╔═╡ f12fdff4-0ce5-4d07-a278-16d4f41ede2f
@@ -64,6 +104,36 @@ __Table__: Open extent table $\dot{\epsilon}_{j}$ (units: $\star$mol/time) for t
 # ╔═╡ 6f852067-8c2e-45d0-baa9-73875ca49e12
 md"""
 __Table__: Input/output mol transfer rate $\dot{n}_{i,\star}$ (units: ⋆mol/time) for the transcription and translation of green fluorescent protein (GFP).
+"""
+
+# ╔═╡ 15d4c02f-cacd-4293-b6bc-ba4b76981caa
+md"""
+### Integrating TX/TL with metabolism
+
+The Allen and Palsson study provides an approach to analyze transcription and translation processes using flux balance analysis. However, the metabolic demands are treated as exchanges. 
+
+Let's integrate the TX/TL box proposed by Allen and Palsson with a metabolic network:
+
+* [Vilkhovoy M, Horvath N, Shih CH, Wayman JA, Calhoun K, Swartz J, Varner JD. Sequence-Specific Modeling of E. coli Cell-Free Protein Synthesis. ACS Synth Biol. 2018 Aug 17;7(8):1844-1857. doi: 10.1021/acssynbio.7b00465. Epub 2018 Jul 16. PMID: 29944340.](https://pubmed.ncbi.nlm.nih.gov/29944340/)
+"""
+
+# ╔═╡ 89958d90-2a62-4306-bb52-01dd4e921c7a
+md"""
+### Summary and conclusions
+
+In this lecture we:
+
+* Introduced a continuous model of transcription (TX) and translation (TL) of a cell-free synthetic circuit
+* Analyzed TX/TL processes using flux balance analysis (introduced the TX/TL box)
+* Coupled TX/TL box with metabolism in a cell-free system producing a model protein
+
+"""
+
+# ╔═╡ 17f52bcc-ee1b-4e14-bb8b-7603e67164f4
+md"""
+### Next time:
+
+* The end of the beginning. Putting everything together to solve a metabolic engineering problem
 """
 
 # ╔═╡ 34d2f753-d74a-457a-83bc-44e08d6323ca
@@ -118,7 +188,7 @@ begin
 end
 
 # ╔═╡ e97e290a-d920-4797-8315-c65adf94c8d5
-model
+model["reaction_table"]
 
 # ╔═╡ 18137921-25a7-4572-ba8c-39203031c24c
 S = model["stoichiometric_matrix"]
@@ -199,7 +269,14 @@ begin
 
 	# estimate the optimal flux -
 	result = lib.flux(S,flux_bounds_array,species_bounds_array,c_vector);
-	
+
+	# show nothing -
+	nothing
+end
+
+# ╔═╡ 2d05bbd7-772f-4d63-b647-4d4fcb4a9cde
+with_terminal() do
+	println("Exit flag = $(result.exit_flag) and status flag = $(result.status_flag)")
 end
 
 # ╔═╡ ea038677-c71d-4e64-992d-c36497fe52f8
@@ -730,8 +807,8 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─254d20da-8b47-448b-bb16-c078c86d872f
 # ╟─8617bf13-ca94-434d-b6ea-9d982fcd2012
 # ╟─8aaf3475-6ea7-45ea-90f5-0c4673925258
-# ╠═c7321b9e-b741-4d2d-8fd8-f3b8954d368f
 # ╟─c835ff26-9df0-416c-a64f-9e04db57543b
+# ╠═c7321b9e-b741-4d2d-8fd8-f3b8954d368f
 # ╠═e97e290a-d920-4797-8315-c65adf94c8d5
 # ╠═18137921-25a7-4572-ba8c-39203031c24c
 # ╠═75394d6e-f185-4d3c-8b27-4d27c1a7c94a
@@ -745,10 +822,14 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═e4538ec6-678d-43dd-a01e-18a92dfe8e18
 # ╟─02756d50-5881-49c8-be5a-d228b90b3912
 # ╠═fbd77bc8-9388-4e79-9036-bdca3f03fd4c
-# ╠═f12fdff4-0ce5-4d07-a278-16d4f41ede2f
+# ╟─2d05bbd7-772f-4d63-b647-4d4fcb4a9cde
+# ╟─f12fdff4-0ce5-4d07-a278-16d4f41ede2f
 # ╠═ea038677-c71d-4e64-992d-c36497fe52f8
 # ╟─6f852067-8c2e-45d0-baa9-73875ca49e12
 # ╠═ada9b431-b449-40c8-9a65-77a88259615e
+# ╟─15d4c02f-cacd-4293-b6bc-ba4b76981caa
+# ╟─89958d90-2a62-4306-bb52-01dd4e921c7a
+# ╟─17f52bcc-ee1b-4e14-bb8b-7603e67164f4
 # ╠═656bc222-a43f-11ec-1f09-6b332c3b672f
 # ╠═34d2f753-d74a-457a-83bc-44e08d6323ca
 # ╠═446ef6c4-b3c5-4b17-9cec-098dac93774b

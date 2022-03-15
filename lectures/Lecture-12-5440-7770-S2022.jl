@@ -4,6 +4,33 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ 254d20da-8b47-448b-bb16-c078c86d872f
+md"""
+### Computing the Metabolic Demand of Transcription and Translation
+"""
+
+# ╔═╡ 8617bf13-ca94-434d-b6ea-9d982fcd2012
+md"""
+### Simulation of cell free synthetic circuits
+
+One strategy to model (and analyze) gene expression programs is to build ordinary differential equations (ODEs) models and to solve these models numerically. 
+
+Let's take a look at an example that ignores metabolism: 
+
+* [Adhikari A, Vilkhovoy M, Vadhin S, Lim HE, Varner JD. Effective Biophysical Modeling of Cell-Free Transcription and Translation Processes. Front Bioeng Biotechnol. 2020;8:539081. Published 2020 Nov 26. doi:10.3389/fbioe.2020.539081](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC7726328/)
+"""
+
+# ╔═╡ 8aaf3475-6ea7-45ea-90f5-0c4673925258
+md"""
+### Background: Accounting for the cost of transcription and translation
+
+Nature has developed extensive control mechanisms which regulate when transcription and translation processes occur (accounted for by the $u\left(\dots\right)$ and $w\left(\dots\right)$ functions) because of their metabolic cost. 
+
+Let's take a look at using flux balance analysis to compute the metabolic demand associated with gene expression:
+
+* [Allen TE, Palsson BØ. Sequence-based analysis of metabolic demands for protein synthesis in prokaryotes. J Theor Biol. 2003 Jan 7;220(1):1-18. doi: 10.1006/jtbi.2003.3087. PMID: 12453446.](https://pubmed.ncbi.nlm.nih.gov/12453446/)
+"""
+
 # ╔═╡ c835ff26-9df0-416c-a64f-9e04db57543b
 md"""
 ### Example: Analysis of GFP expression using FBA
@@ -129,6 +156,10 @@ begin
 	# get the default flux bounds array -
 	flux_bounds_array = model["flux_bounds_array"]
 
+	# setup constraints on gene expression -
+	# ...
+
+	
 	# show -
 	nothing
 end
@@ -696,6 +727,9 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 """
 
 # ╔═╡ Cell order:
+# ╟─254d20da-8b47-448b-bb16-c078c86d872f
+# ╟─8617bf13-ca94-434d-b6ea-9d982fcd2012
+# ╟─8aaf3475-6ea7-45ea-90f5-0c4673925258
 # ╠═c7321b9e-b741-4d2d-8fd8-f3b8954d368f
 # ╟─c835ff26-9df0-416c-a64f-9e04db57543b
 # ╠═e97e290a-d920-4797-8315-c65adf94c8d5
@@ -707,11 +741,11 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═29a92990-1e95-49cd-aac0-7b68e1099a1d
 # ╠═758c8e5e-7a41-40c6-945c-bf68e93947e9
 # ╠═a1f07b91-e911-4811-b02b-64ddc487e6af
-# ╠═213041c0-2bfe-4c10-81da-5301b4d46b58
+# ╟─213041c0-2bfe-4c10-81da-5301b4d46b58
 # ╠═e4538ec6-678d-43dd-a01e-18a92dfe8e18
 # ╟─02756d50-5881-49c8-be5a-d228b90b3912
 # ╠═fbd77bc8-9388-4e79-9036-bdca3f03fd4c
-# ╠═f12fdff4-0ce5-4d07-a278-16d4f41ede2f
+# ╟─f12fdff4-0ce5-4d07-a278-16d4f41ede2f
 # ╠═ea038677-c71d-4e64-992d-c36497fe52f8
 # ╟─6f852067-8c2e-45d0-baa9-73875ca49e12
 # ╠═ada9b431-b449-40c8-9a65-77a88259615e

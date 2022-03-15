@@ -11,6 +11,7 @@ begin
 	using PlutoUI
 	using BSON
 	using DataFrames
+	using TOML
 	
 	# setup paths -
 	_PATH_TO_ROOT = pwd()
@@ -81,6 +82,9 @@ md"""
 # ╔═╡ 29a92990-1e95-49cd-aac0-7b68e1099a1d
 model["species_table"][!,:symbol]
 
+# ╔═╡ 758c8e5e-7a41-40c6-945c-bf68e93947e9
+aa_map = TOML.parsefile(joinpath(_PATH_TO_DATA,"AAMap.toml"))
+
 # ╔═╡ a1f07b91-e911-4811-b02b-64ddc487e6af
 begin
 
@@ -92,7 +96,18 @@ begin
 
 	# update the lower bound -
 	sba[5:9,1] .= -10000.0
+
+	# we need to update the bounds of all of the AA's -
+	species_symbol_array = model["species_table"][!,:symbol]
+	for (key, aa_symbol) ∈ enumerate(aa_map)
+
+		# find index of aa_symbol -
+		# ...
+
+		# update the bound -
+		# ...
 	
+	end
 
 	# show -
 	nothing
@@ -182,6 +197,7 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [compat]
 BSON = "~0.3.5"
@@ -516,6 +532,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═0562d302-30dd-4c88-a9bb-5ec4100b3060
 # ╟─d4c47ae1-d670-48f6-a2f1-61c8ff5620db
 # ╠═29a92990-1e95-49cd-aac0-7b68e1099a1d
+# ╠═758c8e5e-7a41-40c6-945c-bf68e93947e9
 # ╠═a1f07b91-e911-4811-b02b-64ddc487e6af
 # ╠═656bc222-a43f-11ec-1f09-6b332c3b672f
 # ╠═34d2f753-d74a-457a-83bc-44e08d6323ca

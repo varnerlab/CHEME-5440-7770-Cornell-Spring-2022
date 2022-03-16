@@ -219,6 +219,9 @@ begin
 	nothing
 end
 
+# ╔═╡ ffaa05e2-2407-4407-8583-e46e36ffe399
+model
+
 # ╔═╡ e97e290a-d920-4797-8315-c65adf94c8d5
 model["reaction_table"]
 
@@ -264,6 +267,13 @@ begin
 	RIBOSOME = parameters["ribosome_concentration"]
 	Vₜ = parameters["volume"]
 	t_half_life = parameters["mRNA_half_life"]
+
+	# setup constraints on gene expression -
+	Vmax_TX = RNAP*(eₓ)*(1/Lₓ)
+	r_TX = Vmax_TX*(G/(Kₓ + G))
+	flux_bounds_array[1,1] = (r_TX*Vₜ)
+	flux_bounds_array[2,1] = (r_TX*Vₜ)
+	flux_bounds_array[3,1] = (r_TX*Vₜ)
 
 	# show -
 	nothing
@@ -844,6 +854,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─8aaf3475-6ea7-45ea-90f5-0c4673925258
 # ╟─c835ff26-9df0-416c-a64f-9e04db57543b
 # ╠═c7321b9e-b741-4d2d-8fd8-f3b8954d368f
+# ╠═ffaa05e2-2407-4407-8583-e46e36ffe399
 # ╠═e97e290a-d920-4797-8315-c65adf94c8d5
 # ╠═18137921-25a7-4572-ba8c-39203031c24c
 # ╠═75394d6e-f185-4d3c-8b27-4d27c1a7c94a

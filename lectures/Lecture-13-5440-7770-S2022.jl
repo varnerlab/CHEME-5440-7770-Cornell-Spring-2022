@@ -41,7 +41,7 @@ The [Allen and Palsson study](https://pubmed.ncbi.nlm.nih.gov/12453446/) gave us
 
 # ╔═╡ bfd134fe-b311-4768-a53b-2c5c4c1b121a
 md"""
-##### Aside: A Question of Timescales
+##### Aside: A question of timescales
 One open question is whether we need to solve the gene expression and flux estimation problem simultaneously. The time scale of enzyme activity (and hence metabolic flux) is much faster than gene expression. Why? 
 
 * The $k_{cat}$ for [phosphofructokinase-2 (pfk) in _E.coli_ is 9240 s$^{-1}$](https://bionumbers.hms.harvard.edu/bionumber.aspx?id=104955&ver=7&trm=kcat+pfk+in+E.+coli&org=). Thus, pfk has a characteristic time scale of $\tau\sim{k_{cat}}^{-1}$ or about 1$\times$10$^{-4}$ s.

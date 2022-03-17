@@ -101,7 +101,11 @@ Today, we:
 md"""
 ### Alas, if we just had some more time, it would have been cool to talk about:
 
-##### Better constraints give better estimates of flux:
+##### So many interesting tools:
+
+* [Lewis NE, Nagarajan H, Palsson BO. Constraining the metabolic genotype-phenotype relationship using a phylogeny of in silico methods. Nat Rev Microbiol. 2012 Feb 27;10(4):291-305. doi: 10.1038/nrmicro2737. PMID: 22367118; PMCID: PMC3536058.](https://pubmed.ncbi.nlm.nih.gov/22367118/)
+
+##### Better constraints give better flux estimates:
 
 * [Buescher JM, Antoniewicz MR, Boros LG, et al. A roadmap for interpreting (13)C metabolite labeling patterns from cells. Curr Opin Biotechnol. 2015;34:189-201. doi:10.1016/j.copbio.2015.02.003](https://www.ncbi.nlm.nih.gov/labs/pmc/articles/PMC4552607/)
 

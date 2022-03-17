@@ -51,6 +51,7 @@ We use [Visual Studio Code](https://code.visualstudio.com) and GitHub desktop be
 * [Lecture 10: Discrete State Models for Transcriptional Regulation](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-10-5440-7770-S2022.jl.html)
 * [Lecture 11: Stochastic simulation of single cell gene expression](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-11-5440-7770-S2022.jl.html)
 * [Lecture 12: TX/TL and flux balance analysis](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-12-5440-7770-S2022.jl.html)
+* [Lecture 13: The beginning of the end](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/html/Lecture-13-5440-7770-S2022.jl.html)
 
 ### Problem set solutions
 

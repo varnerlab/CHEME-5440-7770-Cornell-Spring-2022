@@ -6,7 +6,6 @@ using InteractiveUtils
 
 # ╔═╡ c3530026-5a87-4447-88f5-fc744cb48ff2
 begin
-	
 	using PlutoUI 
 end
 

@@ -60,3 +60,4 @@ We use [Visual Studio Code](https://code.visualstudio.com) and GitHub desktop be
 
 ### Prelim 1 solutions
 * [Prelim 1 Q2 solution](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/prelim_1/html/P1-Q2-Soln-S2022.jl.html)
+* [Prelim 1 Q3 solution](https://htmlview.glitch.me/?https://github.com/varnerlab/CHEME-5440-7770-Cornell-Spring-2022/blob/main/prelim_1/html/P1-Q3-Soln-S2022.jl.html)

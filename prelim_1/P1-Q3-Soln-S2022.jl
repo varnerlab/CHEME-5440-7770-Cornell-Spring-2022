@@ -4,131 +4,130 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 8b068b1c-8026-4b5b-96ee-b6ca4ae56da3
+# ╔═╡ 418209c4-bc19-11ec-3944-9f69b1c06eec
 begin
-	using Plots
 	using PlutoUI
+	using Plots
 	using Optim
 end
 
-# ╔═╡ 55d3b413-8d15-4146-beb2-6fa39484cd5d
+# ╔═╡ bfa8b6be-d636-44c2-82e9-4d00e1025625
 md"""
-Develop an expression for the allosteric regulation of Phosphofructokinase (PFK).
-PFK catalyzes the conversion of D-fructose~6-phosphate (F6P) to D-fructose~1,6-bisphosphate (F16BP):
-
-$$\mathrm{ATP} + \mathrm{D-fructose~6-phosphate} \longrightarrow \mathrm{ADP} + \mathrm{D-fructose~1,6-bisphosphate}$$
-
-using a discrete state regulatory model. PFK activity is strongly activated in the presence of 3$^{\prime}$-5$^{\prime}$-AMP, a signaling molecule produced when glucose is transported into cells.
+Golding and coworkers measured the average mRNA copy number per cell for several promoters using single-molecule fluorescence in situ hybridization (smFISH) in single dividing _E.coli_ cells.
 
 __Assume__:
-* the concentration of F6P in the assay equals 0.1 mM  and is constant;
-* the concentration of $\mathrm{ATP}$ in the assay equals 2.3 mM and is constant;
-* the concentration of PFK in the assay equals 0.12 $\mu$M and is constant;
-* Parameter values: $K_{F6P}$ = 0.11 mM, $K_{ATP}$ = 0.42 mM, and $k_{cat}$ = 0.4 s$^{-1}$.
-
-Let the model take the form $\hat{r}_{j} = r_{j}v\left(\dots\right)_{j}$
-where $\hat{r}_{j}$, the overall rate of the PFK reaction ($\mu$M h$^{-1}$), 
-is the product of a kinetic limit $r_{j}$ ($\mu$M h$^{-1}$) and a control variable $0\leq v\left(\dots\right)_{j}\leq 1$ (dimensionless) that describes the influence
-of effector molecules. 
+* All experiments were conducted in a well-mixed exponentially growing population of _E.coli_ cells with a doubling time of $\tau_{d}\simeq$ 40 min;
+* One molecule per cell is equivalent to an intracellular concentration of 1 nM;
+* The average mass of an _E.coli_ cell $<m_{c}>$ = 2$\times$10$^{-13}$ g;
+* The average volume of an _E.coli_ cell $<V_{c}>$ = 2.75 $\mu$m$^{3}$;
+* An _E.coli_ cell is 70% water;
+* write the promoter function in terms of extracellular inducer (ignore inducer transport);
+* The lacZ gene is present at two copies/cell;
+* The lacZ mRNA half-life is 5 minutes;
+* lacZ is 3075 base pairs in length;
+* RNAP polymerase has a transcription rate $e_{X}=35$ nt/s and is present at 4,600 copies/cell.
 """
 
-# ╔═╡ fd480473-fac8-437c-99e9-6a83ede63554
-# load the data -
-# c1: AMP (mM) c2: mean rate (μM/hr) c3: stdev rate (μM/hr)
-data = [
-	0.0 3.0 0.59 	;
-	0.055 6.3 1.20 	;
-	0.093 29.8 5.7 	;
-	0.181 52.0 10.2 ;
-	0.405 60.3 11.8 ;
-	0.990 68.7 13.3 ;
-	1.0 68.9 10.0 ;
-];
-
-# ╔═╡ 90ef6569-bc52-4540-9d9d-6d3a15262e0b
+# ╔═╡ 0f79ecec-a334-4445-bc15-e025789ec091
 md"""
-#### Questions
+##### a) Convert the data to specific units nmol/gDW
 """
 
-# ╔═╡ 3d0f8166-99e1-4106-8678-1817e8e5a5a7
-md"""
-a) Formulate a three micro-state model for PFK activity; State 0 (base): no effector+no substrate, State 1: no effector+substrate and State 2: effector+substrate.
-The probability of each microstate $p_{i}$ is given by:
-
-$$p_{i} = \frac{W_{i}f_{i}}{Z}$$
-
-where $Z$ denotes the partition function, $W_{i}$ denotes the weight of configuration $i$, and $f_{i}$ denotes the accessibility of state $i$.
-Let's assume the accessibility factor $f_{i}\in\left[0,1\right]$ is either set to 1 (base state) or is given by hill-type binding function $f_{i} = (x/K_{i})^{n_{i}}/(1+(x/K_{i})^{n_{i}})$
-which describes the fraction of bound activator/inhibitor ($x$) for configuration $i$; $K_{i}$ denotes a
-binding constant (mM), and $n_{j}$ denotes an order parameter (dimensionless).
-"""
-
-# ╔═╡ 81bcefaa-d22d-4d6a-aa32-9cb3e25f66a8
-md"""
-__Answer to a)__
-
-A three state model ($s=0,1,3$), where state 1 ($s=1$) and state 2 ($s=2$) lead to activity gives:
-
-$$v = \frac{W_{1}f_{1}+W_{2}f_{2}}{W_{0}f_{0}+W_{1}f_{1}+W_{2}f_{2}}$$
-
-where $f_{i}$ are functions that describe the availability of a state, i.e., how the presence of effector molecules modulates the availability of a state. State 0 and State 1 have nothing to do with any effectors, so $f_{0} = f_{1} = 1$ (meaning state 0 and state 1 are always available). State 3, however, will change with effector, so $f_{3}$ takes the form given in the problem. By definition, we know that $\epsilon_{0} = 0$ which gives $W_{0} = 1$; we don't anything else about $W_{2}$ or $W_{3}$. Taken together, this gives a $v$ of the form:
-
-$$v = \frac{W_{1}+W_{2}f_{2}}{1+W_{1}+W_{2}f_{2}}$$
-
-We need to estimate the missing $W_{i}$ and other parameters from the data given in the problem.
-"""
-
-# ╔═╡ 9b41dcef-e7eb-45bc-a09b-0b019c502a18
-md"""
-b) Estimate the parameter(s) $W_{1}$ (no 3$^{\prime}$-5$^{\prime}$-AMP), $W_{2}$ (with 3$^{\prime}$-5$^{\prime}$-AMP), the binding constants and order parameters from the dataset. 
-__Note__: this can be done analytically, but need not be.
-"""
-
-# ╔═╡ c73d652a-3352-4f71-be99-28987b707cad
+# ╔═╡ 70971e33-56ce-4fb0-8792-c264dfa24ec1
 begin
 
-	# compute the kinetic limit -
+	# c1: IPTG (mM) c2: <n> mRNA/cell C3: low C4: high
 
-	# compute vmax -
-	kcat = 0.4*(3600) 	# units: hr^-1
-	E = 0.12 			# units: μM
-	Vmax = kcat*E 		# units: μM/hr
-	
-	# compute the saturation term -
-	K_ATP = 0.42 		# units: mM
-	K_F6P = 0.11 		# units: mM
-	ATP = 2.3 			# units: mM
-	F6P = 0.1 			# units: mM
-	sat_term = (ATP/(K_ATP+ATP))*(F6P/(K_F6P+F6P)) # units: dimensionless
+	# orignal data array -
+	original_data_array = [
+		0.0 	19.0 	18.0 	20.0 ;
+		5e-4 	21.0 	17.0 	26.0 ; 
+		0.005 	41.0 	37.0 	44.0 ;
+		0.012	67.0	65.0 	69.0 ;
+		0.053 	86.0	84.0	88.0 ;
+		0.216 	93.0	91.0	95.0 ;
+		1.0 	93.0	92.0	94.0 ;
+	];
 
-	# kinetic limit value -
-	r_kinetic_limit = Vmax*sat_term
-
-	# show -
-	with_terminal() do
-		println("r_kinetic_limit = $(r_kinetic_limit) μM/hr")
+	# we need to formulate a conversion factor -
+	Vc = 2.75e-15 			# units: L/cell
+	mc = 2.0e-13 			# units: gDW/cell
+	f = 0.0 				# units: percent water (ok if you did/or didn't do this)
+	SF = Vc/(mc*(1-f)) 	    # units: L/gDW
+	number_of_data_points = 7
+	converted_data_array = zeros(number_of_data_points,4)
+	for index ∈ 1:number_of_data_points
+		converted_data_array[index,1] = original_data_array[index,1]
+		converted_data_array[index,2] = SF*original_data_array[index,2]
+		converted_data_array[index,3] = SF*original_data_array[index,3]
+		converted_data_array[index,4] = SF*original_data_array[index,4]
 	end
 end
 
-# ╔═╡ e9712815-bf96-4d31-9d36-771507049ef6
+# ╔═╡ 916192ff-68b3-40fa-9755-69a8c1315a97
+converted_data_array
+
+# ╔═╡ a21ef9ce-9944-44bc-bca3-60134f9e9996
 md"""
-__Estimate W₁__: When AMP concentration is zero, $f_{2} = 0$, thus:
+##### b) What is the transcrption gain and control function?
+The mRNA balance is given by:
 
-$$v = \frac{W_{1}}{1+W_{1}}$$
+$$\dot{m}_{i} = r_{X,i}\bar{u}_{i}-(\mu+\theta_{m,i})m_{i}$$
 
-To estimate $W_{1}$, we divide the measured rate by the kinetic limit (at AMP = 0), and then solve for $W_{1}$:
+At steady-state the $\dot{m}_{i} = 0$, thus we can solve for the steady-state mRNA concentration ($m^{*}$; we only have 1 mRNA, so we drop the i subscript):
+
+$$m^{*} = \mathcal{K}_{X}\left(G,\dots\right)\bar{u}(I,\kappa)$$
+
+where:
+
+$$\mathcal{K}_{X}\left(G,\dots\right) = \frac{r_{X}}{\left(\mu+\theta_{m}\right)}$$
+
+The control term will be given by:
+
+$$\bar{u} = \frac{W_{1}+W_{2}f_{2}}{1+W_{1}+W_{2}f_{2}}$$
+"""
+
+# ╔═╡ c9abc162-363f-41c2-a755-c0d0f2eba48a
+md"""
+##### c) Estimate the transcription gain, and missing parameters from the converted data
+"""
+
+# ╔═╡ 779cbb5d-0831-41a6-bafc-88873b0e9b61
+md"""
+When the IPTG is large, the expression of lacZ saturates, so $\bar{u}=1$ at IPTG = 1.0 mM. Thus, the gain is the measured value mRNA concentration at IPTG = 1.0 mM. 
+"""
+
+# ╔═╡ 82276f76-1487-49c1-b747-df7fc3c126ce
+begin
+	
+	# gain -
+	gain = converted_data_array[end,2] # units: nmol/gDW
+
+	with_terminal() do
+		println("Gain = $(gain) nmol/gDW")
+	end
+	
+end
+
+# ╔═╡ 65d20079-77e0-45b9-bc42-27cd4793f938
+md"""
+__Estimate W₁__: When IPTG = 0, state 2 of the promoter is not accesible, thus:
+
+$$\bar{u} = \frac{W_{1}}{1+W_{1}}$$ 
+
+To estimate $W_{1}$, we divide the measured concentration by the gain (at IPTG = 0), and then solve for $W_{1}$:
 
 $$W_{1} = \frac{\theta}{1-\theta}$$
 
-where $\theta\equiv\hat{r}/r$.
+where $\theta\equiv{m}/\mathcal{K}_{X}\left(G,\dots\right)$.
 """
 
-# ╔═╡ c319ddd5-cd55-4c07-8ac2-0cf9df206ca2
+# ╔═╡ 441ebf53-81b8-47a6-b248-0066612d9fce
 begin
-	
-	# compute W₁ -
-	r_hat_no_AMP = data[1,2] # mean measured rate value
-	θ₁ = (r_hat_no_AMP)/(r_kinetic_limit)
+
+	# what is m?
+	m_measured = converted_data_array[1,2] # units: nmol/gDW
+	θ₁ = (m_measured/gain)
 	W₁ = (θ₁)/(1-θ₁)
 
 	# show -
@@ -137,24 +136,25 @@ begin
 	end
 end
 
-# ╔═╡ 2cf5889f-849a-49d9-9dbe-7b2fca2c8b0d
+# ╔═╡ 8b6c89e1-aa01-47d8-a1a6-d0096f646774
 md"""
-__Estimate W₂__: When AMP = 1mM, the activation has saturated, thus, $f_{2}\simeq{1}$ which gives:
+__Estimate W₂__: When IPTG = 1mM, the transcriptional activation has saturated, thus, $f_{2}\simeq{1}$ which gives:
 
-$$v = \frac{W_{1}+W_{2}}{1+W_{1} +W_{2}}$$
+$$\bar{u} = \frac{W_{1}+W_{2}}{1+W_{1} +W_{2}}$$
 
 To estimate $W_{2}$, we dived the measured rate by the kinetic limit at AMP = 1, and then solve for $W_{2}$:
 
 $$W_{2} = \frac{\theta+\left(\theta-1\right)W_{1}}{1-\theta}$$
 
+However, because we used the data-driven gain (and fit the data perfectly), $W_{2}$ will be undefined; let's use the low value of the mRNA at IPTG = 1mM to compute $\theta$.  
 """
 
-# ╔═╡ ab72912f-0971-49ad-aea2-0cb3e21e75fe
+# ╔═╡ 9adeac76-f6fd-4ead-879f-07ddb67d9386
 begin
 
 	# compute W₂ -
-	r_hat_sat_AMP = data[end,2]
-	θ₂ = (r_hat_sat_AMP)/(r_kinetic_limit)
+	m_measured_sat = converted_data_array[end,3] # use the low value -
+	θ₂ = (m_measured_sat)/(gain)
 	W₂ = (θ₂+(θ₂ - 1)*W₁)/(1-θ₂)
 
 	# show -
@@ -163,13 +163,8 @@ begin
 	end
 end
 
-# ╔═╡ 26c3212d-de51-48c3-96c4-eda48ce90d88
-md"""
-__Estimate remaining parameters__: Now that we have $W_{1}$ and $W_{2}$, we must estimate the remaining parameters that appear in the function $f_{2}$, namely $K_{2}$, and $n_{2}$. These values can be estimated by either trial and error or, more formally, as an optimization problem
-"""
-
-# ╔═╡ e9034f32-69c6-4649-b438-4b8a1d01021f
-function objective_function(κ, data_array, r_kl, W₁, W₂)
+# ╔═╡ 86aacb56-158f-458a-891d-c179ffa1ca1c
+function objective_function(κ, data_array, gain, W₁, W₂)
 
 	# get the parameters from the array -
 	K = κ[1]
@@ -181,24 +176,22 @@ function objective_function(κ, data_array, r_kl, W₁, W₂)
 	for index ∈ 1:number_of_data_points
 
 		# get AMP -
-		AMP = data_array[index,1]
+		IPTG = data_array[index,1]
 		
 		# compute f₂ -
-		f₂ = (AMP/K)^(n)/(1+(AMP/K)^n)
+		f₂ = (IPTG/K)^(n)/(1+(IPTG/K)^n)
 
 		# compute r_model -
-		r_model = r_kl*(W₁ + W₂*f₂)/(1+ W₁ + W₂*f₂)
+		m_model = gain*(W₁ + W₂*f₂)/(1+ W₁ + W₂*f₂)
 		μ = data_array[index,2]
-		σ = data_array[index,3]
-		error_array[index] = (1/σ^2)*(r_model - μ)^2
-		#error_array[index] = (r_model - μ)^2
+		error_array[index] = (m_model - μ)^2
 	end
 
 	# return -
 	return sum(error_array)
 end
 
-# ╔═╡ 26c55d21-6bb0-476b-8f4d-7e690eeb54d4
+# ╔═╡ c6666c38-384d-4e26-8ad5-2890ba778eaa
 begin
 
 	# setup the optim calculation -
@@ -207,13 +200,13 @@ begin
 	xinitial = [0.8,1.0]
 	
 	# setup the objective function -
-	OF(p) = objective_function(p,data,r_kinetic_limit,W₁,W₂)
+	OF(p) = objective_function(p,converted_data_array,gain,W₁,W₂)
     
     # call the optimizer -
     opt_result = optimize(OF,xinitial,NelderMead())
 end
 
-# ╔═╡ c42e1a36-6d3d-433a-befe-87d8998211e9
+# ╔═╡ b31bc0b1-8862-420d-b543-34254e14970b
 begin
 	nm_soln = Optim.minimizer(opt_result)
 	
@@ -222,45 +215,47 @@ begin
 	end
 end
 
-# ╔═╡ b3a24899-196b-4507-a3ab-14283996bb97
+# ╔═╡ 44c868d9-9597-4826-8448-7fc42bb4152b
 md"""
-##### Plot the model versus experiment 
+##### Plot model versus data on a semilogx scale
+To plot on a semilogx scale, we must redefine zero; let ITPG = 1e-6 (only for visualization purposes).
 """
 
-# ╔═╡ 7c056ca2-313d-4cf3-a6ba-61869039d49e
+# ╔═╡ be96f8c0-a78a-46ed-a111-5a3dc1cf6b1c
 begin
 
 	# get values from the nm solution -
 	K = nm_soln[1]
 	n = nm_soln[2]
 	
-	synthetic_data = range(0.0,stop=1.0,step=0.01) |> collect
-	number_of_data_points = length(synthetic_data)
-	r_hat_array = zeros(number_of_data_points)
-	for index ∈ 1:number_of_data_points
+	synthetic_data = range(0.000001,stop=1.0,step=0.0001) |> collect
+	N = length(synthetic_data)
+	m_array = zeros(N)
+	for index ∈ 1:N
 
-		# get AMP -
-		AMP = synthetic_data[index,1]
+		# get IPTG -
+		IPTG = synthetic_data[index,1]
 		
 		# compute f₂ -
-		f₂ = (AMP/K)^(n)/(1+(AMP/K)^n)
+		f₂ = (IPTG/K)^(n)/(1+(IPTG/K)^n)
 
 		# compute r_model -
-		r_model = r_kinetic_limit*(W₁ + W₂*f₂)/(1+ W₁ + W₂*f₂)
+		m_model = gain*(W₁ + W₂*f₂)/(1+ W₁ + W₂*f₂)
 
 		# grab -
-		r_hat_array[index] = r_model
+		m_array[index] = m_model
 	end
 
 
 	# make a plot -
-	plot(synthetic_data, r_hat_array,lw=3, legend=:bottomright, label="model")
-	scatter!(data[:,1],data[:,2], yerror=data[:,3], label="measured", mc="white")
-	xlabel!("AMP concentration (mM)", fontsize=18)
-	ylabel!("PFK rate (μM/hr)", fontsize=18)
+	plot(synthetic_data, m_array,lw=3, legend=:bottomright, label="model", xscale=:log10)
+	scatter!(converted_data_array[:,1].+0.000001,converted_data_array[:,2], 
+		label="measured", mc="white")
+	xlabel!("IPTG concentration (mM)", fontsize=18)
+	ylabel!("lacZ mRNA concentration (nmol/gDW)", fontsize=18)
 end
 
-# ╔═╡ 64803b66-bbf7-11ec-3653-f353e22bf6ab
+# ╔═╡ 00d7d91d-fd57-446b-86b2-63e5205ea56e
 html"""
 <style>
 main {
@@ -1300,24 +1295,24 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╠═8b068b1c-8026-4b5b-96ee-b6ca4ae56da3
-# ╟─55d3b413-8d15-4146-beb2-6fa39484cd5d
-# ╠═fd480473-fac8-437c-99e9-6a83ede63554
-# ╟─90ef6569-bc52-4540-9d9d-6d3a15262e0b
-# ╟─3d0f8166-99e1-4106-8678-1817e8e5a5a7
-# ╟─81bcefaa-d22d-4d6a-aa32-9cb3e25f66a8
-# ╟─9b41dcef-e7eb-45bc-a09b-0b019c502a18
-# ╠═c73d652a-3352-4f71-be99-28987b707cad
-# ╟─e9712815-bf96-4d31-9d36-771507049ef6
-# ╠═c319ddd5-cd55-4c07-8ac2-0cf9df206ca2
-# ╟─2cf5889f-849a-49d9-9dbe-7b2fca2c8b0d
-# ╟─ab72912f-0971-49ad-aea2-0cb3e21e75fe
-# ╟─26c3212d-de51-48c3-96c4-eda48ce90d88
-# ╠═26c55d21-6bb0-476b-8f4d-7e690eeb54d4
-# ╠═c42e1a36-6d3d-433a-befe-87d8998211e9
-# ╠═e9034f32-69c6-4649-b438-4b8a1d01021f
-# ╟─b3a24899-196b-4507-a3ab-14283996bb97
-# ╟─7c056ca2-313d-4cf3-a6ba-61869039d49e
-# ╟─64803b66-bbf7-11ec-3653-f353e22bf6ab
+# ╠═418209c4-bc19-11ec-3944-9f69b1c06eec
+# ╟─bfa8b6be-d636-44c2-82e9-4d00e1025625
+# ╟─0f79ecec-a334-4445-bc15-e025789ec091
+# ╠═70971e33-56ce-4fb0-8792-c264dfa24ec1
+# ╠═916192ff-68b3-40fa-9755-69a8c1315a97
+# ╟─a21ef9ce-9944-44bc-bca3-60134f9e9996
+# ╟─c9abc162-363f-41c2-a755-c0d0f2eba48a
+# ╟─779cbb5d-0831-41a6-bafc-88873b0e9b61
+# ╠═82276f76-1487-49c1-b747-df7fc3c126ce
+# ╟─65d20079-77e0-45b9-bc42-27cd4793f938
+# ╠═441ebf53-81b8-47a6-b248-0066612d9fce
+# ╟─8b6c89e1-aa01-47d8-a1a6-d0096f646774
+# ╠═9adeac76-f6fd-4ead-879f-07ddb67d9386
+# ╠═c6666c38-384d-4e26-8ad5-2890ba778eaa
+# ╠═b31bc0b1-8862-420d-b543-34254e14970b
+# ╠═86aacb56-158f-458a-891d-c179ffa1ca1c
+# ╟─44c868d9-9597-4826-8448-7fc42bb4152b
+# ╠═be96f8c0-a78a-46ed-a111-5a3dc1cf6b1c
+# ╠═00d7d91d-fd57-446b-86b2-63e5205ea56e
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

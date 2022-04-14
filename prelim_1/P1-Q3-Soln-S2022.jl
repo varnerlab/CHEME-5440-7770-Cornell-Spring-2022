@@ -218,7 +218,7 @@ end
 # ╔═╡ 44c868d9-9597-4826-8448-7fc42bb4152b
 md"""
 ##### Plot model versus data on a semilogx scale
-To plot on a semilogx scale, we must redefine zero; let ITPG = 1e-6 (only for visualization purposes).
+To plot on a semilogx scale, we must redefine zero; let ITPG = 0 $\rightarrow$ 1e-6 (only for visualization purposes).
 """
 
 # ╔═╡ be96f8c0-a78a-46ed-a111-5a3dc1cf6b1c
@@ -250,7 +250,7 @@ begin
 	# make a plot -
 	plot(synthetic_data, m_array,lw=3, legend=:bottomright, label="model", xscale=:log10)
 	scatter!(converted_data_array[:,1].+0.000001,converted_data_array[:,2], 
-		label="measured", mc="white")
+		label="measured (mean)", mc="white")
 	xlabel!("IPTG concentration (mM)", fontsize=18)
 	ylabel!("lacZ mRNA concentration (nmol/gDW)", fontsize=18)
 end
@@ -1311,7 +1311,7 @@ version = "0.9.1+5"
 # ╠═c6666c38-384d-4e26-8ad5-2890ba778eaa
 # ╠═b31bc0b1-8862-420d-b543-34254e14970b
 # ╠═86aacb56-158f-458a-891d-c179ffa1ca1c
-# ╟─44c868d9-9597-4826-8448-7fc42bb4152b
+# ╠═44c868d9-9597-4826-8448-7fc42bb4152b
 # ╠═be96f8c0-a78a-46ed-a111-5a3dc1cf6b1c
 # ╠═00d7d91d-fd57-446b-86b2-63e5205ea56e
 # ╟─00000000-0000-0000-0000-000000000001
